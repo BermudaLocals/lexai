@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>LexAI.llc â€” The Luxury AI Legal Platform</title>
-<meta name="description" content="The luxury AI legal platform. Elite contract drafting, case law research, litigation prediction and due diligence â€” built for those who demand the best.">
+<title>LexAI.llc — The Luxury AI Legal Platform</title>
+<meta name="description" content="The luxury AI legal platform. Elite contract drafting, case law research, litigation prediction and due diligence — built for those who demand the best.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -25,7 +25,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:h
 /* subtle dot grid */
 body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(212,175,55,.04) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
 
-/* â”€â”€ NAV â”€â”€ */
+/* ── NAV ── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:64px;background:rgba(7,7,9,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:var(--serif);font-size:20px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}.nav-logo-img{height:44px;width:auto;display:block}
 .nav-logo em{color:var(--gold);font-style:normal}
@@ -35,7 +35,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .nav-btn{background:var(--gold)!important;color:#070709!important;padding:8px 20px;border-radius:6px;font-weight:600!important;font-size:13px!important;transition:all .15s!important}
 .nav-btn:hover{background:var(--gold2)!important}
 
-/* â”€â”€ HERO â”€â”€ */
+/* ── HERO ── */
 .hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 100px}
 .hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:800px;height:500px;background:radial-gradient(ellipse,rgba(212,175,55,.05) 0%,transparent 65%);pointer-events:none}
 
@@ -62,20 +62,20 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .hstat-val{font-family:var(--serif);font-size:22px;font-weight:900;color:#fff}
 .hstat-label{font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
 
-/* â”€â”€ MARQUEE â”€â”€ */
+/* ── MARQUEE ── */
 .marquee-wrap{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--s1);padding:13px 0;overflow:hidden;position:relative;z-index:1}
 .marquee-inner{display:flex;animation:scroll 35s linear infinite;white-space:nowrap}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .mitem{font-family:var(--mono);font-size:11px;color:var(--muted);padding:0 36px;text-transform:uppercase;letter-spacing:.1em}
 .mitem b{color:var(--gold);margin-right:12px}
 
-/* â”€â”€ SECTIONS â”€â”€ */
+/* ── SECTIONS ── */
 .section{position:relative;z-index:1;padding:100px 24px;max-width:1100px;margin:0 auto}
 .eyebrow{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.18em;text-align:center;margin-bottom:14px}
 .section-h{font-family:var(--serif);font-size:clamp(30px,5vw,52px);font-weight:900;text-align:center;letter-spacing:-.03em;line-height:1.1;margin-bottom:12px;color:#fff}
 .section-sub{text-align:center;font-size:15px;color:var(--muted);max-width:540px;margin:0 auto 56px;line-height:1.7}
 
-/* â”€â”€ FEATURES GRID â”€â”€ */
+/* ── FEATURES GRID ── */
 .feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
 .feat{background:var(--bg);padding:28px 24px;transition:background .15s;cursor:default}
 .feat:hover{background:var(--s1)}
@@ -86,7 +86,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .badge-new{background:rgba(212,175,55,.1);color:var(--gold);border:1px solid var(--border)}
 .badge-pro{background:rgba(139,92,246,.1);color:#a78bfa;border:1px solid rgba(139,92,246,.2)}
 
-/* â”€â”€ CASE LAW DEMO â”€â”€ */
+/* ── CASE LAW DEMO ── */
 .caselaw-demo{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:60px}
 .demo-bar{background:var(--s2);padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
 .dbar-dot{width:10px;height:10px;border-radius:50%}
@@ -108,7 +108,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .case-source{display:inline-block;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;margin-top:8px;border:1px solid var(--border);color:var(--muted)}
 .loading-msg{font-family:var(--mono);font-size:12px;color:var(--gold);text-align:center;padding:20px;display:none}
 
-/* â”€â”€ SELF-LEARNING SECTION â”€â”€ */
+/* ── SELF-LEARNING SECTION ── */
 .learning-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px}
 .learn-card{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:28px}
 .learn-icon{font-size:28px;margin-bottom:14px}
@@ -117,9 +117,9 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .learn-steps{margin-top:16px;list-style:none}
 .learn-steps li{font-size:12px;color:var(--muted);padding:5px 0;display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,.04)}
 .learn-steps li:last-child{border-bottom:none}
-.learn-steps li::before{content:'â†’';color:var(--gold);flex-shrink:0;font-family:var(--mono);font-size:11px;margin-top:1px}
+.learn-steps li::before{content:'→';color:var(--gold);flex-shrink:0;font-family:var(--mono);font-size:11px;margin-top:1px}
 
-/* â”€â”€ PRICING â”€â”€ */
+/* ── PRICING ── */
 .pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:56px;align-items:start}
 .p-card{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:28px 22px;display:flex;flex-direction:column;position:relative}
 .p-card.pop{border-color:var(--gold)}
@@ -131,14 +131,14 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .p-tagline{font-size:12px;color:var(--muted);margin:10px 0 18px;padding-bottom:18px;border-bottom:1px solid var(--border);line-height:1.5}
 .p-feats{list-style:none;flex:1;margin-bottom:22px}
 .p-feats li{font-size:12px;color:var(--text);padding:5px 0;display:flex;gap:8px;align-items:flex-start;line-height:1.4}
-.p-feats li::before{content:'â€”';color:var(--gold);font-family:var(--mono);flex-shrink:0}
+.p-feats li::before{content:'—';color:var(--gold);font-family:var(--mono);flex-shrink:0}
 .p-cta{display:block;text-align:center;padding:11px;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:var(--sans);transition:all .2s}
 .pcta-gold{background:var(--gold);color:#070709}
 .pcta-gold:hover{background:var(--gold2)}
 .pcta-outline{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.1)}
 .pcta-outline:hover{border-color:rgba(255,255,255,.25)}
 
-/* â”€â”€ COMPARISON â”€â”€ */
+/* ── COMPARISON ── */
 .vs-section{position:relative;z-index:1;padding:60px 24px;max-width:800px;margin:0 auto;text-align:center}
 .vs-table{width:100%;border-collapse:collapse;margin-top:40px;font-size:13px}
 .vs-table th{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:12px 16px;border-bottom:1px solid var(--border);color:var(--muted)}
@@ -149,7 +149,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .vs-x{color:var(--red)}
 .vs-partial{color:var(--gold);font-size:12px}
 
-/* â”€â”€ FOOTER â”€â”€ */
+/* ── FOOTER ── */
 footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40px 60px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
 .footer-logo{font-family:var(--serif);font-size:18px;font-weight:900;color:#fff}
 .footer-logo em{color:var(--gold);font-style:normal}
@@ -179,7 +179,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
     <li><a href="#caselaw">Case Law</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#vs">vs Harvey</a></li>
-    <li><a href="/login" class="nav-btn">Start Free â†’</a></li>
+    <li><a href="/login" class="nav-btn">Start Free →</a></li>
   </ul>
 </nav>
 
@@ -188,12 +188,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
   <div class="hero-glow"></div>
   <div class="hero-valuation">
     <div class="val-dot"></div>
-    The luxury AI legal platform â€” precision-built for those who demand the best
+    The luxury AI legal platform — precision-built for those who demand the best
   </div>
   <h1>The AI legal platform<br>that <span class="gold">learns your practice</span>.<br><span class="italic">Refined for the best.</span></h1>
-  <p class="hero-sub">The gold standard in AI legal intelligence. LexAI delivers elite-grade contract drafting, case law research, litigation prediction and due diligence â€” the same capabilities trusted by top-tier firms, now accessible without the enterprise gatekeeping.</p>
+  <p class="hero-sub">The gold standard in AI legal intelligence. LexAI delivers elite-grade contract drafting, case law research, litigation prediction and due diligence — the same capabilities trusted by top-tier firms, now accessible without the enterprise gatekeeping.</p>
   <div class="hero-ctas">
-    <a href="/login" class="btn-gold">Experience LexAI â†’</a>
+    <a href="/login" class="btn-gold">Experience LexAI →</a>
     <a href="#caselaw" class="btn-ghost">Search real case law</a>
   </div>
   <div class="hero-stats">
@@ -207,8 +207,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
 <!-- MARQUEE -->
 <div class="marquee-wrap">
   <div class="marquee-inner">
-    <span class="mitem"><b>â†’</b>Contract Drafting</span><span class="mitem"><b>â†’</b>Contract Analysis</span><span class="mitem"><b>â†’</b>Litigation Prediction</span><span class="mitem"><b>â†’</b>Case Law Search</span><span class="mitem"><b>â†’</b>Due Diligence</span><span class="mitem"><b>â†’</b>Deep Analysis</span><span class="mitem"><b>â†’</b>Risk Analysis</span><span class="mitem"><b>â†’</b>Clause Extraction</span><span class="mitem"><b>â†’</b>Compliance Check</span><span class="mitem"><b>â†’</b>M&amp;A Workflow</span><span class="mitem"><b>â†’</b>Agent Builder</span><span class="mitem"><b>â†’</b>Words to Workflow</span><span class="mitem"><b>â†’</b>Shared Spaces</span><span class="mitem"><b>â†’</b>Vault Storage</span><span class="mitem"><b>â†’</b>Self-Learning AI</span><span class="mitem"><b>â†’</b>Translation</span><span class="mitem"><b>â†’</b>Proofreading</span><span class="mitem"><b>â†’</b>Transcripts</span>
-    <span class="mitem"><b>â†’</b>Contract Drafting</span><span class="mitem"><b>â†’</b>Contract Analysis</span><span class="mitem"><b>â†’</b>Litigation Prediction</span><span class="mitem"><b>â†’</b>Case Law Search</span><span class="mitem"><b>â†’</b>Due Diligence</span><span class="mitem"><b>â†’</b>Deep Analysis</span><span class="mitem"><b>â†’</b>Risk Analysis</span><span class="mitem"><b>â†’</b>Clause Extraction</span><span class="mitem"><b>â†’</b>Compliance Check</span><span class="mitem"><b>â†’</b>M&amp;A Workflow</span><span class="mitem"><b>â†’</b>Agent Builder</span><span class="mitem"><b>â†’</b>Words to Workflow</span><span class="mitem"><b>â†’</b>Shared Spaces</span><span class="mitem"><b>â†’</b>Vault Storage</span><span class="mitem"><b>â†’</b>Self-Learning AI</span><span class="mitem"><b>â†’</b>Translation</span><span class="mitem"><b>â†’</b>Proofreading</span><span class="mitem"><b>â†’</b>Transcripts</span>
+    <span class="mitem"><b>→</b>Contract Drafting</span><span class="mitem"><b>→</b>Contract Analysis</span><span class="mitem"><b>→</b>Litigation Prediction</span><span class="mitem"><b>→</b>Case Law Search</span><span class="mitem"><b>→</b>Due Diligence</span><span class="mitem"><b>→</b>Deep Analysis</span><span class="mitem"><b>→</b>Risk Analysis</span><span class="mitem"><b>→</b>Clause Extraction</span><span class="mitem"><b>→</b>Compliance Check</span><span class="mitem"><b>→</b>M&amp;A Workflow</span><span class="mitem"><b>→</b>Agent Builder</span><span class="mitem"><b>→</b>Words to Workflow</span><span class="mitem"><b>→</b>Shared Spaces</span><span class="mitem"><b>→</b>Vault Storage</span><span class="mitem"><b>→</b>Self-Learning AI</span><span class="mitem"><b>→</b>Translation</span><span class="mitem"><b>→</b>Proofreading</span><span class="mitem"><b>→</b>Transcripts</span>
+    <span class="mitem"><b>→</b>Contract Drafting</span><span class="mitem"><b>→</b>Contract Analysis</span><span class="mitem"><b>→</b>Litigation Prediction</span><span class="mitem"><b>→</b>Case Law Search</span><span class="mitem"><b>→</b>Due Diligence</span><span class="mitem"><b>→</b>Deep Analysis</span><span class="mitem"><b>→</b>Risk Analysis</span><span class="mitem"><b>→</b>Clause Extraction</span><span class="mitem"><b>→</b>Compliance Check</span><span class="mitem"><b>→</b>M&amp;A Workflow</span><span class="mitem"><b>→</b>Agent Builder</span><span class="mitem"><b>→</b>Words to Workflow</span><span class="mitem"><b>→</b>Shared Spaces</span><span class="mitem"><b>→</b>Vault Storage</span><span class="mitem"><b>→</b>Self-Learning AI</span><span class="mitem"><b>→</b>Translation</span><span class="mitem"><b>→</b>Proofreading</span><span class="mitem"><b>→</b>Transcripts</span>
   </div>
 </div>
 
@@ -216,10 +216,10 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
 <section class="section" id="features">
   <div class="eyebrow">// full feature set</div>
   <h2 class="section-h">Elite legal AI.<br><span style="color:var(--gold)">Uncompromising quality.</span></h2>
-  <p class="section-sub">LexAI delivers the full spectrum of AI legal capabilities â€” crafted with precision, built for professionals who accept nothing less than exceptional.</p>
+  <p class="section-sub">LexAI delivers the full spectrum of AI legal capabilities — crafted with precision, built for professionals who accept nothing less than exceptional.</p>
   <div class="feat-grid">
-    <div class="feat"><div class="feat-n">01</div><div class="feat-t">AI Document Drafting</div><div class="feat-d">20+ templates. NDAs, contracts, operating agreements, TOS â€” jurisdiction-specific, complete, download-ready.</div></div>
-    <div class="feat"><div class="feat-n">02</div><div class="feat-t">Contract Analysis</div><div class="feat-d">Upload any contract. Full clause analysis, risk score (0â€“100), favorable party detection, missing clause flags.</div></div>
+    <div class="feat"><div class="feat-n">01</div><div class="feat-t">AI Document Drafting</div><div class="feat-d">20+ templates. NDAs, contracts, operating agreements, TOS — jurisdiction-specific, complete, download-ready.</div></div>
+    <div class="feat"><div class="feat-n">02</div><div class="feat-t">Contract Analysis</div><div class="feat-d">Upload any contract. Full clause analysis, risk score (0–100), favorable party detection, missing clause flags.</div></div>
     <div class="feat"><div class="feat-n">03</div><div class="feat-t">Case Law Search<span class="feat-badge badge-new">Free Westlaw</span></div><div class="feat-d">Search 4M+ real court opinions via CourtListener + Harvard CAP. Cite real cases, not hallucinations.</div></div>
     <div class="feat"><div class="feat-n">04</div><div class="feat-t">Deep Legal Research</div><div class="feat-d">Harvey-quality research memos. Statutes, regulations, case law analysis, practical recommendations.</div></div>
     <div class="feat"><div class="feat-n">05</div><div class="feat-t">Litigation Prediction<span class="feat-badge badge-pro">Pro</span></div><div class="feat-d">AI predicts case outcomes. Win probability, settlement likelihood, strategy recommendations, analogous cases.</div></div>
@@ -231,7 +231,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
     <div class="feat"><div class="feat-n">11</div><div class="feat-t">Words to Workflow</div><div class="feat-d">Describe your process in plain English. AI converts it to an automated workflow. No coding required.</div></div>
     <div class="feat"><div class="feat-n">12</div><div class="feat-t">Self-Learning AI<span class="feat-badge badge-new">Unique</span></div><div class="feat-d">LexAI learns from your corrections. Gets smarter with every document you create. No other legal AI does this.</div></div>
     <div class="feat"><div class="feat-n">13</div><div class="feat-t">Shared Spaces</div><div class="feat-d">Share documents + workflows with clients. Granular permissions, audit trails, no account required for guests.</div></div>
-    <div class="feat"><div class="feat-n">14</div><div class="feat-t">Risk Analysis</div><div class="feat-d">0â€“100 risk score with distribution by category. Negotiation priorities, dealbreakers, mitigation strategies.</div></div>
+    <div class="feat"><div class="feat-n">14</div><div class="feat-t">Risk Analysis</div><div class="feat-d">0–100 risk score with distribution by category. Negotiation priorities, dealbreakers, mitigation strategies.</div></div>
     <div class="feat"><div class="feat-n">15</div><div class="feat-t">Translation + Proofread</div><div class="feat-d">Translate legal docs to 10+ languages. AI proofreads for grammar, legal errors, and internal inconsistencies.</div></div>
     <div class="feat"><div class="feat-n">16</div><div class="feat-t">Vault Storage</div><div class="feat-d">Secure document storage. Tag, search, version, share. Your institutional knowledge, organized and accessible.</div></div>
   </div>
@@ -239,7 +239,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
 
 <!-- CASE LAW SEARCH DEMO -->
 <section class="section" id="caselaw" style="max-width:860px">
-  <div class="eyebrow">// real case law â€” not hallucinations</div>
+  <div class="eyebrow">// real case law — not hallucinations</div>
   <h2 class="section-h">Search 4M+ real court cases</h2>
   <p class="section-sub">Powered by CourtListener and Harvard Caselaw Access Project. The same databases lawyers use. Free.</p>
 
@@ -248,7 +248,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
       <div class="dbar-dot" style="background:#ff5f57"></div>
       <div class="dbar-dot" style="background:#febc2e"></div>
       <div class="dbar-dot" style="background:#28c840"></div>
-      <div class="dbar-title">LexAI Case Law Search â€” CourtListener + Harvard CAP</div>
+      <div class="dbar-title">LexAI Case Law Search — CourtListener + Harvard CAP</div>
     </div>
     <div class="demo-body">
       <div class="demo-row">
@@ -466,8 +466,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
           </select>
         </div>
       </div>
-      <button class="search-btn" id="cl-btn" onclick="searchCases()">Search Case Law â†’</button>
-      <div class="loading-msg" id="cl-loading">âš–ï¸ Searching CourtListener + Harvard CAP databases...</div>
+      <button class="search-btn" id="cl-btn" onclick="searchCases()">Search Case Law →</button>
+      <div class="loading-msg" id="cl-loading">⚖️ Searching CourtListener + Harvard CAP databases...</div>
       <div class="case-results" id="cl-results"></div>
     </div>
   </div>
@@ -480,18 +480,18 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
   <p class="section-sub">Harvey doesn't learn from your corrections. LexAI does. Every time you improve an output, LexAI gets smarter for your next case.</p>
   <div class="learning-grid">
     <div class="learn-card">
-      <div class="learn-icon">ðŸ§ </div>
+      <div class="learn-icon">🧠</div>
       <div class="learn-t">Pattern Learning</div>
-      <div class="learn-d">Every correction you make trains LexAI on your preferences â€” preferred clause language, jurisdiction-specific standards, firm style guides.</div>
+      <div class="learn-d">Every correction you make trains LexAI on your preferences — preferred clause language, jurisdiction-specific standards, firm style guides.</div>
       <ul class="learn-steps">
-        <li>Rate any AI output 1â€“5 stars</li>
+        <li>Rate any AI output 1–5 stars</li>
         <li>Provide corrections when needed</li>
         <li>AI extracts the pattern automatically</li>
         <li>Future outputs apply your preferences</li>
       </ul>
     </div>
     <div class="learn-card">
-      <div class="learn-icon">ðŸ“š</div>
+      <div class="learn-icon">📚</div>
       <div class="learn-t">Document Memory</div>
       <div class="learn-d">Every document you upload teaches LexAI about your clients, matters, and practice. Your institutional knowledge becomes AI-accessible.</div>
       <ul class="learn-steps">
@@ -502,7 +502,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
       </ul>
     </div>
     <div class="learn-card">
-      <div class="learn-icon">âš–ï¸</div>
+      <div class="learn-icon">⚖️</div>
       <div class="learn-t">Long-Horizon Agents</div>
       <div class="learn-d">Like Harvey's long-horizon agents, LexAI agents perform multi-step self-review. Each step checks the previous one for legal accuracy before proceeding.</div>
       <ul class="learn-steps">
@@ -513,12 +513,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
       </ul>
     </div>
     <div class="learn-card">
-      <div class="learn-icon">ðŸ“ˆ</div>
+      <div class="learn-icon">📈</div>
       <div class="learn-t">Learning Dashboard</div>
-      <div class="learn-d">Track how smart your LexAI has become. See patterns learned, knowledge items stored, and your personalization level from New â†’ Expert.</div>
+      <div class="learn-d">Track how smart your LexAI has become. See patterns learned, knowledge items stored, and your personalization level from New → Expert.</div>
       <ul class="learn-steps">
         <li>Patterns learned counter</li>
-        <li>Personalization level: New â†’ Expert</li>
+        <li>Personalization level: New → Expert</li>
         <li>Average output quality score</li>
         <li>Knowledge base size</li>
       </ul>
@@ -621,6 +621,73 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
       <span style="font-size:13px;color:var(--text)"><strong>Mentor Mode:</strong> Senior lawyers can assign exercises, review submissions, and track associate progress—all within LexAI.</span>
     </div>
   </div>
+
+<div style="margin-top:40px">
+  <div style="text-align:center;margin-bottom:32px;font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase">JUNIOR ASSOCIATE TRACK — UNLOCK AS YOU GROW</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:start">
+
+    <div class="p-card" style="border-color:var(--gold)">
+      <div class="p-plan">Level 1</div>
+      <div style="font-family:var(--serif);font-size:32px;font-weight:900;color:#fff"><sup style="font-size:14px;color:var(--muted)">$</sup>29<span style="font-size:11px;color:var(--muted);font-family:var(--sans)">/mo</span></div>
+      <div class="p-tagline">Foundation Track<br><span style="color:var(--gold);font-size:11px">✓ Available now</span></div>
+      <ul class="p-feats">
+        <li>Legal research basics</li>
+        <li>Contract reading skills</li>
+        <li>Case law navigation</li>
+        <li>Jurisdiction awareness</li>
+        <li>10 practice simulations</li>
+      </ul>
+      <button class="p-cta pcta-gold" onclick="checkout('academy-foundation')">Start Foundation →</button>
+    </div>
+
+    <div class="p-card">
+      <div class="pop-pill">🔒 Unlock after Level 1</div>
+      <div class="p-plan">Level 2</div>
+      <div style="font-family:var(--serif);font-size:32px;font-weight:900;color:#fff"><sup style="font-size:14px;color:var(--muted)">$</sup>49<span style="font-size:11px;color:var(--muted);font-family:var(--sans)">/mo</span></div>
+      <div class="p-tagline">Practice Track<br><span style="color:var(--muted);font-size:11px">Completes after Foundation</span></div>
+      <ul class="p-feats">
+        <li>Advanced drafting techniques</li>
+        <li>Negotiation simulations</li>
+        <li>Multi-jurisdiction research</li>
+        <li>Risk assessment practice</li>
+        <li>25 practice simulations</li>
+      </ul>
+      <button class="p-cta pcta-outline" onclick="checkout('academy-practice')">Unlock Practice →</button>
+    </div>
+
+    <div class="p-card">
+      <div class="pop-pill">🔒 Unlock after Level 2</div>
+      <div class="p-plan">Level 3</div>
+      <div style="font-family:var(--serif);font-size:32px;font-weight:900;color:#fff"><sup style="font-size:14px;color:var(--muted)">$</sup>79<span style="font-size:11px;color:var(--muted);font-family:var(--sans)">/mo</span></div>
+      <div class="p-tagline">Expert Track<br><span style="color:var(--muted);font-size:11px">Completes after Practice</span></div>
+      <ul class="p-feats">
+        <li>Complex litigation strategy</li>
+        <li>AI-assisted due diligence</li>
+        <li>Caribbean/Commonwealth law</li>
+        <li>Client advisory simulations</li>
+        <li>50 practice simulations</li>
+      </ul>
+      <button class="p-cta pcta-outline" onclick="checkout('academy-expert')">Unlock Expert →</button>
+    </div>
+
+    <div class="p-card" style="background:linear-gradient(135deg,rgba(212,175,55,.08),transparent)">
+      <div class="pop-pill">🔒 Unlock after Level 3</div>
+      <div class="p-plan">Mentor Mode</div>
+      <div style="font-family:var(--serif);font-size:32px;font-weight:900;color:var(--gold)"><sup style="font-size:14px;color:var(--muted)">$</sup>99<span style="font-size:11px;color:var(--muted);font-family:var(--sans)">/mo</span></div>
+      <div class="p-tagline">AI Senior Partner<br><span style="color:var(--muted);font-size:11px">Completes after Expert</span></div>
+      <ul class="p-feats">
+        <li>1-on-1 AI mentorship</li>
+        <li>Real case analysis</li>
+        <li>Business development skills</li>
+        <li>Partner-track readiness score</li>
+        <li>Unlimited simulations</li>
+      </ul>
+      <button class="p-cta pcta-outline" onclick="checkout('academy-mentor')">Unlock Mentor →</button>
+    </div>
+
+  </div>
+  <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:20px;font-family:var(--mono)">Each level unlocks only after the previous is completed. Progress at your own pace.</p>
+</div>
 </section>
 
 
@@ -729,7 +796,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
 
 <footer>
   <div class="footer-logo">LexAI<em>.llc</em></div>
-  <div class="footer-copy">Â© 2026 LexAI.llc Â· Built in Bermuda ðŸ‡§ðŸ‡² Â· Dollar Double Empire</div>
+  <div class="footer-copy">© 2026 LexAI.llc · Built in Bermuda 🇧🇲 · Dollar Double Empire</div>
   <div class="footer-links">
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
@@ -740,18 +807,18 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
 <!-- SIGNUP GATE MODAL -->
 <div id="signup-gate" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(7,7,9,.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:24px">
   <div style="background:var(--s1);border:1px solid var(--gold);border-radius:14px;padding:44px 40px;max-width:460px;width:100%;text-align:center;position:relative">
-    <button onclick="closeGate()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1">Ã—</button>
+    <button onclick="closeGate()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1">×</button>
     <div style="font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.18em;margin-bottom:16px">// free preview complete</div>
     <div style="font-family:var(--serif);font-size:32px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:12px">Your document<br>is <span style="color:var(--gold)">ready.</span></div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.7">Create your free account to download the full document, access all 16 AI legal features, and search 4M+ real court cases.</p>
-    <a href="/login" style="display:block;background:var(--gold);color:#070709;padding:14px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:12px">Create Free Account â†’</a>
+    <a href="/login" style="display:block;background:var(--gold);color:#070709;padding:14px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:12px">Create Free Account →</a>
     <a href="/login" style="display:block;background:transparent;color:var(--muted);padding:12px;border-radius:8px;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.07)">Already have an account? Sign in</a>
-    <div style="margin-top:20px;font-size:11px;color:var(--dim);font-family:var(--mono)">No credit card required Â· Free tier always available</div>
+    <div style="margin-top:20px;font-size:11px;color:var(--dim);font-family:var(--mono)">No credit card required · Free tier always available</div>
   </div>
 </div>
 
 <script>
-// â”€â”€ SIGNUP GATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SIGNUP GATE ────────────────────────────────────────────
 function showSignupGate() {
   const gate = document.getElementById('signup-gate')
   gate.style.display = 'flex'
@@ -763,7 +830,7 @@ function closeGate() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGate() })
 
-// â”€â”€ CASE LAW SEARCH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CASE LAW SEARCH ──────────────────────────────────────
 async function searchCases() {
   const query = document.getElementById('cl-query').value.trim()
   if (!query) return
@@ -797,13 +864,13 @@ async function searchCases() {
     }
 
     if (data.cases?.length) {
-      results.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">Found ${data.total_found?.toLocaleString() || data.cases.length}+ cases Â· Sources: ${data.sources?.join(', ')}</div>`
+      results.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">Found ${data.total_found?.toLocaleString() || data.cases.length}+ cases · Sources: ${data.sources?.join(', ')}</div>`
       data.cases.forEach(c => {
         results.innerHTML += `<div class="case-card">
           <div class="case-name">${c.case_name}</div>
-          <div class="case-meta">${c.citation || ''} Â· ${c.court || ''} Â· ${c.date_decided || ''}</div>
+          <div class="case-meta">${c.citation || ''} · ${c.court || ''} · ${c.date_decided || ''}</div>
           <div class="case-excerpt">${c.excerpt || 'No excerpt available'}</div>
-          <a href="${c.url}" target="_blank" style="color:var(--gold);text-decoration:none;font-size:11px;font-family:var(--mono)">View full opinion â†’</a>
+          <a href="${c.url}" target="_blank" style="color:var(--gold);text-decoration:none;font-size:11px;font-family:var(--mono)">View full opinion →</a>
           <span class="case-source">${c.source}</span>
         </div>`
       })
@@ -817,13 +884,13 @@ async function searchCases() {
   }
 
   btn.disabled = false
-  btn.textContent = 'Search Case Law â†’'
+  btn.textContent = 'Search Case Law →'
   loading.style.display = 'none'
 }
 
 document.getElementById('cl-query').addEventListener('keydown', e => { if (e.key === 'Enter') searchCases() })
 
-// â”€â”€ CHECKOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CHECKOUT ─────────────────────────────────────────────
 async function checkout(plan) {
   try {
     const res = await fetch('/api/payments/checkout', {
