@@ -1,87 +1,86 @@
-const pg = require('pg')
+const { Pool } = require('pg')
 
-const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 20,
-  idleTimeoutMillis: 30000,
-})
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
 
 async function initDB() {
-  if (!process.env.DATABASE_URL) {
-    console.warn('⚠️  No DATABASE_URL set — skipping DB init')
-    return
-  }
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        name TEXT,
-        avatar_url TEXT,
-        provider TEXT DEFAULT 'local',
-        provider_id TEXT,
-        plan TEXT DEFAULT 'free',
-        docs_used_this_month INT DEFAULT 0,
-        firm_name TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      CREATE TABLE IF NOT EXISTS documents (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id INT REFERENCES users(id) ON DELETE CASCADE,
-        title TEXT,
-        type TEXT,
-        status TEXT DEFAULT 'draft',
-        content TEXT,
-        word_count INT DEFAULT 0,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      CREATE TABLE IF NOT EXISTS analyses (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id INT REFERENCES users(id) ON DELETE CASCADE,
-        title TEXT,
-        type TEXT,
-        risk_score INT,
-        result JSONB,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      CREATE TABLE IF NOT EXISTS workflows (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id INT REFERENCES users(id) ON DELETE CASCADE,
-        name TEXT,
-        run_count INT DEFAULT 0,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      CREATE TABLE IF NOT EXISTS agents (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        name TEXT,
-        type TEXT,
-        run_count INT DEFAULT 0,
-        is_public BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      CREATE TABLE IF NOT EXISTS audit_log (
-        id SERIAL PRIMARY KEY,
-        user_id INT,
-        action TEXT,
-        resource_type TEXT,
-        resource_id TEXT,
-        metadata JSONB,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      CREATE TABLE IF NOT EXISTS user_corrections (
-        id SERIAL PRIMARY KEY,
-        user_id INT REFERENCES users(id) ON DELETE CASCADE,
-        original TEXT,
-        correction TEXT,
-        context TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-    `)
-    console.log('✅ Database initialized')
-  } catch (e) {
-    console.error('DB init error:', e.message)
-  }
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      email_verified BOOLEAN DEFAULT FALSE,
+      email_verify_token TEXT,
+      plan TEXT DEFAULT 'free',
+      doc_count INTEGER DEFAULT 0,
+      doc_limit INTEGER DEFAULT 3,
+      seat_count INTEGER DEFAULT 1,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS device_sessions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      fingerprint TEXT NOT NULL,
+      user_agent TEXT,
+      ip TEXT,
+      last_seen TIMESTAMPTZ DEFAULT NOW(),
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, fingerprint)
+    );
+
+    CREATE TABLE IF NOT EXISTS download_tokens (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      token TEXT UNIQUE NOT NULL,
+      document_id TEXT,
+      format TEXT DEFAULT 'pdf',
+      used BOOLEAN DEFAULT FALSE,
+      used_at TIMESTAMPTZ,
+      expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '24 hours'),
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS doc_usage (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      doc_type TEXT,
+      format TEXT,
+      jurisdiction TEXT,
+      query TEXT,
+      billed_overage BOOLEAN DEFAULT FALSE,
+      overage_amount NUMERIC(10,2) DEFAULT 0,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS corrections (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER,
+      query TEXT,
+      original TEXT,
+      corrected TEXT,
+      jurisdiction TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `)
+  console.log('DB tables initialised')
 }
 
-module.exports = { pool, initDB }
+// Plan document limits
+const PLAN_LIMITS = {
+  free: 3,
+  solo: 50,
+  team: 200,
+  enterprise: 500
+}
+
+// Plan seat limits
+const SEAT_LIMITS = {
+  free: 1,
+  solo: 1,
+  team: 4,
+  enterprise: 10
+}
+
+const OVERAGE_PRICE_DOC = 5.00      // $5 per extra document
+const OVERAGE_PRICE_RESEARCH = 50.00 // $50 per extra research query
+
+module.exports = { pool, initDB, PLAN_LIMITS, SEAT_LIMITS, OVERAGE_PRICE_DOC, OVERAGE_PRICE_RESEARCH }
