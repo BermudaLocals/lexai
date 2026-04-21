@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Privacy Policy — LexAI.llc</title>
+<meta name="description" content="LexAI.llc Privacy Policy — how we collect, use, and protect your data.">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=playfair-display:700,900|inter:300,400,500,600|jetbrains-mono:400,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070709;--s1:#0f0f12;--s2:#16161a;
+  --border:rgba(212,175,55,.1);--border2:rgba(212,175,55,.2);
+  --gold:#d4af37;--gold2:#f0d060;
+  --text:#ece9e0;--muted:#7a766c;--dim:#4a4740;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(212,175,55,.03) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:64px;background:rgba(7,7,9,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--serif);font-size:20px;font-weight:900;color:#fff;text-decoration:none}
+.nav-logo em{color:var(--gold);font-style:normal}
+.nav-back{color:var(--muted);text-decoration:none;font-size:13px;font-family:var(--mono);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+
+.wrap{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:120px 24px 100px}
+
+.doc-header{margin-bottom:56px}
+.doc-eyebrow{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px}
+.doc-title{font-family:var(--serif);font-size:clamp(36px,6vw,64px);font-weight:900;color:#fff;line-height:1.0;letter-spacing:-.03em;margin-bottom:16px}
+.doc-meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.toc{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:28px 32px;margin-bottom:56px}
+.toc-title{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.toc li:last-child{border-bottom:none}
+.toc a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .15s}
+.toc a:hover{color:var(--gold)}
+.toc a::before{content:counter(toc) ". ";color:var(--dim);font-family:var(--mono);font-size:11px}
+
+.section{margin-bottom:48px;scroll-margin-top:80px}
+h2{font-family:var(--serif);font-size:24px;font-weight:700;color:#fff;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+h3{font-family:var(--sans);font-size:15px;font-weight:600;color:#fff;margin:24px 0 10px}
+p{color:var(--muted);margin-bottom:14px;font-size:14px}
+ul,ol{color:var(--muted);font-size:14px;padding-left:20px;margin-bottom:14px}
+li{padding:4px 0}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.highlight{background:var(--s1);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:16px 20px;margin:20px 0}
+.highlight p{margin:0;font-size:13px}
+
+.data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+.data-table th{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:10px 14px;border-bottom:1px solid var(--border);color:var(--muted);text-align:left}
+.data-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--muted);vertical-align:top}
+.data-table td:first-child{color:var(--text);font-weight:500}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:32px 60px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--serif);font-size:18px;font-weight:900;color:#fff}
+.footer-logo em{color:var(--gold);font-style:normal}
+.footer-copy{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:11px;color:var(--muted);text-decoration:none;font-family:var(--mono);transition:color .15s}
+.footer-links a:hover{color:var(--text)}
+
+@media(max-width:768px){.nav{padding:0 20px}.footer{padding:24px 20px;flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">LexAI<em>.llc</em></a>
+  <a href="/" class="nav-back">← Back to LexAI</a>
+</nav>
+
+<div class="wrap">
+  <div class="doc-header">
+    <div class="doc-eyebrow">// legal documents</div>
+    <h1 class="doc-title">Privacy Policy</h1>
+    <div class="doc-meta">Effective date: 1 January 2026 &nbsp;·&nbsp; Last updated: 15 April 2026 &nbsp;·&nbsp; Version 1.2</div>
+  </div>
+
+  <div class="highlight">
+    <p><strong style="color:var(--text)">Plain English summary:</strong> LexAI collects the minimum data needed to operate the platform. We use your documents only to provide the AI services you request. We never sell your data. You own your documents and can delete everything at any time. AI outputs are generated by Anthropic's Claude API — your documents are sent to Anthropic under their enterprise privacy commitments (no training on your data).</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#s1">Who We Are</a></li>
+      <li><a href="#s2">What Data We Collect</a></li>
+      <li><a href="#s3">How We Use Your Data</a></li>
+      <li><a href="#s4">AI Processing &amp; Third-Party Services</a></li>
+      <li><a href="#s5">Case Law Data Sources</a></li>
+      <li><a href="#s6">Self-Learning System</a></li>
+      <li><a href="#s7">Data Sharing &amp; Disclosure</a></li>
+      <li><a href="#s8">Data Retention</a></li>
+      <li><a href="#s9">Your Rights</a></li>
+      <li><a href="#s10">Security</a></li>
+      <li><a href="#s11">Cookies &amp; Analytics</a></li>
+      <li><a href="#s12">International Transfers</a></li>
+      <li><a href="#s13">Children's Privacy</a></li>
+      <li><a href="#s14">Changes to This Policy</a></li>
+      <li><a href="#s15">Contact &amp; DPO</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="s1">
+    <h2>1. Who We Are</h2>
+    <p>LexAI.llc ("LexAI", "we", "us", "our") is an AI-powered legal technology platform operated by Dollar Double Empire, registered in Bermuda. Our registered address is Bermuda 🇧🇲.</p>
+    <p>We operate the website at <a href="https://lexai.llc">lexai.llc</a> and all associated subdomains and applications. This Privacy Policy applies to all users of our platform, including visitors, free-tier users, paid subscribers, and firm-plan licensees.</p>
+    <p>For privacy enquiries, please contact: <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a></p>
+  </div>
+
+  <div class="section" id="s2">
+    <h2>2. What Data We Collect</h2>
+
+    <h3>2.1 Account Information</h3>
+    <p>When you create an account, we collect:</p>
+    <ul>
+      <li>Email address (required for account creation and authentication)</li>
+      <li>Display name (from OAuth provider or entered by you)</li>
+      <li>Profile photo (optional, synced from Google/GitHub if you use OAuth)</li>
+      <li>Authentication provider (Google, GitHub, or email magic link)</li>
+      <li>Subscription plan and billing status</li>
+      <li>Firm name and jurisdiction (optional, improves AI output quality)</li>
+      <li>Practice areas (optional)</li>
+    </ul>
+
+    <h3>2.2 Documents You Upload or Create</h3>
+    <p>When you use LexAI's features, we store:</p>
+    <ul>
+      <li>Documents you draft using our AI (stored in your Vault)</li>
+      <li>Contracts and files you upload for analysis (text extracted; original files not stored beyond the session unless you explicitly save them)</li>
+      <li>Analysis results, research memos, and litigation predictions</li>
+      <li>Workflow configurations and agent definitions you create</li>
+    </ul>
+
+    <h3>2.3 Usage Data</h3>
+    <p>We automatically collect:</p>
+    <ul>
+      <li>Feature usage logs (which AI features you use and when)</li>
+      <li>Document counts and monthly usage for plan enforcement</li>
+      <li>Case law search queries (anonymised after 30 days)</li>
+      <li>Audit log events (for Firm plan users — required for compliance)</li>
+      <li>Session data and authentication tokens</li>
+    </ul>
+
+    <h3>2.4 Feedback &amp; Learning Data</h3>
+    <p>If you use the Self-Learning feature:</p>
+    <ul>
+      <li>Star ratings you give to AI outputs (1–5)</li>
+      <li>Corrections and edits you make to AI outputs (stored as learning patterns)</li>
+      <li>Notes you add to feedback submissions</li>
+    </ul>
+
+    <h3>2.5 Payment Data</h3>
+    <p>Payments are processed by Stripe. We do not store your credit card details. We receive and store:</p>
+    <ul>
+      <li>Stripe customer ID and subscription ID</li>
+      <li>Plan tier and billing period</li>
+      <li>Payment status (active, cancelled, past due)</li>
+    </ul>
+
+    <h3>2.6 Technical Data</h3>
+    <table class="data-table">
+      <thead><tr><th>Data type</th><th>Purpose</th><th>Retention</th></tr></thead>
+      <tbody>
+        <tr><td>IP address</td><td>Security, fraud prevention</td><td>30 days</td></tr>
+        <tr><td>User agent / browser</td><td>Compatibility, security</td><td>30 days</td></tr>
+        <tr><td>Session tokens</td><td>Authentication</td><td>30 days or until logout</td></tr>
+        <tr><td>Error logs</td><td>Platform stability</td><td>14 days</td></tr>
+        <tr><td>API response times</td><td>Performance monitoring</td><td>7 days (aggregated only)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" id="s3">
+    <h2>3. How We Use Your Data</h2>
+    <p>We use your data strictly for the following purposes:</p>
+    <ul>
+      <li><strong style="color:var(--text)">Providing the Service:</strong> Processing your documents through AI, returning results, storing your Vault content, and managing your account.</li>
+      <li><strong style="color:var(--text)">Authentication:</strong> Verifying your identity when you sign in.</li>
+      <li><strong style="color:var(--text)">Plan Enforcement:</strong> Tracking document usage against your plan limits.</li>
+      <li><strong style="color:var(--text)">Self-Learning:</strong> Using your feedback to personalise future AI outputs for your account only (see Section 6).</li>
+      <li><strong style="color:var(--text)">Billing:</strong> Managing your subscription via Stripe.</li>
+      <li><strong style="color:var(--text)">Communications:</strong> Sending transactional emails (account confirmation, magic links, billing receipts). We do not send marketing emails unless you opt in.</li>
+      <li><strong style="color:var(--text)">Security:</strong> Detecting abuse, fraud, and unauthorised access.</li>
+      <li><strong style="color:var(--text)">Legal Compliance:</strong> Complying with legal obligations and responding to lawful requests.</li>
+    </ul>
+    <p><strong style="color:var(--text)">We do not:</strong> Sell your data, use your documents to train AI models, share your content with other users, or use your documents for any purpose other than providing you the requested service.</p>
+  </div>
+
+  <div class="section" id="s4">
+    <h2>4. AI Processing &amp; Third-Party Services</h2>
+
+    <h3>4.1 Anthropic Claude API</h3>
+    <p>All AI-generated outputs on LexAI are powered by Anthropic's Claude API (models: Claude Sonnet 4.6 and Claude Haiku 4.5). When you use any AI feature, the relevant text or document content is transmitted to Anthropic's API servers for processing.</p>
+    <div class="highlight">
+      <p><strong style="color:var(--text)">Anthropic's enterprise API commitment:</strong> Anthropic does not use content submitted via their API to train or improve their models. Your documents are processed in transit and not stored by Anthropic. See <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a> for their full policy.</p>
+    </div>
+    <p>We send to Anthropic: the document text or prompt you submit, along with any jurisdiction/preference context we have learned for your account (see Section 6). We do not send your name, email, or any identifying information to Anthropic.</p>
+
+    <h3>4.2 Stripe (Payments)</h3>
+    <p>Payment processing is handled by Stripe, Inc. When you subscribe, your payment details go directly to Stripe — we never see or store your card number. Stripe's privacy policy: <a href="https://stripe.com/privacy" target="_blank">stripe.com/privacy</a>.</p>
+
+    <h3>4.3 Google OAuth / GitHub OAuth</h3>
+    <p>If you sign in with Google or GitHub, we receive your email, name, and profile photo from that provider. We do not receive or store your Google/GitHub password. These providers' policies apply to the authentication step.</p>
+
+    <h3>4.4 Railway (Hosting)</h3>
+    <p>LexAI is hosted on Railway (railway.app). Our database and server run on Railway's infrastructure. Railway has access to server logs and database backups as part of infrastructure operations. See <a href="https://railway.app/legal/privacy" target="_blank">railway.app/legal/privacy</a>.</p>
+  </div>
+
+  <div class="section" id="s5">
+    <h2>5. Case Law Data Sources</h2>
+    <p>LexAI's case law search feature queries two public legal databases. Understanding these sources is important for professional use:</p>
+
+    <h3>5.1 CourtListener (Free Law Project)</h3>
+    <p>CourtListener is operated by the Free Law Project, a 501(c)(3) nonprofit. It contains 4M+ court opinions sourced from federal and state courts, PACER, and direct court feeds. Data is public domain (US government works). We query their API at courtlistener.com. Their privacy policy: <a href="https://free.law/privacy-policy" target="_blank">free.law/privacy-policy</a>.</p>
+    <p>Your search query is transmitted to CourtListener's API. CourtListener may log API queries per their policy.</p>
+
+    <h3>5.2 Harvard Caselaw Access Project (CAP)</h3>
+    <p>The Harvard CAP contains 6.7M cases from 1636 to 2020, digitised from Harvard Law School's physical collection. This data is made available for research and legal access purposes. We query their API at api.case.law. Their terms: <a href="https://case.law/terms" target="_blank">case.law/terms</a>.</p>
+
+    <h3>5.3 Search Query Caching</h3>
+    <p>To improve performance and reduce API load on public databases, case law search results are cached in our database for 24 hours keyed by a hash of the query. The raw query text is stored for this period and then deleted.</p>
+
+    <h3>5.4 Accuracy Disclaimer</h3>
+    <p>Case law results are provided for research purposes. LexAI does not guarantee the accuracy, completeness, or currency of case law data. Always verify citations through official legal databases before relying on them professionally. LexAI is not a substitute for qualified legal advice.</p>
+  </div>
+
+  <div class="section" id="s6">
+    <h2>6. Self-Learning System</h2>
+    <p>LexAI's self-learning feature is unique to our platform. Here is exactly how it works and what data it uses:</p>
+
+    <h3>6.1 What Is Learned</h3>
+    <p>When you rate an AI output or submit a correction, our system:</p>
+    <ul>
+      <li>Extracts the pattern or preference being expressed (e.g. "user prefers Bermuda law governing clauses", "user uses formal tone in NDAs")</li>
+      <li>Stores this as a <em>learned pattern</em> linked to your user ID</li>
+      <li>Uses these patterns to contextualise future AI prompts for your account</li>
+    </ul>
+
+    <h3>6.2 Scope of Learning</h3>
+    <p>Learning is <strong>strictly per-user</strong>. Your patterns and corrections are never shared with other users, never used to improve the global AI model, and never aggregated for training purposes. They exist solely to personalise AI outputs for your individual account.</p>
+
+    <h3>6.3 Document Memory (Knowledge Base)</h3>
+    <p>Documents you save to your Vault are analysed to extract key facts, parties, and terms. These are stored as "knowledge items" and can be referenced in future AI prompts when relevant. This is opt-in by design — it happens when you save documents, not automatically for uploaded files that you don't save.</p>
+
+    <h3>6.4 Deleting Learned Data</h3>
+    <p>You can delete all learned patterns and knowledge items by deleting your account (see Section 9). We plan to add granular self-learning management in a future dashboard update.</p>
+  </div>
+
+  <div class="section" id="s7">
+    <h2>7. Data Sharing &amp; Disclosure</h2>
+    <p>We do not sell, rent, or trade your personal data. We share data only in these limited circumstances:</p>
+    <ul>
+      <li><strong style="color:var(--text)">Service providers:</strong> Anthropic (AI processing), Stripe (payments), Railway (hosting) — as described in Section 4. All operate under data processing agreements.</li>
+      <li><strong style="color:var(--text)">Legal obligations:</strong> If required by law, court order, or lawful government request. We will notify you where legally permitted.</li>
+      <li><strong style="color:var(--text)">Business transfer:</strong> If LexAI is acquired or merges with another entity, your data may transfer to the acquirer under this policy.</li>
+      <li><strong style="color:var(--text)">Shared Spaces:</strong> If you create a Shared Space and invite a client or colleague, the documents and content in that Space will be accessible to the people you invite via the access token you share.</li>
+      <li><strong style="color:var(--text)">Firm plan audit:</strong> Firm plan administrators can access audit logs of actions taken by users on their firm account.</li>
+    </ul>
+    <p>We do not share your documents or data with other LexAI users outside of Shared Spaces you explicitly create.</p>
+  </div>
+
+  <div class="section" id="s8">
+    <h2>8. Data Retention</h2>
+    <table class="data-table">
+      <thead><tr><th>Data type</th><th>Retention period</th></tr></thead>
+      <tbody>
+        <tr><td>Account data (name, email, profile)</td><td>Until account deletion + 30 days</td></tr>
+        <tr><td>Documents in Vault</td><td>Until you delete them or delete your account</td></tr>
+        <tr><td>Analyses &amp; research results</td><td>Until you delete them or delete your account</td></tr>
+        <tr><td>Self-learning patterns</td><td>Until account deletion</td></tr>
+        <tr><td>Knowledge base items</td><td>Until you delete them or delete your account</td></tr>
+        <tr><td>Audit log (Firm plan)</td><td>2 years from event date</td></tr>
+        <tr><td>Case law search cache</td><td>24 hours</td></tr>
+        <tr><td>Session data</td><td>30 days from last activity</td></tr>
+        <tr><td>Payment records</td><td>7 years (legal/tax requirement)</td></tr>
+        <tr><td>Server access logs</td><td>30 days</td></tr>
+        <tr><td>Deleted account residual backups</td><td>Up to 90 days in encrypted backups</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" id="s9">
+    <h2>9. Your Rights</h2>
+    <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+    <ul>
+      <li><strong style="color:var(--text)">Access:</strong> Request a copy of all personal data we hold about you.</li>
+      <li><strong style="color:var(--text)">Rectification:</strong> Correct inaccurate data in your account settings or by contacting us.</li>
+      <li><strong style="color:var(--text)">Erasure:</strong> Request deletion of your account and all associated data. We will action this within 30 days.</li>
+      <li><strong style="color:var(--text)">Portability:</strong> Request an export of your documents, analyses, and account data in a machine-readable format (JSON/PDF).</li>
+      <li><strong style="color:var(--text)">Restriction:</strong> Ask us to restrict processing of your data in certain circumstances.</li>
+      <li><strong style="color:var(--text)">Objection:</strong> Object to processing based on legitimate interests.</li>
+      <li><strong style="color:var(--text)">Withdraw consent:</strong> Where processing is based on consent, you may withdraw it at any time.</li>
+    </ul>
+    <p>To exercise any right, email <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a> from the email address registered to your account. We will respond within 30 days. We may ask you to verify your identity before processing the request.</p>
+    <p>If you are in the EU/UK, you have the right to lodge a complaint with your local data protection authority.</p>
+  </div>
+
+  <div class="section" id="s10">
+    <h2>10. Security</h2>
+    <p>We take security seriously and implement the following measures:</p>
+    <ul>
+      <li>All data in transit is encrypted via TLS 1.3</li>
+      <li>Database connections use encrypted tunnels</li>
+      <li>Passwords are never stored — we use OAuth and magic link authentication only</li>
+      <li>Session tokens are cryptographically signed and expire after 30 days</li>
+      <li>API keys (Anthropic, Stripe) are stored as environment variables, never in code</li>
+      <li>Regular security audits of authentication and access control logic</li>
+      <li>Rate limiting on all API endpoints to prevent abuse</li>
+    </ul>
+    <p>No system is perfectly secure. In the event of a data breach that affects your personal data, we will notify you by email within 72 hours of becoming aware of it, in accordance with applicable data protection law.</p>
+    <p>To report a security vulnerability, email <a href="mailto:security@lexai.llc">security@lexai.llc</a>.</p>
+  </div>
+
+  <div class="section" id="s11">
+    <h2>11. Cookies &amp; Analytics</h2>
+    <p>We use only essential cookies necessary for the platform to function:</p>
+    <ul>
+      <li><strong style="color:var(--text)">Session cookie:</strong> Keeps you logged in across page loads. Expires after 30 days or on logout.</li>
+      <li><strong style="color:var(--text)">CSRF token:</strong> Protects against cross-site request forgery attacks.</li>
+    </ul>
+    <p>We do not use Google Analytics, Facebook Pixel, advertising cookies, or any third-party tracking scripts. We do not build advertising profiles. Our analytics consist solely of server-side logs of feature usage, which are anonymised after 30 days.</p>
+  </div>
+
+  <div class="section" id="s12">
+    <h2>12. International Transfers</h2>
+    <p>LexAI is based in Bermuda. Our servers (via Railway) are located in the United States. When you use LexAI, your data is processed in the United States.</p>
+    <p>For users in the European Economic Area (EEA) or United Kingdom: transfers to the US are made under appropriate safeguards. We rely on Standard Contractual Clauses (SCCs) where required for transfers from the EEA/UK. By using LexAI, you consent to these transfers as described in this policy.</p>
+    <p>Anthropic, our AI provider, also processes data in the United States. Their API operations are covered by their enterprise data processing agreements.</p>
+  </div>
+
+  <div class="section" id="s13">
+    <h2>13. Children's Privacy</h2>
+    <p>LexAI is not directed at children under the age of 16. We do not knowingly collect personal data from children under 16. If you believe we have inadvertently collected such data, please contact <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a> and we will delete it promptly.</p>
+  </div>
+
+  <div class="section" id="s14">
+    <h2>14. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. When we do:</p>
+    <ul>
+      <li>We update the "Last updated" date at the top of this page</li>
+      <li>For material changes, we notify registered users by email at least 14 days before changes take effect</li>
+      <li>For minor changes (e.g. clarifications), we update the page without separate notice</li>
+      <li>Continued use of LexAI after changes take effect constitutes acceptance of the updated policy</li>
+    </ul>
+    <p>We maintain an archive of previous policy versions available on request.</p>
+  </div>
+
+  <div class="section" id="s15">
+    <h2>15. Contact &amp; Data Protection</h2>
+    <p>For all privacy-related matters:</p>
+    <ul>
+      <li><strong style="color:var(--text)">General privacy enquiries:</strong> <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a></li>
+      <li><strong style="color:var(--text)">Data deletion requests:</strong> <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a> — subject line "Account Deletion Request"</li>
+      <li><strong style="color:var(--text)">Data export requests:</strong> <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a> — subject line "Data Export Request"</li>
+      <li><strong style="color:var(--text)">Security issues:</strong> <a href="mailto:security@lexai.llc">security@lexai.llc</a></li>
+      <li><strong style="color:var(--text)">General contact:</strong> <a href="mailto:hello@lexai.llc">hello@lexai.llc</a></li>
+    </ul>
+    <p>We aim to respond to all privacy requests within 5 business days and action them within 30 days.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">LexAI<em>.llc</em></div>
+  <div class="footer-copy">© 2026 LexAI.llc · Built in Bermuda 🇧🇲</div>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="mailto:hello@lexai.llc">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

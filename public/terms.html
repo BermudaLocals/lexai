@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Terms of Service — LexAI.llc</title>
+<meta name="description" content="LexAI.llc Terms of Service — your rights and obligations when using our platform.">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=playfair-display:700,900|inter:300,400,500,600|jetbrains-mono:400,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070709;--s1:#0f0f12;--s2:#16161a;
+  --border:rgba(212,175,55,.1);--border2:rgba(212,175,55,.2);
+  --gold:#d4af37;--gold2:#f0d060;
+  --text:#ece9e0;--muted:#7a766c;--dim:#4a4740;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(212,175,55,.03) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 60px;height:64px;background:rgba(7,7,9,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--serif);font-size:20px;font-weight:900;color:#fff;text-decoration:none}
+.nav-logo em{color:var(--gold);font-style:normal}
+.nav-back{color:var(--muted);text-decoration:none;font-size:13px;font-family:var(--mono);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+
+.wrap{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:120px 24px 100px}
+
+.doc-header{margin-bottom:56px}
+.doc-eyebrow{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px}
+.doc-title{font-family:var(--serif);font-size:clamp(36px,6vw,64px);font-weight:900;color:#fff;line-height:1.0;letter-spacing:-.03em;margin-bottom:16px}
+.doc-meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.toc{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:28px 32px;margin-bottom:56px}
+.toc-title{font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.toc li:last-child{border-bottom:none}
+.toc a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .15s}
+.toc a:hover{color:var(--gold)}
+.toc a::before{content:counter(toc) ". ";color:var(--dim);font-family:var(--mono);font-size:11px}
+
+.section{margin-bottom:48px;scroll-margin-top:80px}
+h2{font-family:var(--serif);font-size:24px;font-weight:700;color:#fff;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+h3{font-family:var(--sans);font-size:15px;font-weight:600;color:#fff;margin:24px 0 10px}
+p{color:var(--muted);margin-bottom:14px;font-size:14px}
+ul,ol{color:var(--muted);font-size:14px;padding-left:20px;margin-bottom:14px}
+li{padding:4px 0}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.highlight{background:var(--s1);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:16px 20px;margin:20px 0}
+.highlight p{margin:0;font-size:13px}
+
+.warning{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-left:3px solid #ef4444;border-radius:0 8px 8px 0;padding:16px 20px;margin:20px 0}
+.warning p{margin:0;font-size:13px;color:#f87171}
+
+.plan-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+.plan-table th{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:10px 14px;border-bottom:1px solid var(--border);color:var(--muted);text-align:left}
+.plan-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--muted);vertical-align:top}
+.plan-table td:first-child{color:var(--text);font-weight:500}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:32px 60px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--serif);font-size:18px;font-weight:900;color:#fff}
+.footer-logo em{color:var(--gold);font-style:normal}
+.footer-copy{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:11px;color:var(--muted);text-decoration:none;font-family:var(--mono);transition:color .15s}
+.footer-links a:hover{color:var(--text)}
+
+@media(max-width:768px){.nav{padding:0 20px}.footer{padding:24px 20px;flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">LexAI<em>.llc</em></a>
+  <a href="/" class="nav-back">← Back to LexAI</a>
+</nav>
+
+<div class="wrap">
+  <div class="doc-header">
+    <div class="doc-eyebrow">// legal documents</div>
+    <h1 class="doc-title">Terms of Service</h1>
+    <div class="doc-meta">Effective date: 1 January 2026 &nbsp;·&nbsp; Last updated: 15 April 2026 &nbsp;·&nbsp; Version 1.2</div>
+  </div>
+
+  <div class="highlight">
+    <p><strong style="color:var(--text)">Plain English summary:</strong> By using LexAI, you agree to use it lawfully and professionally. You own your documents. LexAI is a legal technology tool — not a law firm, and not a substitute for qualified legal advice. AI outputs may contain errors; verify before relying on them. We can cancel accounts that abuse the platform. Disputes are governed by Bermuda law.</p>
+  </div>
+
+  <div class="warning">
+    <p><strong>NOT LEGAL ADVICE:</strong> LexAI is a legal technology platform, not a law firm. Nothing produced by LexAI constitutes legal advice, creates an attorney-client relationship, or should be relied upon as a substitute for advice from a qualified, licensed attorney in your jurisdiction. Always review AI-generated legal documents with a qualified lawyer before execution.</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#t1">Acceptance of Terms</a></li>
+      <li><a href="#t2">Description of Service</a></li>
+      <li><a href="#t3">Account Registration</a></li>
+      <li><a href="#t4">Plans, Pricing &amp; Billing</a></li>
+      <li><a href="#t5">Acceptable Use</a></li>
+      <li><a href="#t6">Intellectual Property — Your Content</a></li>
+      <li><a href="#t7">Intellectual Property — LexAI Platform</a></li>
+      <li><a href="#t8">AI Outputs &amp; No Legal Advice</a></li>
+      <li><a href="#t9">Case Law Data — Accuracy &amp; Limitations</a></li>
+      <li><a href="#t10">Self-Learning Feature</a></li>
+      <li><a href="#t11">Shared Spaces</a></li>
+      <li><a href="#t12">Disclaimer of Warranties</a></li>
+      <li><a href="#t13">Limitation of Liability</a></li>
+      <li><a href="#t14">Indemnification</a></li>
+      <li><a href="#t15">Termination</a></li>
+      <li><a href="#t16">Governing Law &amp; Disputes</a></li>
+      <li><a href="#t17">Changes to Terms</a></li>
+      <li><a href="#t18">Miscellaneous</a></li>
+      <li><a href="#t19">Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="t1">
+    <h2>1. Acceptance of Terms</h2>
+    <p>By accessing or using LexAI.llc ("LexAI", "Service", "Platform"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the Service.</p>
+    <p>These Terms constitute a legally binding agreement between you ("User", "you") and Dollar Double Empire, operating as LexAI.llc ("Company", "we", "us"), a business registered in Bermuda.</p>
+    <p>If you are using LexAI on behalf of an organisation (law firm, company, or other entity), you represent that you have authority to bind that organisation, and "you" includes that organisation.</p>
+    <p>By creating an account, you confirm that you are at least 18 years of age (or the age of majority in your jurisdiction if higher), and that you have read, understood, and agree to these Terms and our <a href="/privacy">Privacy Policy</a>.</p>
+  </div>
+
+  <div class="section" id="t2">
+    <h2>2. Description of Service</h2>
+    <p>LexAI is an AI-powered legal technology platform that provides:</p>
+    <ul>
+      <li>AI-assisted legal document drafting (contracts, agreements, letters, policies)</li>
+      <li>Contract and document analysis</li>
+      <li>Legal research assistance with AI-generated memos</li>
+      <li>Case law search via CourtListener and Harvard Caselaw Access Project APIs</li>
+      <li>Litigation outcome prediction modelling</li>
+      <li>Due diligence document review</li>
+      <li>Compliance analysis (GDPR, HIPAA, CCPA, etc.)</li>
+      <li>Document vault and management</li>
+      <li>AI workflow builder ("Words to Workflow")</li>
+      <li>Custom AI agent creation</li>
+      <li>Self-learning personalisation based on user feedback</li>
+      <li>Team collaboration via Shared Spaces</li>
+    </ul>
+    <p>All AI features are powered by Anthropic's Claude API. Case law data is sourced from CourtListener and Harvard Caselaw Access Project (see Section 9).</p>
+    <p>We reserve the right to modify, add, or remove features at any time. We will provide reasonable notice for material changes that affect paid plan functionality.</p>
+  </div>
+
+  <div class="section" id="t3">
+    <h2>3. Account Registration</h2>
+    <h3>3.1 Free Preview (No Account Required)</h3>
+    <p>You may access one free document preview without creating an account. This preview is a partial output (first 3 sections) for demonstration purposes only. To access the full document or any other feature, you must create a free account.</p>
+
+    <h3>3.2 Account Creation</h3>
+    <p>To create a free account you must provide a valid email address or sign in via Google or GitHub OAuth. You agree to provide accurate and complete information and to keep it updated.</p>
+
+    <h3>3.3 Account Security</h3>
+    <p>You are responsible for maintaining the security of your account credentials. You agree to notify us immediately at <a href="mailto:security@lexai.llc">security@lexai.llc</a> if you suspect unauthorised access to your account. We are not liable for losses resulting from unauthorised use of your account due to your failure to secure it.</p>
+
+    <h3>3.4 One Account Per Person</h3>
+    <p>Each person may maintain only one free account. Creating multiple accounts to circumvent plan limits is a violation of these Terms and may result in all accounts being terminated.</p>
+  </div>
+
+  <div class="section" id="t4">
+    <h2>4. Plans, Pricing &amp; Billing</h2>
+
+    <h3>4.1 Available Plans</h3>
+    <table class="plan-table">
+      <thead><tr><th>Plan</th><th>Price</th><th>Key limits</th></tr></thead>
+      <tbody>
+        <tr><td>Free (Professional)</td><td>$0/month</td><td>1 document preview, case law search (5 results), basic templates — no credit card required</td></tr>
+        <tr><td>Starter</td><td>$97/month</td><td>15 full documents/month, contract analysis, case law (20 results), proofreading, Vault (100 docs)</td></tr>
+        <tr><td>Pro</td><td>$297/month</td><td>Unlimited documents, all 16 features, litigation prediction, due diligence (15 docs), self-learning AI, shared spaces, unlimited Vault</td></tr>
+        <tr><td>Firm (White-Label)</td><td>$997/month</td><td>Everything in Pro, 10 team seats, client portals, full white-label, custom agent deployment, API access, dedicated support, audit log</td></tr>
+      </tbody>
+    </table>
+    <p>Current pricing is as stated above. Pricing may change; we will provide 30 days' notice to existing subscribers before any price increase takes effect.</p>
+
+    <h3>4.2 Billing</h3>
+    <p>Paid plans are billed monthly in advance. Billing is processed by Stripe. By subscribing, you authorise LexAI to charge your payment method on a recurring monthly basis until you cancel.</p>
+
+    <h3>4.3 Cancellation</h3>
+    <p>You may cancel your subscription at any time. Cancellation takes effect at the end of the current billing period. You retain full access to your plan features until the period ends. We do not provide prorated refunds for partial months, except as required by applicable law.</p>
+
+    <h3>4.4 Refunds</h3>
+    <p>If you are unsatisfied within the first 7 days of your first paid subscription, contact <a href="mailto:hello@lexai.llc">hello@lexai.llc</a> for a full refund. After 7 days, refunds are at our discretion on a case-by-case basis.</p>
+
+    <h3>4.5 Legacy Rate Commitment</h3>
+    <p>Accounts created during our founding enrollment period (while enrollment is below 2,000 seats) retain their subscription price for as long as they remain continuously subscribed, even if we raise prices for new subscribers. This commitment applies only to the plan tier active at the time of enrollment.</p>
+
+    <h3>4.6 Document Limits</h3>
+    <p>Document usage counts reset on the first day of each calendar month. Unused document allowances do not roll over. If you reach your plan limit mid-month, you must upgrade to generate additional documents.</p>
+  </div>
+
+  <div class="section" id="t5">
+    <h2>5. Acceptable Use</h2>
+    <p>You agree to use LexAI only for lawful purposes. You must not:</p>
+    <ul>
+      <li>Use LexAI to draft documents intended to defraud, deceive, or harm any person or entity</li>
+      <li>Generate content that is illegal, defamatory, harassing, threatening, or violates any person's rights</li>
+      <li>Attempt to circumvent plan limits through technical means, multiple accounts, or automation</li>
+      <li>Reverse engineer, decompile, or attempt to extract the source code of LexAI</li>
+      <li>Use LexAI's outputs to build a competing AI legal service without our written permission</li>
+      <li>Submit documents that contain malware, viruses, or harmful code</li>
+      <li>Use automated scripts or bots to make excessive API calls beyond normal usage</li>
+      <li>Attempt to access other users' accounts, documents, or data</li>
+      <li>Upload content that infringes third-party intellectual property rights</li>
+      <li>Use LexAI in violation of any professional responsibility rules applicable to you (e.g. attorney conduct rules)</li>
+      <li>Represent AI-generated outputs as independently prepared by a human professional without disclosure, where such disclosure is required by law or professional rules</li>
+    </ul>
+    <p>We reserve the right to investigate violations and suspend or terminate accounts accordingly.</p>
+  </div>
+
+  <div class="section" id="t6">
+    <h2>6. Intellectual Property — Your Content</h2>
+
+    <h3>6.1 You Own Your Documents</h3>
+    <p>You retain full ownership of all documents you create using LexAI, all content you upload for analysis, and all outputs generated by the AI in response to your requests.</p>
+
+    <h3>6.2 Licence to LexAI</h3>
+    <p>By using LexAI, you grant us a limited, non-exclusive, royalty-free licence to store, process, and transmit your content solely for the purpose of providing the Service to you. This licence ends when you delete the content or your account.</p>
+    <p>We do not claim any ownership over your content. We do not use your content to train AI models. We do not share your content with other users (except via Shared Spaces you create).</p>
+
+    <h3>6.3 AI Output Ownership</h3>
+    <p>Documents drafted by LexAI's AI in response to your requests are yours. You may use them for any lawful purpose. However, because AI systems can produce similar outputs for different users given similar inputs, we do not warrant that your AI outputs are unique or novel for intellectual property purposes.</p>
+
+    <h3>6.4 Responsibility for Content</h3>
+    <p>You are solely responsible for the content you upload to LexAI and for ensuring you have the right to submit it for processing. You must not submit confidential third-party information without authorisation.</p>
+  </div>
+
+  <div class="section" id="t7">
+    <h2>7. Intellectual Property — LexAI Platform</h2>
+    <p>The LexAI platform, including its code, design, AI prompt architecture, feature set, brand, and all proprietary systems (including the Self-Learning Engine and Words to Workflow system), is owned by Dollar Double Empire / LexAI.llc and protected by applicable intellectual property laws.</p>
+    <p>Nothing in these Terms grants you any rights to LexAI's proprietary technology, trademarks, or brand. You may not use the LexAI name, logo, or brand without our written consent, except as required to reference our service in a factually accurate way.</p>
+    <p>Firm-plan white-label licences are granted under separate written agreements and do not include rights to the underlying platform code.</p>
+  </div>
+
+  <div class="section" id="t8">
+    <h2>8. AI Outputs &amp; No Legal Advice</h2>
+
+    <div class="warning">
+      <p><strong>CRITICAL — PLEASE READ:</strong> LexAI is not a law firm. No AI output from LexAI constitutes legal advice. No attorney-client relationship is created by your use of LexAI. AI-generated documents and analysis may contain errors, omissions, or jurisdiction-specific inaccuracies. Always have AI outputs reviewed by a qualified, licensed attorney before execution, reliance, or submission to any court or regulatory body.</p>
+    </div>
+
+    <h3>8.1 Nature of AI Outputs</h3>
+    <p>LexAI's AI features generate outputs based on statistical patterns in training data and the specific inputs you provide. AI outputs:</p>
+    <ul>
+      <li>May contain factual errors, outdated legal information, or jurisdiction-specific inaccuracies</li>
+      <li>Are not verified by licensed attorneys</li>
+      <li>Do not account for facts and circumstances unique to your situation that you have not disclosed</li>
+      <li>Should not be treated as a final work product without professional review</li>
+    </ul>
+
+    <h3>8.2 Litigation Prediction</h3>
+    <p>Litigation prediction outputs are probabilistic models based on historical case patterns. They are not guarantees of any outcome. No legal or financial decision should be made solely on the basis of LexAI litigation predictions. Past case outcomes are not necessarily predictive of future results.</p>
+
+    <h3>8.3 Professional Responsibility</h3>
+    <p>If you are a licensed attorney or other regulated professional, you remain responsible for compliance with all professional responsibility rules applicable in your jurisdiction, including rules regarding supervision of AI tools, competence, candour, and disclosure. LexAI is a tool; the professional judgement remains yours.</p>
+  </div>
+
+  <div class="section" id="t9">
+    <h2>9. Case Law Data — Accuracy &amp; Limitations</h2>
+    <p>LexAI's case law search is powered by CourtListener (Free Law Project) and Harvard Caselaw Access Project. These are reputable public legal databases, but:</p>
+    <ul>
+      <li>Coverage is not identical to commercial databases such as Westlaw or LexisNexis</li>
+      <li>Harvard CAP covers cases up to approximately 2020; more recent cases may not appear</li>
+      <li>CourtListener coverage depends on court publishing practices and may have gaps</li>
+      <li>Case summaries and excerpts are automated and may not capture full holdings</li>
+      <li>Citations should be independently verified before inclusion in legal filings</li>
+      <li>LexAI does not verify that cited cases are good law (i.e. not overruled)</li>
+    </ul>
+    <p>LexAI is not responsible for decisions made in reliance on case law search results. Always verify case citations through official court records or authoritative legal databases before professional use.</p>
+  </div>
+
+  <div class="section" id="t10">
+    <h2>10. Self-Learning Feature</h2>
+    <p>The Self-Learning feature improves LexAI's AI outputs for your account by learning from your feedback and corrections. By using this feature, you acknowledge:</p>
+    <ul>
+      <li>Your corrections and ratings are stored and used to personalise future AI outputs for your account</li>
+      <li>This personalisation is account-specific and not shared with other users</li>
+      <li>You can disable this feature or request deletion of all learned data by contacting <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a></li>
+      <li>Corrections you provide are not used to train the underlying Anthropic models</li>
+    </ul>
+  </div>
+
+  <div class="section" id="t11">
+    <h2>11. Shared Spaces</h2>
+    <p>The Shared Spaces feature (Pro and Firm plans) allows you to share documents and content with clients or colleagues via a unique access link. By using Shared Spaces:</p>
+    <ul>
+      <li>You are responsible for controlling access and ensuring only authorised parties receive your access links</li>
+      <li>Shared Space links expire after 30 days by default; you can revoke access earlier</li>
+      <li>You are responsible for ensuring that sharing documents with third parties complies with any applicable confidentiality obligations, professional rules, and data protection laws</li>
+      <li>LexAI is not responsible for the actions of third parties who access your Shared Space</li>
+    </ul>
+  </div>
+
+  <div class="section" id="t12">
+    <h2>12. Disclaimer of Warranties</h2>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LEXAI IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, NON-INFRINGEMENT, OR UNINTERRUPTED SERVICE.</p>
+    <p>We do not warrant that:</p>
+    <ul>
+      <li>AI outputs are accurate, complete, legally correct, or suitable for your specific situation</li>
+      <li>The Service will be error-free or available at all times</li>
+      <li>Case law results are complete, current, or represent good law</li>
+      <li>The Service meets your professional or business requirements</li>
+    </ul>
+    <p>Some jurisdictions do not allow the exclusion of implied warranties, so some of these exclusions may not apply to you.</p>
+  </div>
+
+  <div class="section" id="t13">
+    <h2>13. Limitation of Liability</h2>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LEXAI, ITS OFFICERS, DIRECTORS, EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE, INCLUDING BUT NOT LIMITED TO:</p>
+    <ul>
+      <li>Losses arising from reliance on AI-generated legal documents or advice</li>
+      <li>Losses arising from reliance on case law search results</li>
+      <li>Losses arising from litigation prediction outputs</li>
+      <li>Loss of data, revenue, profit, or business opportunities</li>
+      <li>Costs of substitute services</li>
+    </ul>
+    <p>OUR TOTAL AGGREGATE LIABILITY TO YOU FOR ANY CLAIMS ARISING FROM THESE TERMS OR YOUR USE OF THE SERVICE SHALL NOT EXCEED THE GREATER OF: (A) THE AMOUNT YOU PAID TO LEXAI IN THE 12 MONTHS PRECEDING THE CLAIM, OR (B) USD $100.</p>
+    <p>Some jurisdictions do not allow the limitation of liability for consequential damages, so this limitation may not apply to you in full.</p>
+  </div>
+
+  <div class="section" id="t14">
+    <h2>14. Indemnification</h2>
+    <p>You agree to indemnify, defend, and hold harmless LexAI, Dollar Double Empire, and their respective officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses (including reasonable legal fees) arising from:</p>
+    <ul>
+      <li>Your use of the Service in violation of these Terms</li>
+      <li>Your violation of any law or third-party rights</li>
+      <li>Content you submit to the Service that infringes any third-party intellectual property or privacy rights</li>
+      <li>Your misuse of AI outputs, including reliance on them without professional legal review</li>
+    </ul>
+  </div>
+
+  <div class="section" id="t15">
+    <h2>15. Termination</h2>
+
+    <h3>15.1 Termination by You</h3>
+    <p>You may close your account at any time. Paid subscriptions continue until the end of the billing period. You can request data deletion per our Privacy Policy.</p>
+
+    <h3>15.2 Termination by LexAI</h3>
+    <p>We reserve the right to suspend or terminate your account immediately if:</p>
+    <ul>
+      <li>You violate these Terms in a material way</li>
+      <li>You engage in abusive, fraudulent, or illegal activity</li>
+      <li>Your use of the Service causes harm to LexAI or other users</li>
+      <li>You attempt to circumvent plan limits or payment obligations</li>
+    </ul>
+    <p>For minor violations, we will generally give warning before termination. For serious violations (fraud, abuse, illegal activity), we may terminate immediately without notice.</p>
+
+    <h3>15.3 Effect of Termination</h3>
+    <p>Upon termination, your access to the Service ceases. Your Vault content and account data are retained for 30 days to allow you to request an export, after which they are deleted. Certain data may be retained longer for legal compliance (see Privacy Policy Section 8).</p>
+
+    <h3>15.4 Survival</h3>
+    <p>Sections 6 (IP — Your Content), 8 (No Legal Advice), 12 (Disclaimer), 13 (Limitation of Liability), 14 (Indemnification), and 16 (Governing Law) survive termination of these Terms.</p>
+  </div>
+
+  <div class="section" id="t16">
+    <h2>16. Governing Law &amp; Disputes</h2>
+    <p>These Terms are governed by and construed in accordance with the laws of Bermuda, without regard to conflict of law principles.</p>
+    <p>Any dispute arising from or relating to these Terms or the Service shall first be attempted to be resolved through good-faith negotiation. If unresolved after 30 days, disputes shall be submitted to the exclusive jurisdiction of the courts of Bermuda.</p>
+    <p>If you are a consumer in a jurisdiction that does not permit mandatory arbitration or foreign governing law clauses (such as the EU), your local consumer protection laws may provide additional rights that these Terms cannot override.</p>
+    <p>Nothing in this section prevents you from seeking urgent injunctive relief in any jurisdiction to protect intellectual property or confidential information.</p>
+  </div>
+
+  <div class="section" id="t17">
+    <h2>17. Changes to Terms</h2>
+    <p>We may modify these Terms at any time. We will:</p>
+    <ul>
+      <li>Update the "Last updated" date at the top of this page</li>
+      <li>For material changes, notify registered users by email at least 14 days before changes take effect</li>
+      <li>For minor clarifications, update the page without separate notice</li>
+    </ul>
+    <p>If you do not agree to the updated Terms, you must stop using the Service and may cancel your subscription before the changes take effect for a prorated refund of the unused portion of your current billing period. Continued use after changes take effect constitutes acceptance.</p>
+  </div>
+
+  <div class="section" id="t18">
+    <h2>18. Miscellaneous</h2>
+    <h3>18.1 Entire Agreement</h3>
+    <p>These Terms, together with the Privacy Policy and any plan-specific order forms or white-label agreements, constitute the entire agreement between you and LexAI regarding the Service.</p>
+    <h3>18.2 Severability</h3>
+    <p>If any provision of these Terms is found to be unenforceable, the remaining provisions continue in full force and effect.</p>
+    <h3>18.3 Waiver</h3>
+    <p>Failure to enforce any provision of these Terms does not constitute a waiver of our right to enforce it in the future.</p>
+    <h3>18.4 Assignment</h3>
+    <p>You may not assign these Terms without our written consent. We may assign our rights and obligations (e.g. in connection with a merger or acquisition) upon notice to you.</p>
+    <h3>18.5 Force Majeure</h3>
+    <p>We are not liable for delays or failures in performance due to causes beyond our reasonable control, including internet outages, third-party API failures (Anthropic, Stripe), natural disasters, or government actions.</p>
+    <h3>18.6 No Third-Party Beneficiaries</h3>
+    <p>These Terms do not confer any rights on any third parties.</p>
+  </div>
+
+  <div class="section" id="t19">
+    <h2>19. Contact</h2>
+    <p>For questions about these Terms:</p>
+    <ul>
+      <li><strong style="color:var(--text)">General:</strong> <a href="mailto:hello@lexai.llc">hello@lexai.llc</a></li>
+      <li><strong style="color:var(--text)">Legal / Terms:</strong> <a href="mailto:legal@lexai.llc">legal@lexai.llc</a></li>
+      <li><strong style="color:var(--text)">Privacy:</strong> <a href="mailto:privacy@lexai.llc">privacy@lexai.llc</a></li>
+      <li><strong style="color:var(--text)">Billing / Refunds:</strong> <a href="mailto:billing@lexai.llc">billing@lexai.llc</a></li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">LexAI<em>.llc</em></div>
+  <div class="footer-copy">© 2026 LexAI.llc · Built in Bermuda 🇧🇲</div>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="mailto:hello@lexai.llc">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
