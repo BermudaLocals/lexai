@@ -31,6 +31,214 @@
 const JURISDICTIONS = {
 
   // ── UNITED KINGDOM ──────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BERMUDA COURTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+  'bm-sc': {
+    id: 'bm-sc',
+    label: 'Bermuda Supreme Court — Civil',
+    country: 'Bermuda',
+    court: 'Supreme Court of Bermuda',
+    caseNoFormat: '20__: No. ___',
+    template: (data) => `IN THE SUPREME COURT OF BERMUDA
+CIVIL JURISDICTION
+
+                                        20__: No. ___
+
+IN THE MATTER OF:
+
+BETWEEN:
+
+                            ${data.plaintiff || '[PLAINTIFF]'}
+                                                              Plaintiff
+
+                                    -and-
+
+                           ${data.defendant || '[DEFENDANT]'}
+                                                              Defendant
+
+
+                    ${data.documentType || 'WRIT OF SUMMONS'}
+
+
+To the Defendant:
+
+You are hereby summoned to appear before this Honourable Court.
+
+If you fail to acknowledge service of this Writ within the time stated,
+Judgment may be given against you in your absence.
+
+Filed on behalf of the Plaintiff.
+
+Dated this _____ day of ______________, 20__.
+
+
+________________________________
+Registrar of the Supreme Court
+Supreme Court Building
+21 Parliament Street
+Hamilton HM 12, Bermuda
+
+
+________________________________
+Solicitor for the Plaintiff:
+${data.firmName || '[FIRM NAME]'}
+[ADDRESS]
+Hamilton, Bermuda
+Tel: [TELEPHONE]
+Ref: [REFERENCE]
+`
+  },
+
+  'bm-coa': {
+    id: 'bm-coa',
+    label: 'Bermuda Court of Appeal',
+    country: 'Bermuda',
+    court: 'Court of Appeal for Bermuda',
+    caseNoFormat: 'Civil Appeal No. __ of 20__',
+    template: (data) => `IN THE COURT OF APPEAL FOR BERMUDA
+
+                            Civil Appeal No. __ of 20__
+
+BETWEEN:
+
+                            ${data.appellant || '[APPELLANT]'}
+                                                              Appellant
+
+                                    -and-
+
+                           ${data.respondent || '[RESPONDENT]'}
+                                                              Respondent
+
+
+                            NOTICE OF APPEAL
+
+
+TAKE NOTICE that ${data.appellant || 'the Appellant'} appeals to the Court of Appeal
+from the judgment/order of the Supreme Court dated ______________, 20__.
+
+
+GROUNDS OF APPEAL:
+
+1.   The Learned Judge erred in law in holding that...
+
+2.   The Learned Judge erred in that...
+
+
+RELIEF SOUGHT:
+
+The Appellant seeks:
+(a)  That the Appeal be allowed;
+(b)  That the Order below be set aside;
+(c)  Such further or other relief as this Honourable Court deems just.
+
+
+Dated this _____ day of ______________, 20__.
+
+
+________________________________
+${data.firmName || '[FIRM NAME]'}
+Solicitors for the Appellant
+Hamilton, Bermuda
+`
+  },
+
+  'bm-mag': {
+    id: 'bm-mag',
+    label: "Bermuda Magistrates' Court",
+    country: 'Bermuda',
+    court: "Magistrates' Court of Bermuda",
+    caseNoFormat: 'Mag. Case No. ___/20__',
+    template: (data) => `IN THE MAGISTRATES' COURT OF BERMUDA
+
+                        Mag. Case No. ___/20__
+
+
+BETWEEN:
+
+                            ${data.prosecutor || 'THE CROWN'}
+                                                              Prosecutor
+
+                                    -and-
+
+                           ${data.defendant || '[DEFENDANT]'}
+                                                              Defendant
+
+
+                            CHARGE SHEET / COMPLAINT
+
+
+The Defendant is charged with the following offence(s):
+
+COUNT 1:
+Statement of Offence: ________________________________________________
+Contrary to Section ___ of the _________________ Act 20__.
+
+Particulars of Offence:
+The Defendant on the _____ day of ______________, 20__ at Hamilton,
+Bermuda did _____________________________________________.
+
+
+Dated this _____ day of ______________, 20__.
+
+________________________________
+Magistrate / Complainant
+Magistrates' Court
+Court Street, Hamilton
+Bermuda
+`
+  },
+
+  'bm-civil': {
+    id: 'bm-civil',
+    label: 'Bermuda Civil — Originating Summons',
+    country: 'Bermuda',
+    court: 'Supreme Court of Bermuda',
+    caseNoFormat: '20__: No. ___',
+    template: (data) => `IN THE SUPREME COURT OF BERMUDA
+CIVIL JURISDICTION
+
+                                        20__: No. ___
+
+IN THE MATTER OF:
+
+BETWEEN:
+
+                            ${data.plaintiff || '[PLAINTIFF]'}
+                                                              Applicant
+
+                                    -and-
+
+                           ${data.defendant || '[DEFENDANT]'}
+                                                              Respondent
+
+
+                        ORIGINATING SUMMONS
+
+
+LET ${data.defendant || 'THE RESPONDENT'} attend before the Judge in Chambers
+at the Supreme Court Building, 21 Parliament Street, Hamilton, Bermuda
+on a date to be fixed for the hearing of an application by the
+Applicant for:
+
+1.   A Declaration that...
+2.   An Order that...
+3.   Costs.
+4.   Such further or other relief as the Court deems just.
+
+
+Dated this _____ day of ______________, 20__.
+
+________________________________
+${data.firmName || '[FIRM NAME]'}
+Solicitors for the Applicant
+Hamilton, Bermuda
+Tel: [TELEPHONE]
+`
+  },
+
   'uk-kb': {
     id: 'uk-kb',
     label: 'UK High Court — King\'s Bench Division',

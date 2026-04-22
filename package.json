@@ -23,7 +23,9 @@
     "uuid": "^9.0.1",
     "pg": "^8.11.3",
     "nodemailer": "^6.9.0",
-    "sharp": "^0.33.0"
+    "sharp": "^0.33.0",
+    "bcrypt": "^5.1.1",
+    "connect-pg-simple": "^9.0.1"
   },
   "engines": {
     "node": ">=18"
