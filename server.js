@@ -91,4 +91,12 @@ async function start() {
   })
 }
 
-start().catch(console.error)
+start().catch(err => {
+  console.error('Startup error (server still starting):', err.message)
+  // Start without DB if initDB failed
+  app.listen(PORT, () => {
+    console.log(`
+⚖️  LexAI.llc v2.0 — ${process.env.NODE_ENV || 'development'} (limited mode)`)
+    console.log(`   PORT: ${PORT} — DB unavailable`)
+  })
+})
