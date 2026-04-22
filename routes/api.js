@@ -188,7 +188,7 @@ router.post('/correction', ensureAuth, async (req, res) => {
   try {
     const { query, original, corrected, jurisdiction } = req.body
     const userId = req.user?.id || req.session?.userId
-    await learning.saveCorrection({ userId, query, original, corrected, jurisdiction })
+    await learning.recordCorrection({ userId, query, original, corrected, jurisdiction })
     res.json({ success: true })
   } catch (e) {
     res.status(500).json({ error: e.message })

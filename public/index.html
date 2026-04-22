@@ -948,7 +948,7 @@ async function searchCases() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ query, jurisdiction, area_of_law: area, limit: parseInt(limit), source })
+      body: JSON.stringify({ query, jurisdiction, area_of_law: area, limit: parseInt(limit), source, format: document.getElementById('cl-format')?.value || 'json' })
     })
     const data = await res.json()
 
