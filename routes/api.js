@@ -32,6 +32,16 @@ router.post('/caselaw', checkDocLimit, async (req, res) => {
       results = await caselaw.searchHarvardCAP(query, { jurisdiction: src, limit })
     } else if (src.includes('statutes')) {
       results = await caselaw.searchStatutes(query, { jurisdiction: src, limit })
+    } else if (src.includes('india') || src.includes('indiankanoon') || src.includes('bombay') || src.includes('delhi') || src.includes('madras') || src.includes('calcutta') || src.includes('supreme court of india')) {
+      results = await caselaw.searchIndianKanoon({ query, jurisdiction: src, limit })
+    } else if (src.includes('hong kong') || src.includes('hklii') || src.includes('hksar') || src.includes('hca') || src.includes('cacv') || src.includes('facv')) {
+      results = await caselaw.searchHKLII({ query, limit })
+    } else if (src.includes('singapore') || src.includes('sghc') || src.includes('sgca') || src.includes('sicc')) {
+      results = await caselaw.searchCommonLII(query, { jurisdiction: 'sg', limit })
+    } else if (src.includes('malaysia') || src.includes('kehakiman')) {
+      results = await caselaw.searchCommonLII(query, { jurisdiction: 'my', limit })
+    } else if (src.includes('sri lanka') || src.includes('pakistan') || src.includes('philippines')) {
+      results = await caselaw.searchCommonLII(query, { jurisdiction: src.includes('sri') ? 'lk' : src.includes('pakistan') ? 'pk' : 'ph', limit })
     } else {
       results = await caselaw.searchCaseLaw(query, { jurisdiction: src, area_of_law, limit })
     }

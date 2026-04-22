@@ -699,6 +699,94 @@ async function searchCommonLII({ query, jurisdiction, limit = 10 }) {
   } catch { return { cases: [], total: 0 } }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// INDIAN KANOON — Free Indian case law search (SC + all High Courts + Tribunals)
+// API: POST https://api.indiankanoon.org/search/  formInput=<query>&pagenum=0
+// ─────────────────────────────────────────────────────────────────────────────
+async function searchIndianKanoon({ query, jurisdiction, limit = 10 }) {
+  try {
+    const courtFilter = (() => {
+      if (!jurisdiction) return ''
+      const j = jurisdiction.toLowerCase()
+      if (j.includes('bombay'))   return ' doctypes:bombayHC'
+      if (j.includes('delhi'))    return ' doctypes:delhiHC'
+      if (j.includes('madras'))   return ' doctypes:madrasHC'
+      if (j.includes('calcutta')) return ' doctypes:calcuttaHC'
+      if (j.includes('supreme') || j.includes('india')) return ' doctypes:supremecourt'
+      return ''
+    })()
+    const formInput = encodeURIComponent(query + courtFilter)
+    const res = await fetch(
+      `https://api.indiankanoon.org/search/?formInput=${formInput}&pagenum=0`,
+      { method: 'POST', headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(10000) }
+    )
+    if (!res.ok) return { cases: [], total: 0 }
+    const data = await res.json()
+    const docs = (data.docs || []).slice(0, limit)
+    return {
+      cases: docs.map(d => ({
+        id:          `ik_${d.tid}`,
+        title:       d.title || 'Untitled',
+        citation:    d.docsource || '',
+        date:        d.publishdate || '',
+        court:       d.docsource || 'Indian Court',
+        jurisdiction: jurisdiction || 'India',
+        summary:     d.fragment ? d.fragment.replace(/<[^>]+>/g, '') : '',
+        url:         `https://indiankanoon.org/doc/${d.tid}/`,
+        source:      'IndianKanoon'
+      })),
+      total: data.total || docs.length
+    }
+  } catch { return { cases: [], total: 0 } }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HKLII — Hong Kong Legal Information Institute
+// Routes through CommonLII Hong Kong section (commonlii.org/hk/)
+// ─────────────────────────────────────────────────────────────────────────────
+async function searchHKLII({ query, limit = 10 }) {
+  try {
+    // Use CommonLII with HK-specific path filtering
+    const base   = 'https://www.commonlii.org'
+    const hkPaths = [
+      '/hk/cases/HKCFA/',  // Court of Final Appeal
+      '/hk/cases/HKCA/',   // Court of Appeal
+      '/hk/cases/HKCFI/',  // Court of First Instance
+    ]
+    const searchUrl = `${base}/cgi-bin/sinosrch.cgi?method=boolean&query=${encodeURIComponent(query)}&db=hk&meta=%2Fhk&mask_path=hk%2Fcases`
+    const res = await fetch(searchUrl, {
+      headers: { 'User-Agent': 'LexAI/1.0 (legal research; contact@lexai.llc)' },
+      signal: AbortSignal.timeout(12000)
+    })
+    if (!res.ok) return { cases: [], total: 0 }
+    const html = await res.text()
+    // Parse CommonLII search results
+    const linkRe = /href="((\/hk\/cases\/[^"]+\.html))">([^<]+)<\/a>/gi
+    const matches = []
+    let m
+    while ((m = linkRe.exec(html)) !== null && matches.length < limit) {
+      const path  = m[1]
+      const title = m[3].trim()
+      if (!title || title.length < 5) continue
+      const courtCode = path.split('/')[3] || 'HK'
+      matches.push({
+        id:          `hklii${path.replace(/\//g, '_')}`,
+        title,
+        citation:    title,
+        court:       courtCode.startsWith('HKCFA') ? 'Court of Final Appeal'
+                   : courtCode.startsWith('HKCA')  ? 'Court of Appeal'
+                   : 'Court of First Instance',
+        jurisdiction: 'Hong Kong',
+        summary:     '',
+        url:         `${base}${path}`,
+        source:      'HKLII'
+      })
+    }
+    return { cases: matches, total: matches.length }
+  } catch { return { cases: [], total: 0 } }
+}
+
+
 module.exports = {
   searchCaseLaw,
   searchCourtListener,
@@ -708,6 +796,8 @@ module.exports = {
   searchCanLII,
   searchCCJ,
   searchCommonLII,
+  searchIndianKanoon,
+  searchHKLII,
   searchStatutes,
   getCaseByID,
   parseCitation,
