@@ -70,6 +70,7 @@ if (process.env.GITHUB_CLIENT_ID) {
 
 app.use('/auth', require('./routes/auth'))
 app.use('/api', require('./routes/api'))
+app.use('/api/affiliate', require('./routes/affiliate'))
 app.use('/api/payments', require('./routes/payments'))
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'lexai', version: '2.0.0', env: process.env.NODE_ENV }))

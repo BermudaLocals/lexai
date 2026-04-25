@@ -80,6 +80,20 @@ async function initDB() {
         jurisdiction TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS affiliates (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        ref_code TEXT UNIQUE NOT NULL,
+        paypal_email TEXT,
+        clicks INTEGER DEFAULT 0,
+        signups INTEGER DEFAULT 0,
+        conversions INTEGER DEFAULT 0,
+        pending_payout NUMERIC(10,2) DEFAULT 0,
+        total_earned NUMERIC(10,2) DEFAULT 0,
+        last_payout_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
     `)
     console.log('✅ DB tables initialised')
   } catch (e) {

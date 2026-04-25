@@ -179,6 +179,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
     <li><a href="#caselaw">Case Law</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#vs">vs Harvey</a></li>
+    <li><a href="#affiliate">Earn</a></li>
     <li><a href="/login" class="nav-btn">Start Free →</a></li>
   </ul>
 </nav>
@@ -950,6 +951,102 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
     <span style="color:var(--gold)">Overage: $5/doc | $50/research</span>
   </div>
 </section>
+
+<!-- ── AFFILIATE PROGRAM ── -->
+<section class="section" id="affiliate" style="max-width:900px">
+  <div class="eyebrow">PARTNER PROGRAM</div>
+  <h2 class="section-h">Earn With LexAI</h2>
+  <p class="section-sub">Refer lawyers. Earn 20% commission for 12 months. No cap.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:40px 0">
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:28px 22px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🔗</div>
+      <div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#fff;margin-bottom:8px">1. Get Your Link</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Sign up and receive your unique referral link instantly. Share it anywhere.</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--gold);border-radius:10px;padding:28px 22px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">⚖️</div>
+      <div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#fff;margin-bottom:8px">2. Refer Lawyers</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Share with law firms, solo practitioners, paralegals — anyone in the legal industry.</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:28px 22px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">💰</div>
+      <div style="font-family:var(--serif);font-size:16px;font-weight:700;color:#fff;margin-bottom:8px">3. Get Paid</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Earn 20% of every subscription payment for 12 months. Paid via PayPal when you hit $50.</div>
+    </div>
+  </div>
+
+  <!-- Earnings Calculator -->
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:32px">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:20px">Earnings Calculator</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center">
+      <div>
+        <label style="display:block;font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Lawyers you refer per month</label>
+        <input type="range" id="aff-slider" min="1" max="50" value="5"
+          style="width:100%;accent-color:var(--gold)"
+          oninput="document.getElementById('aff-val').textContent=this.value;updateAffCalc()">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px">
+          <span>1</span><span id="aff-val" style="color:var(--gold)">5</span><span>50</span>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:8px">MONTHLY EARNINGS</div>
+        <div id="aff-monthly" style="font-family:var(--serif);font-size:40px;font-weight:900;color:var(--gold)">$300</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">($60/lawyer × 5 referrals)</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--muted)">Year 1 total: <span id="aff-annual" style="color:#fff;font-weight:600">$3,600</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commission Table -->
+  <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:32px">
+    <thead>
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase">Plan Referred</th>
+        <th style="text-align:center;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase">Subscription</th>
+        <th style="text-align:center;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--gold);text-transform:uppercase">Your Commission</th>
+        <th style="text-align:center;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase">Per Year</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+        <td style="padding:10px 12px;color:#fff">Solo</td>
+        <td style="padding:10px 12px;text-align:center;color:var(--muted)">$300/mo</td>
+        <td style="padding:10px 12px;text-align:center;color:var(--gold);font-weight:700">$60/mo</td>
+        <td style="padding:10px 12px;text-align:center;color:#fff">$720</td>
+      </tr>
+      <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+        <td style="padding:10px 12px;color:#fff">Team</td>
+        <td style="padding:10px 12px;text-align:center;color:var(--muted)">$1,200/mo</td>
+        <td style="padding:10px 12px;text-align:center;color:var(--gold);font-weight:700">$240/mo</td>
+        <td style="padding:10px 12px;text-align:center;color:#fff">$2,880</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 12px;color:#fff">Enterprise</td>
+        <td style="padding:10px 12px;text-align:center;color:var(--muted)">$3,000/mo</td>
+        <td style="padding:10px 12px;text-align:center;color:var(--gold);font-weight:700">$600/mo</td>
+        <td style="padding:10px 12px;text-align:center;color:#fff">$7,200</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="text-align:center">
+    <a href="/login" class="btn-gold" style="font-size:15px;padding:16px 44px">Join Affiliate Program →</a>
+    <p style="margin-top:16px;font-size:12px;color:var(--muted)">Free to join · PayPal payouts · No cap on earnings · 20% for 12 months per referral</p>
+  </div>
+</section>
+
+<script>
+function updateAffCalc() {
+  const n = parseInt(document.getElementById('aff-slider').value)
+  const monthly = n * 60
+  const annual = monthly * 12
+  document.getElementById('aff-monthly').textContent = '$' + monthly.toLocaleString()
+  document.getElementById('aff-annual').textContent = '$' + annual.toLocaleString()
+  document.querySelector('#affiliate .feat-card div')  
+}
+window.addEventListener('load', updateAffCalc)
+</script>
 <footer>
   <div class="footer-logo">LexAI<em>.llc</em></div>
   <div class="footer-copy">© 2026 LexAI.llc · Built in Bermuda 🇧🇲 · Dollar Double Empire</div>
@@ -957,6 +1054,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
     <a href="/privacy">Privacy</a>
     <a href="/terms">Terms</a>
     <a href="mailto:hello@lexai.llc">Contact</a>
+    <a href="#affiliate">Affiliate</a>
   </div>
 </footer>
 
