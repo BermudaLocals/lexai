@@ -108,7 +108,8 @@ router.post('/create-order', async (req, res) => {
         },
         items: [{
           name: product_name || 'Product',
-          description: `Product ID: ${product_id}`,\n          quantity: '1',
+          description: `Product ID: ${product_id}`,
+          quantity: '1',
           unit_amount: { currency_code: currency, value: amount.toString() }
         }],
         reference_id: product_id || 'default'
