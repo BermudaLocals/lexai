@@ -179,7 +179,7 @@ const CASELAW_PROVIDERS = {
   },
   google_scholar: {
     baseURL: 'https://scholar.google.com',
-    enabled: false \u2013 requires scraping automation
+    enabled: false // requires scraping automation
   },
   noten: {
     baseURL: process.env.CASELAW_NOTEN_URL || 'https://api.noten.io/v1',
@@ -279,19 +279,61 @@ async function searchWestlaw(query, jurisdiction, config, options) {
 
   const data = await response.json();
   return data.cases?.map(caseData => ({
-    id: caseData.id || `westlaw_${Math.random()}`,\n    name: caseData.name || caseData.name || 'Unknown Case',\n    citation: caseData.citation || caseData.citation || '',\n    date: caseData.date || caseData.date || '',\n    court: caseData.court || caseData.court || '',\n    jurisdiction: caseData.jurisdiction || jurisdiction,\n    url: caseData.url || caseData.url || '#',\n    snippet: caseData.snippet || caseData.snippet || '',\n    relevance_score: caseData.relevance_score || 0,\n    citation_count: caseData.citation_count || 0,\n    quotes: caseData.quotes || [],\n    judge: caseData.judge || '',\n    parties: caseData.parties || ''\n  })) || [];
+    id: caseData.id || `westlaw_${Math.random()}`,
+    name: caseData.name || caseData.name || 'Unknown Case',
+    citation: caseData.citation || caseData.citation || '',
+    date: caseData.date || caseData.date || '',
+    court: caseData.court || caseData.court || '',
+    jurisdiction: caseData.jurisdiction || jurisdiction,
+    url: caseData.url || caseData.url || '#',
+    snippet: caseData.snippet || caseData.snippet || '',
+    relevance_score: caseData.relevance_score || 0,
+    citation_count: caseData.citation_count || 0,
+    quotes: caseData.quotes || [],
+    judge: caseData.judge || '',
+    parties: caseData.parties || ''
+  })) || [];
 }
 
 async function searchCasetext(query, jurisdiction, config, options) {
   const url = `${config.baseURL}/cases/search`;
   const body = {
     query,
-    jurisdiction: jurisdiction.toLowerCase(),\n    limit: options.limit || 20,\n    ...(options.dateRange ? { date_range: options.dateRange } : {}),\n    include_full_text: options.include_full_text || false,\n    sort_by: 'relevance'\n  };\n\n  const response = await fetch(url, {
+    jurisdiction: jurisdiction.toLowerCase(),
+    limit: options.limit || 20,
+    ...(options.dateRange ? { date_range: options.dateRange } : {}),
+    include_full_text: options.include_full_text || false,
+    sort_by: 'relevance'
+  };
+
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify(body)\n  });\n\n  if (!response.ok) throw new Error(`Casetext API error: ${response.status}`);\n\n  const data = await response.json();\n  return data.cases?.map(caseData => ({
-    id: caseData.id || `casetext_${Math.random()}`,\n    name: caseData.name || caseData.name || 'Unknown Case',\n    citation: caseData.citation || caseData.citation || '',\n    date: caseData.date || caseData.date || '',\n    court: caseData.court || caseData.court || '',\n    jurisdiction: caseData.jurisdiction || jurisdiction,\n    url: caseData.url || caseData.url || '#',\n    snippet: caseData.snippet || caseData.snippet || '',\n    relevance_score: caseData.relevance_score || 0,\n    citation_count: caseData.citation_count || 0,\n    quotes: caseData.quotes || [],\n    judge: caseData.judge || '',\n    parties: caseData.parties || ''\n  })) || [];\n}
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) throw new Error(`Casetext API error: ${response.status}`);
+
+  const data = await response.json();
+  return data.cases?.map(caseData => ({
+    id: caseData.id || `casetext_${Math.random()}`,
+    name: caseData.name || caseData.name || 'Unknown Case',
+    citation: caseData.citation || caseData.citation || '',
+    date: caseData.date || caseData.date || '',
+    court: caseData.court || caseData.court || '',
+    jurisdiction: caseData.jurisdiction || jurisdiction,
+    url: caseData.url || caseData.url || '#',
+    snippet: caseData.snippet || caseData.snippet || '',
+    relevance_score: caseData.relevance_score || 0,
+    citation_count: caseData.citation_count || 0,
+    quotes: caseData.quotes || [],
+    judge: caseData.judge || '',
+    parties: caseData.parties || ''
+  })) || [];
+}
 
 // Export enhanced case law search function
 module.exports = {

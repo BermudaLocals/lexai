@@ -79,14 +79,14 @@ ${details}
 
 Tone: ${tone || 'professional'}
 
-Provide a complete, professional legal document with all standard clauses, definitions, and boilerplate appropriate for ${jx}. Use proper legal formatting.``
+Provide a complete, professional legal document with all standard clauses, definitions, and boilerplate appropriate for ${jx}. Use proper legal formatting.`
 
   try {
     const res = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240620',
       max_tokens: 4000,
       temperature: 0.3,
-      system: `You are LexAI, an expert legal AI assistant specializing in Commonwealth law (Bermuda, Caribbean, UK, Canada, Australia). Draft precise, professional legal documents with all standard clauses, definitions, and boilerplate appropriate for the specified jurisdiction.`, 
+      system: `You are LexAI, an expert legal AI assistant specializing in Commonwealth law (Bermuda, Caribbean, UK, Canada, Australia). Draft precise, professional legal documents with all standard clauses, definitions, and boilerplate appropriate for the specified jurisdiction.`,
       messages: [{ role: 'user', content: prompt }]
     })
     return res.content[0]?.text || 'No response generated'
