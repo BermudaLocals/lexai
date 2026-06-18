@@ -20,4 +20,10 @@ function buildContextPrompt(userId) {
   return `\n\nUser style preferences based on past corrections:\n${recent.map(p => `- Changed "${p.original.slice(0,50)}..." to "${p.corrected.slice(0,50)}..."`).join('\n')}`
 }
 
-module.exports = { recordCorrection, getUserPatterns, buildContextPrompt }
+
+async function learnFromDocument(userId, content, type) {
+  // Stub - learning from document interactions
+  return true;
+}
+
+module.exports = { recordCorrection, getUserPatterns, buildContextPrompt, learnFromDocument };
