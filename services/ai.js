@@ -4,7 +4,7 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'process.env.ANTHROPIC_API_KEY'
+  apiKey: process.env.ANTHROPIC_API_KEY
 });
 
 // Smart model routing for 98% margin
@@ -96,3 +96,19 @@ Provide a complete, professional legal document with all standard clauses, defin
 }
 
 module.exports = { generateDocument, selectModel, draftDocument }
+
+// Document type templates
+const TEMPLATES = {
+  NDA: 'Non-Disclosure Agreement',
+  CONTRACT: 'Service Agreement',
+  EMPLOYMENT: 'Employment Agreement',
+  LEASE: 'Lease Agreement',
+  PARTNERSHIP: 'Partnership Agreement',
+  TERMS: 'Terms of Service',
+  PRIVACY: 'Privacy Policy',
+  WILL: 'Last Will and Testament',
+  POA: 'Power of Attorney',
+  LOI: 'Letter of Intent'
+};
+
+module.exports.TEMPLATES = TEMPLATES;
