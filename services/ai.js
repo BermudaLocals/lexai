@@ -14,7 +14,7 @@ function selectModel(type, options) {
   const complexTasks = ['ma', 'litigation', 'deep_research', 'strategy']
   if (simpleTasks.includes(type)) return 'claude-3-haiku-20240307'
   if (complexTasks.includes(type)) return 'claude-3-opus-20240229'
-  return 'claude-3-sonnet-20240620'
+  return 'claude-opus-4-8'
 }
 
 async function generateDocument(prompt, type = 'contract', options = {}) {
@@ -83,7 +83,7 @@ Provide a complete, professional legal document with all standard clauses, defin
 
   try {
     const res = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240620',
+      model: 'claude-opus-4-8',
       max_tokens: 4000,
       temperature: 0.3,
       system: `You are LexAI, an expert legal AI assistant specializing in Commonwealth law (Bermuda, Caribbean, UK, Canada, Australia). Draft precise, professional legal documents with all standard clauses, definitions, and boilerplate appropriate for the specified jurisdiction.`,
