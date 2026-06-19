@@ -3,12 +3,13 @@
 <head>
 <title>LexAI Dashboard</title>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<style>body{background:#070709;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+<style>
+body{background:#070709;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
 .box{text-align:center;padding:40px;max-width:600px;width:100%}
 .logo{color:#c9a84c;font-size:28px;font-weight:700;margin-bottom:16px}
 #welc{text-align:center;margin:24px 0;font-size:18px}
-.btn{display:inline-block;background:#c9a84c;color:#000;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin:8px}
-#logout{background:#ff4d4d;color:#000;margin-top:20px}
+.btn{display:inline-block;background:#c9a84c;color:#000;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin:8px;cursor:pointer;border:none;font-size:16px}
+#logout{background:#333;color:#fff;margin-top:20px}
 </style>
 </head>
 <body>
@@ -16,33 +17,40 @@
   <div class="logo">⚖️ LexAI</div>
   <h2 id="welc">Loading...</h2>
   <div>
-    <a href="#" id="draftBtn" class="btn">Draft</a>
-    <a href="#" id="analyzeBtn" class="btn">Analyze</a>
-    <a href="#" id="researchBtn" class="btn">Research</a>
+    <a href="#" class="btn">Draft</a>
+    <a href="#" class="btn">Analyze</a>
+    <a href="#" class="btn">Research</a>
   </div>
   <button id="logout" class="btn">Logout</button>
 </div>
 <script>
-function getToken(){return localStorage.getItem('lexai_token');}
-function decodeJwt(token){
-  if (!token) return null;
-  const payload = token.split('.')[1];
-  try{ return JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));}catch{return null;}
-}
 async function init(){
-  const token = getToken();
-  if (!token){window.location.href='/login';return;}
-  const payload = decodeJwt(token);
-  if (!payload || !payload.id){window.location.href='/login';return;}
-  document.getElementById('welc').textContent='Welcome, '+(payload.email||'User')+'!';
-}
-async function logout(){
-  await fetch('/api/auth/logout', {method:'POST'});
-  localStorage.removeItem('lexai_token');
+  try {
+    const r = await fetch('/api/auth/me', {credentials:'include'});
+    if(r.ok){
+      const d = await r.json();
+      document.getElementById('welc').textContent = 'Welcome, '+(d.user?.email||d.email||'User')+'!';
+      return;
+    }
+  } catch(e){}
+  const token = localStorage.getItem('lexai_token');
+  if(!token){ window.location.href='/login'; return; }
+  try {
+    const p = token.split('.')[1];
+    const payload = JSON.parse(atob(p.replace(/-/g,'+').replace(/_/g,'/')));
+    if(payload && payload.email){
+      document.getElementById('welc').textContent = 'Welcome, '+payload.email+'!';
+      return;
+    }
+  } catch(e){}
   window.location.href='/login';
 }
+document.getElementById('logout').addEventListener('click', async ()=>{
+  await fetch('/api/auth/logout',{method:'POST',credentials:'include'});
+  localStorage.removeItem('lexai_token');
+  window.location.href='/login';
+});
 init();
-document.getElementById('logout').addEventListener('click',logout);
 </script>
 </body>
 </html>
