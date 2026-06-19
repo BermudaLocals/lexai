@@ -1241,6 +1241,10 @@ async function init() {
     const me = await apiCall('/api/auth/me');
     if (me && (me.user || me.email)) {
       userEmail = me.user?.email || me.email;
+      const p = me.user?.plan || me.plan || 'free';
+      const r = me.user?.role || me.role || 'user';
+      document.getElementById('user-plan').textContent = (r === 'owner' ? '⚡ ' : '') + p.toUpperCase();
+      if (r === 'owner' || r === 'admin') { const alink = document.createElement('button'); alink.className='nav-item'; alink.innerHTML='<span class="ni">⚡</span>Admin Panel'; alink.onclick=()=>window.location.href='/admin.html'; document.querySelector('.sidebar-nav').appendChild(alink); }
       document.getElementById('user-email').textContent = userEmail;
       loadStatus();
       return;
