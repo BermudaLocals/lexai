@@ -83,7 +83,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 })
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')))
 app.use((req, res) => req.path.startsWith('/api') ? res.status(404).json({ error: 'Not found' }) : res.sendFile(path.join(__dirname, 'public', 'index.html')))
-app.use('/api', require('./routes/affilitae'));
+app.use('/api', require('./routes/affiliate'));
 async function start() {
   await initDB()
   app.listen(PORT, () => {
