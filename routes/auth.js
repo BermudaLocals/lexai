@@ -62,8 +62,8 @@ router.post('/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.password_hash)
     if (!match) return res.status(401).json({ error: 'Invalid credentials' })
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '30d' })
-    req.session.user = { id: user.id, email: user.email, name: user.name }
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name } })
+    req.session.user = { id: user.id, email: user.email, name: user.name, plan: user.plan || 'free', role: user.role || 'user' }
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name, plan: user.plan || 'free', role: user.role || 'user' } })
   } catch(err) {
     console.error('[auth] login:', err.message)
     res.status(500).json({ error: 'Login failed' })
@@ -73,7 +73,7 @@ router.post('/login', async (req, res) => {
 // Me
 router.get('/me', (req, res) => {
   if (!req.session.user) return res.status(401).json({ error: 'Not authenticated' })
-  res.json({ user: req.session.user })
+  res.json({ user: req.session.user, plan: req.session.user?.plan, role: req.session.user?.role })
 })
 
 // Logout
