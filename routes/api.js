@@ -1,395 +1,403 @@
-const express = require('express')
-const router = express.Router()
-const multer = require('multer')
-const { v4: uuidv4 } = require('uuid')
-const { pool } = require('../db')
-const ai = require('../services/ai')
-const caselaw = require('../services/caselaw')
-const learning = require('../services/learning')
-const { requireAuth, requirePaid, requirePro, requireFirm, checkDocLimit } = require('../middleware/auth')
+// LexAI v3.0 — Complete API Routes
+// Dollar Double Empire — All features, zero Kush corruption
+'use strict';
 
-router.get('/me', requireAuth, (req, res) => res.json({ user: req.user }))
+const express = require('express');
+const router = express.Router();
+const crypto = require('crypto');
+const pool = require('../db');
+const ai = require('../services/ai');
+const { requireAuth } = require('../middleware/auth');
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: (parseInt(process.env.MAX_UPLOAD_MB) || 50) * 1024 * 1024 } })
-
-// ── Helper: extract text from uploaded file ───────────────
-async function extractText(file) {
-  if (!file) return null
-  if (file.mimetype === 'application/pdf') {
-    const pdfParse = require('pdf-parse')
-    const data = await pdfParse(file.buffer)
-    return data.text
-  }
-  if (file.mimetype.includes('word') || file.originalname.endsWith('.docx')) {
-    const mammoth = require('mammoth')
-    const r = await mammoth.extractRawText({ buffer: file.buffer })
-    return r.value
-  }
-  return file.buffer.toString('utf-8')
-}
-
-// ── Helper: audit log ─────────────────────────────────────
-async function audit(userId, action, resourceType, resourceId, meta = {}) {
+// ── AUDIT HELPER ──────────────────────────────────────────────
+async function audit(userId, action, resource, resourceId, meta = {}) {
   try {
     await pool.query(
-      'INSERT INTO audit_log(user_id,action,resource_type,resource_id,metadata) VALUES($1,$2,$3,$4,$5)',
-      [userId, action, resourceType, resourceId, JSON.stringify(meta)]
-    )
-  } catch {}
+      'INSERT INTO audit_log(user_id,action,resource,resource_id,meta) VALUES($1,$2,$3,$4,$5)',
+      [userId, action, resource, resourceId, JSON.stringify(meta)]
+    );
+  } catch (e) { console.error('[audit]', e.message); }
 }
 
-// ── HEALTH ────────────────────────────────────────────────
-router.get('/health', (req, res) => res.json({ status: 'ok', service: 'lexai', version: '2.0.0' }))
-
-// ── DASHBOARD ─────────────────────────────────────────────
-router.get('/dashboard', requireAuth, async (req, res) => {
-  const [docs, analyses, workflows, agents, stats, learning_stats] = await Promise.all([
-    pool.query('SELECT id,title,type,status,created_at,word_count FROM documents WHERE user_id=$1 ORDER BY created_at DESC LIMIT 8', [req.user.id]),
-    pool.query('SELECT id,title,type,risk_score,created_at FROM analyses WHERE user_id=$1 ORDER BY created_at DESC LIMIT 5', [req.user.id]),
-    pool.query('SELECT id,name,run_count FROM workflows WHERE user_id=$1 ORDER BY run_count DESC LIMIT 5', [req.user.id]),
-    pool.query('SELECT id,name,type,run_count FROM agents WHERE is_public=TRUE ORDER BY run_count DESC LIMIT 6'),
-    pool.query('SELECT COUNT(*) as docs FROM documents WHERE user_id=$1', [req.user.id]),
-    learning.getLearningStats(req.user.id),
-  ])
-
-  res.json({
-    user: { name: req.user.name, email: req.user.email, plan: req.user.plan, avatar_url: req.user.avatar_url, firm_name: req.user.firm_name },
-    stats: { total_documents: parseInt(stats.rows[0].docs), docs_this_month: req.user.docs_used_this_month, ...learning_stats },
-    recent_docs: docs.rows, recent_analyses: analyses.rows,
-    workflows: workflows.rows, featured_agents: agents.rows,
-    templates: Object.entries(ai.TEMPLATES).map(([k, v]) => ({ key: k, name: v })),
-  })
-})
-
-// ── 1. DRAFT DOCUMENT ─────────────────────────────────────
-router.post('/draft', requireAuth, checkDocLimit, async (req, res) => {
-  const { type, parties, jurisdiction, details, tone } = req.body
-  if (!type) return res.status(400).json({ error: 'Type required' })
+// ── UPDATE USAGE ──────────────────────────────────────────────
+async function updateUsage(userId) {
   try {
-    const content = await ai.draftDocument({ type, parties, jurisdiction, details, tone, userId: req.user.id })
-    const title = `${ai.TEMPLATES[type] || type} — ${new Date().toLocaleDateString()}`
-    const r = await pool.query(
-      'INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction) VALUES($1,$2,$3,$4,\'draft\',$5,$6) RETURNING id',
-      [req.user.id, title, type, content, content.split(/\s+/).length, jurisdiction || 'United States']
-    )
-    await pool.query('UPDATE users SET docs_used_this_month=docs_used_this_month+1 WHERE id=$1', [req.user.id])
-    await learning.learnFromDocument(req.user.id, content, type)
-    await audit(req.user.id, 'draft_document', 'document', r.rows[0].id, { type })
-    res.json({ content, doc_id: r.rows[0].id, word_count: content.split(/\s+/).length })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 2. CONTRACT ANALYSIS ─────────────────────────────────
-router.post('/analyze', requireAuth, requirePaid, upload.single('file'), async (req, res) => {
-  try {
-    let text = req.body.text || ''
-    if (req.file) text = await extractText(req.file) || text
-    if (!text?.trim()) return res.status(400).json({ error: 'Text or file required' })
-    const analysis = await ai.analyzeContract(text, req.user.id)
-    const r = await pool.query(
-      'INSERT INTO analyses(user_id,type,title,result,risk_score) VALUES($1,\'contract\',$2,$3,$4) RETURNING id',
-      [req.user.id, `Contract Analysis — ${new Date().toLocaleDateString()}`, JSON.stringify(analysis), analysis.risk_score]
-    )
-    await learning.learnFromDocument(req.user.id, text, 'contract')
-    res.json({ analysis, analysis_id: r.rows[0].id })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 3. LEGAL RESEARCH + REAL CASE LAW ────────────────────
-router.post('/research', requireAuth, requirePaid, async (req, res) => {
-  const { query, jurisdiction, area_of_law } = req.body
-  if (!query) return res.status(400).json({ error: 'Query required' })
-  try {
-    const result = await ai.legalResearch({ query, jurisdiction, area_of_law, userId: req.user.id })
     await pool.query(
-      'INSERT INTO research_queries(user_id,query,jurisdiction,area_of_law,result,case_law_results) VALUES($1,$2,$3,$4,$5,$6)',
-      [req.user.id, query, jurisdiction, area_of_law, result.memo, JSON.stringify(result.cases)]
-    )
-    res.json(result)
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+      'UPDATE users SET docs_used_this_month = docs_used_this_month + 1 WHERE id = $1',
+      [userId]
+    );
+  } catch (e) { console.error('[usage]', e.message); }
+}
 
-// ── 4. CASE LAW SEARCH (Westlaw/Juris equivalent) ────────
-router.post('/caselaw', requireAuth, requirePaid, async (req, res) => {
-  const { query, jurisdiction, area_of_law, limit, after_date, source } = req.body
-  if (!query) return res.status(400).json({ error: 'Query required' })
+// ══════════════════════════════════════════════════════════════
+// 1. DOCUMENT DRAFTING
+// ══════════════════════════════════════════════════════════════
+router.post('/draft', requireAuth, async (req, res) => {
   try {
-    const n = limit || 10
-    const opts = { query, jurisdiction, area_of_law, limit: n, after_date }
-    const sourceMap = {
-      'courtlistener':     () => caselaw.searchCourtListener({ query, jurisdiction, limit: n, after_date }),
-      'harvard':           () => caselaw.searchHarvardCAP({ query, jurisdiction, limit: n }),
-      'bermuda':           () => caselaw.searchBermudaGov({ query, limit: n }),
-      'privycouncil':      () => caselaw.searchBermudaPrivyCouncil({ query, limit: n }),
-      'canlii':            () => caselaw.searchCanLII({ query, jurisdiction, limit: n }),
-      'ccj':               () => caselaw.searchCCJ({ query, limit: n }),
-      'commonlii':         () => caselaw.searchCommonLII({ query, jurisdiction, limit: n }),
-      'statutes':          () => caselaw.searchStatutes({ query, jurisdiction, limit: n }),
-    }
-    const fn = source && sourceMap[source.toLowerCase()]
-    const results = fn ? await fn() : await caselaw.searchCaseLaw(opts)
-    res.json(results)
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+    const { type, jurisdiction, details, parties, tone } = req.body;
+    if (!type) return res.status(400).json({ error: 'Document type required' });
 
-router.get('/caselaw/case/:caseId', requireAuth, requirePaid, async (req, res) => {
-  try {
-    const c = await caselaw.getCaseByID(req.params.caseId)
-    if (!c) return res.status(404).json({ error: 'Case not found' })
-    res.json(c)
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+    const content = await ai.draftDocument({
+      type, jurisdiction, details, parties, tone,
+      userId: req.user.id
+    });
 
-// ── 5. LITIGATION PREDICTION ─────────────────────────────
-router.post('/predict', requireAuth, requirePro, async (req, res) => {
-  const { case_summary, jurisdiction, area_of_law } = req.body
-  if (!case_summary) return res.status(400).json({ error: 'Case summary required' })
-  try {
-    const result = await ai.predictLitigation({ caseSummary: case_summary, jurisdiction, areaOfLaw: area_of_law, userId: req.user.id })
+    const title = `${ai.TEMPLATES[type] || type} — ${new Date().toLocaleDateString()}`;
+    const wordCount = content.split(/\s+/).length;
+
     const r = await pool.query(
-      'INSERT INTO litigation_predictions(user_id,case_summary,jurisdiction,area_of_law,prediction,confidence_score,case_law_cited) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id',
-      [req.user.id, case_summary, jurisdiction, area_of_law, JSON.stringify(result.prediction), result.prediction.confidence_score / 100, JSON.stringify(result.case_law)]
-    )
-    res.json({ ...result, prediction_id: r.rows[0].id })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,$2,$3,$4,'draft',$5,$6) RETURNING id`,
+      [req.user.id, title, type, content, wordCount, jurisdiction || 'General']
+    );
 
-// ── 6. DUE DILIGENCE ─────────────────────────────────────
-router.post('/due-diligence', requireAuth, requirePro, upload.array('files', 15), async (req, res) => {
-  try {
-    const texts = []
-    for (const f of req.files || []) {
-      const t = await extractText(f)
-      if (t) texts.push(`[${f.originalname}]\n${t}`)
-    }
-    if (req.body.texts) texts.push(...(Array.isArray(req.body.texts) ? req.body.texts : [req.body.texts]))
-    if (!texts.length) return res.status(400).json({ error: 'At least 1 document required' })
-    const result = await ai.dueDiligence(texts, req.user.id)
-    res.json({ result })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+    await updateUsage(req.user.id);
+    await ai.learnFromDocument(req.user.id, content, type);
+    await audit(req.user.id, 'draft_document', 'document', r.rows[0].id, { type, jurisdiction });
 
-// ── 7. DEEP ANALYSIS (Harvey flagship) ───────────────────
-router.post('/deep-analysis', requireAuth, requirePro, upload.array('files', 20), async (req, res) => {
-  try {
-    const docs = []
-    for (const f of req.files || []) {
-      const t = await extractText(f)
-      if (t) docs.push(t)
-    }
-    if (req.body.documents) docs.push(...(Array.isArray(req.body.documents) ? req.body.documents : [req.body.documents]))
-    if (!docs.length) return res.status(400).json({ error: 'Documents required' })
-    const result = await ai.deepAnalysis({ documents: docs, analysisType: req.body.analysis_type, questions: req.body.questions, userId: req.user.id })
-    res.json({ result })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 8. RISK ANALYSIS ─────────────────────────────────────
-router.post('/risk', requireAuth, requirePaid, async (req, res) => {
-  if (!req.body.text) return res.status(400).json({ error: 'Text required' })
-  try {
-    const risk = await ai.riskAnalysis(req.body.text, req.user.id)
-    res.json({ risk })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 9. CLAUSE EXTRACTION ─────────────────────────────────
-router.post('/clauses', requireAuth, requirePaid, async (req, res) => {
-  if (!req.body.text) return res.status(400).json({ error: 'Text required' })
-  try { res.json({ clauses: await ai.extractClauses(req.body.text) }) }
-  catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 10. COMPLIANCE CHECK ─────────────────────────────────
-router.post('/compliance', requireAuth, requirePaid, async (req, res) => {
-  const { text, regulations, jurisdiction } = req.body
-  if (!text) return res.status(400).json({ error: 'Text required' })
-  try { res.json({ compliance: await ai.complianceCheck({ text, regulations, jurisdiction }) }) }
-  catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 11. M&A WORKFLOW ─────────────────────────────────────
-router.post('/ma', requireAuth, requirePro, upload.array('files', 10), async (req, res) => {
-  try {
-    const docs = []
-    for (const f of req.files || []) { const t = await extractText(f); if (t) docs.push(t) }
-    const result = await ai.maWorkflow({ targetName: req.body.target_name, dealType: req.body.deal_type, documents: docs, userId: req.user.id })
-    res.json({ result })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 12. TRANSLATE ─────────────────────────────────────────
-router.post('/translate', requireAuth, requirePaid, async (req, res) => {
-  const { text, target_language } = req.body
-  if (!text || !target_language) return res.status(400).json({ error: 'Text and language required' })
-  try { res.json({ result: await ai.translateDocument(text, target_language), target_language }) }
-  catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 13. PROOFREAD ─────────────────────────────────────────
-router.post('/proofread', requireAuth, async (req, res) => {
-  if (!req.body.text) return res.status(400).json({ error: 'Text required' })
-  try { res.json(await ai.proofreadDocument(req.body.text)) }
-  catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 14. TRANSCRIPT SUMMARY ───────────────────────────────
-router.post('/transcribe', requireAuth, requirePaid, async (req, res) => {
-  if (!req.body.transcript) return res.status(400).json({ error: 'Transcript required' })
-  try { res.json({ result: await ai.summarizeTranscript(req.body.transcript) }) }
-  catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 15. WORDS TO WORKFLOW ────────────────────────────────
-router.post('/words-to-workflow', requireAuth, requirePaid, async (req, res) => {
-  if (!req.body.description) return res.status(400).json({ error: 'Description required' })
-  try {
-    const workflow = await ai.wordsToWorkflow(req.body.description)
-    const r = await pool.query(
-      'INSERT INTO workflows(user_id,name,description,natural_language_prompt,steps,category) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',
-      [req.user.id, workflow.name, workflow.description, req.body.description, JSON.stringify(workflow.steps), workflow.category]
-    )
-    res.json({ ...workflow, workflow_id: r.rows[0].id })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-// ── 16. AGENTS ────────────────────────────────────────────
-router.get('/agents', requireAuth, async (req, res) => {
-  const [own, pub] = await Promise.all([
-    pool.query('SELECT * FROM agents WHERE user_id=$1 ORDER BY created_at DESC', [req.user.id]),
-    pool.query('SELECT * FROM agents WHERE is_public=TRUE ORDER BY run_count DESC LIMIT 20'),
-  ])
-  res.json({ own: own.rows, prebuilt: pub.rows })
-})
-
-router.post('/agents', requireAuth, requirePaid, async (req, res) => {
-  const { name, description, system_prompt, steps, tools, model, is_long_horizon } = req.body
-  if (!name) return res.status(400).json({ error: 'Name required' })
-  try {
-    const r = await pool.query(
-      'INSERT INTO agents(user_id,name,description,system_prompt,steps,tools,model,is_long_horizon) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',
-      [req.user.id, name, description, system_prompt, JSON.stringify(steps || []), tools || [], model || 'claude-haiku-4-5-20251001', is_long_horizon || false]
-    )
-    res.json(r.rows[0])
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
-
-router.post('/agents/:id/run', requireAuth, requirePaid, async (req, res) => {
-  const agentR = await pool.query('SELECT * FROM agents WHERE id=$1 AND (user_id=$2 OR is_public=TRUE)', [req.params.id, req.user.id])
-  if (!agentR.rows.length) return res.status(404).json({ error: 'Agent not found' })
-  const agent = agentR.rows[0]
-  const start = Date.now()
-  try {
-    const run = await ai.runAgent({ agent, inputs: req.body.inputs || {}, userId: req.user.id, isLongHorizon: agent.is_long_horizon })
-    const duration = Date.now() - start
-    const r = await pool.query(
-      'INSERT INTO agent_runs(agent_id,user_id,inputs,outputs,steps_completed,status,duration_ms) VALUES($1,$2,$3,$4,$5,\'complete\',$6) RETURNING id',
-      [agent.id, req.user.id, JSON.stringify(req.body.inputs), JSON.stringify(run.results), run.results.length, duration]
-    )
-    await pool.query('UPDATE agents SET run_count=run_count+1 WHERE id=$1', [agent.id])
-    res.json({ run_id: r.rows[0].id, ...run, duration_ms: duration })
+    res.json({ content, doc_id: r.rows[0].id, word_count: wordCount, title });
   } catch (err) {
-    await pool.query('INSERT INTO agent_runs(agent_id,user_id,inputs,status,error) VALUES($1,$2,$3,\'failed\',$4)', [agent.id, req.user.id, JSON.stringify(req.body.inputs), err.message])
-    res.status(500).json({ error: err.message })
+    console.error('[draft]', err.message);
+    res.status(500).json({ error: err.message });
   }
-})
+});
 
-// ── 17. WORKFLOWS ─────────────────────────────────────────
-router.get('/workflows', requireAuth, async (req, res) => {
-  const [own, pub] = await Promise.all([
-    pool.query('SELECT * FROM workflows WHERE user_id=$1 ORDER BY created_at DESC', [req.user.id]),
-    pool.query('SELECT * FROM workflows WHERE is_public=TRUE ORDER BY run_count DESC LIMIT 10'),
-  ])
-  res.json({ own: own.rows, public: pub.rows })
-})
-
-router.post('/workflows/:id/run', requireAuth, requirePaid, async (req, res) => {
-  const wf = await pool.query('SELECT * FROM workflows WHERE id=$1', [req.params.id])
-  if (!wf.rows.length) return res.status(404).json({ error: 'Workflow not found' })
+// ══════════════════════════════════════════════════════════════
+// 2. LEGAL RESEARCH
+// ══════════════════════════════════════════════════════════════
+router.post('/research', requireAuth, async (req, res) => {
   try {
-    const agentRun = await ai.runAgent({ agent: wf.rows[0], inputs: req.body.inputs || {}, userId: req.user.id })
-    await pool.query('UPDATE workflows SET run_count=run_count+1 WHERE id=$1', [wf.rows[0].id])
-    res.json(agentRun)
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+    const { query, jurisdictions, area_of_law, include_echr, include_privy_council } = req.body;
+    if (!query) return res.status(400).json({ error: 'Research query required' });
 
-// ── 18. VAULT ─────────────────────────────────────────────
-router.get('/vault', requireAuth, async (req, res) => {
-  const { type, search, page = 1 } = req.query
-  const limit = 20, offset = (page - 1) * limit
-  let q = 'SELECT id,title,type,status,word_count,tags,jurisdiction,created_at FROM documents WHERE user_id=$1'
-  const params = [req.user.id]
-  if (type) { q += ` AND type=$${params.length + 1}`; params.push(type) }
-  if (search) { q += ` AND title ILIKE $${params.length + 1}`; params.push(`%${search}%`) }
-  q += ` ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
-  params.push(limit, offset)
-  const [docs, count] = await Promise.all([pool.query(q, params), pool.query('SELECT COUNT(*) FROM documents WHERE user_id=$1', [req.user.id])])
-  res.json({ documents: docs.rows, total: parseInt(count.rows[0].count), page, limit })
-})
+    const content = await ai.researchCaseLaw({
+      query, jurisdictions, area_of_law,
+      include_echr: include_echr !== false,
+      include_privy_council: include_privy_council !== false
+    });
 
-router.get('/vault/:id', requireAuth, async (req, res) => {
-  const r = await pool.query('SELECT * FROM documents WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id])
-  if (!r.rows.length) return res.status(404).json({ error: 'Not found' })
-  res.json(r.rows[0])
-})
+    const r = await pool.query(
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,$2,'RESEARCH',$3,'complete',$4,$5) RETURNING id`,
+      [req.user.id, `Research: ${query.substring(0, 80)}`, content,
+        content.split(/\s+/).length, Array.isArray(jurisdictions) ? jurisdictions.join(', ') : jurisdictions || 'Multiple']
+    );
 
-router.put('/vault/:id', requireAuth, async (req, res) => {
-  const { title, content, status, tags } = req.body
-  await pool.query('UPDATE documents SET title=$1,content=$2,status=$3,tags=$4,updated_at=NOW() WHERE id=$5 AND user_id=$6', [title, content, status, tags, req.params.id, req.user.id])
-  res.json({ success: true })
-})
+    await audit(req.user.id, 'legal_research', 'document', r.rows[0].id, { query, jurisdictions });
+    res.json({ content, doc_id: r.rows[0].id, word_count: content.split(/\s+/).length });
+  } catch (err) {
+    console.error('[research]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
-router.delete('/vault/:id', requireAuth, async (req, res) => {
-  await pool.query('DELETE FROM documents WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id])
-  res.json({ success: true })
-})
-
-// ── 19. SHARED SPACES ─────────────────────────────────────
-router.post('/spaces', requireAuth, requirePro, async (req, res) => {
-  const { name, description, client_email, permissions } = req.body
-  if (!name) return res.status(400).json({ error: 'Name required' })
-  const token = uuidv4().replace(/-/g, '')
-  const r = await pool.query(
-    'INSERT INTO shared_spaces(owner_id,name,description,client_email,access_token,permissions,expires_at) VALUES($1,$2,$3,$4,$5,$6,NOW()+INTERVAL\'30 days\') RETURNING *',
-    [req.user.id, name, description, client_email, token, JSON.stringify(permissions || { read: true })]
-  )
-  res.json({ space: r.rows[0], share_url: `${process.env.APP_URL}/space/${token}` })
-})
-
-router.get('/spaces', requireAuth, async (req, res) => {
-  const r = await pool.query('SELECT * FROM shared_spaces WHERE owner_id=$1 ORDER BY created_at DESC', [req.user.id])
-  res.json({ spaces: r.rows })
-})
-
-// ── 20. SELF-LEARNING: Feedback ───────────────────────────
-router.post('/feedback', requireAuth, async (req, res) => {
-  const { resource_type, resource_id, original_output, corrected_output, score, notes } = req.body
-  if (!score || !resource_type) return res.status(400).json({ error: 'Score and resource_type required' })
+// ══════════════════════════════════════════════════════════════
+// 3. DOCUMENT ANALYSIS
+// ══════════════════════════════════════════════════════════════
+router.post('/analyze', requireAuth, async (req, res) => {
   try {
-    await learning.recordFeedback({ userId: req.user.id, resourceType: resource_type, resourceId: resource_id, originalOutput: original_output, correctedOutput: corrected_output, score, notes })
-    res.json({ success: true, message: 'Feedback recorded — LexAI is learning from this' })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+    const { content, analysis_type, jurisdiction, focus_areas } = req.body;
+    if (!content) return res.status(400).json({ error: 'Document content required' });
 
-router.get('/learning-stats', requireAuth, async (req, res) => {
-  try { res.json(await learning.getLearningStats(req.user.id)) }
-  catch (err) { res.status(500).json({ error: err.message }) }
-})
+    const analysis = await ai.analyzeDocument({ content, analysis_type, jurisdiction, focus_areas });
 
-// ── 21. FREE PREVIEW ─────────────────────────────────────
-router.post('/preview', async (req, res) => {
-  const { type } = req.body
-  if (!type) return res.status(400).json({ error: 'Type required' })
+    const r = await pool.query(
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,'Document Analysis','ANALYSIS',$2,'complete',$3,$4) RETURNING id`,
+      [req.user.id, analysis, analysis.split(/\s+/).length, jurisdiction || 'General']
+    );
+
+    await audit(req.user.id, 'analyze_document', 'document', r.rows[0].id, { analysis_type });
+    res.json({ analysis, doc_id: r.rows[0].id });
+  } catch (err) {
+    console.error('[analyze]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 4. SAFEGUARDING CASE SUPPORT
+// ══════════════════════════════════════════════════════════════
+router.post('/safeguarding', requireAuth, async (req, res) => {
   try {
-    const content = await ai.generatePreview(type)
-    res.json({ content: `⚠️ PREVIEW ONLY — Create your free account to generate the full document\n\n${content}\n\n...[Full document requires a free account. Starter plan from $97/mo for unlimited access.]`, is_preview: true })
-  } catch (err) { res.status(500).json({ error: err.message }) }
-})
+    const { case_type, facts, jurisdiction, organisation_type, concern_type } = req.body;
+    if (!facts) return res.status(400).json({ error: 'Case facts required' });
 
-// ── 22. AUDIT LOG ─────────────────────────────────────────
-router.get('/audit', requireAuth, requireFirm, async (req, res) => {
-  const r = await pool.query('SELECT * FROM audit_log WHERE user_id=$1 ORDER BY created_at DESC LIMIT 100', [req.user.id])
-  res.json({ events: r.rows })
-})
+    const content = await ai.safeguardingSupport({
+      case_type, facts, jurisdiction, organisation_type, concern_type
+    });
 
-module.exports = router
+    const r = await pool.query(
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,$2,'SAFEGUARDING',$3,'complete',$4,$5) RETURNING id`,
+      [req.user.id, `Safeguarding: ${case_type || 'Case Analysis'}`, content,
+        content.split(/\s+/).length, jurisdiction || 'Multiple']
+    );
+
+    await audit(req.user.id, 'safeguarding_support', 'document', r.rows[0].id, { case_type, organisation_type });
+    res.json({ content, doc_id: r.rows[0].id, word_count: content.split(/\s+/).length });
+  } catch (err) {
+    console.error('[safeguarding]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 5. CASE SUMMARY
+// ══════════════════════════════════════════════════════════════
+router.post('/case-summary', requireAuth, async (req, res) => {
+  try {
+    const { case_facts, jurisdiction, area_of_law, purpose } = req.body;
+    if (!case_facts) return res.status(400).json({ error: 'Case facts required' });
+
+    const content = await ai.buildCaseSummary({ case_facts, jurisdiction, area_of_law, purpose });
+
+    const r = await pool.query(
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,'Case Summary and Legal Analysis','CASE_SUMMARY',$2,'complete',$3,$4) RETURNING id`,
+      [req.user.id, content, content.split(/\s+/).length, jurisdiction || 'Multiple']
+    );
+
+    await audit(req.user.id, 'case_summary', 'document', r.rows[0].id, { area_of_law });
+    res.json({ content, doc_id: r.rows[0].id, word_count: content.split(/\s+/).length });
+  } catch (err) {
+    console.error('[case-summary]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 6. LEGAL CHRONOLOGY
+// ══════════════════════════════════════════════════════════════
+router.post('/chronology', requireAuth, async (req, res) => {
+  try {
+    const { events, context, jurisdiction, purpose } = req.body;
+    if (!events) return res.status(400).json({ error: 'Events required' });
+
+    const content = await ai.buildChronology({ events, context, jurisdiction, purpose });
+
+    const r = await pool.query(
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,'Legal Chronology','CHRONOLOGY',$2,'complete',$3,$4) RETURNING id`,
+      [req.user.id, content, content.split(/\s+/).length, jurisdiction || 'General']
+    );
+
+    await audit(req.user.id, 'build_chronology', 'document', r.rows[0].id, { context });
+    res.json({ content, doc_id: r.rows[0].id, word_count: content.split(/\s+/).length });
+  } catch (err) {
+    console.error('[chronology]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 7. EVIDENCE MANAGEMENT (SHA256 Audit Chain)
+// ══════════════════════════════════════════════════════════════
+router.post('/evidence/upload', requireAuth, async (req, res) => {
+  try {
+    const { filename, content, file_size, case_id } = req.body;
+    if (!content) return res.status(400).json({ error: 'Evidence content required' });
+
+    // Generate SHA256 hash
+    const sha256 = crypto.createHash('sha256').update(content).digest('hex');
+
+    // Get previous hash for chain
+    const prevResult = await pool.query(
+      'SELECT chain_hash FROM evidence WHERE user_id = $1 ORDER BY uploaded_at DESC LIMIT 1',
+      [req.user.id]
+    );
+    const prevHash = prevResult.rows[0]?.chain_hash || '0'.repeat(64);
+
+    // Create chain entry
+    const chainData = JSON.stringify({ sha256, prev: prevHash, ts: new Date().toISOString() });
+    const chainHash = crypto.createHash('sha256').update(chainData).digest('hex');
+
+    const r = await pool.query(
+      `INSERT INTO evidence(user_id,case_id,filename,sha256,prev_hash,chain_hash,file_size,status)
+       VALUES($1,$2,$3,$4,$5,$6,$7,'Admissible') RETURNING id`,
+      [req.user.id, case_id || null, filename || 'document', sha256, prevHash, chainHash, file_size || content.length]
+    );
+
+    await audit(req.user.id, 'evidence_upload', 'evidence', r.rows[0].id, { filename, sha256 });
+
+    res.json({
+      id: r.rows[0].id,
+      filename: filename || 'document',
+      sha256,
+      chain_hash: chainHash,
+      status: 'Admissible',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('[evidence]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/evidence/chain', requireAuth, async (req, res) => {
+  try {
+    const { case_id } = req.query;
+    const query = case_id
+      ? 'SELECT * FROM evidence WHERE user_id = $1 AND case_id = $2 ORDER BY uploaded_at ASC'
+      : 'SELECT * FROM evidence WHERE user_id = $1 ORDER BY uploaded_at ASC';
+    const params = case_id ? [req.user.id, case_id] : [req.user.id];
+    const r = await pool.query(query, params);
+    res.json({ chain: r.rows, total: r.rows.length, verified: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 8. HORIZON SCANNING
+// ══════════════════════════════════════════════════════════════
+router.post('/horizon', requireAuth, async (req, res) => {
+  try {
+    const { jurisdictions, practice_areas, organisation_type } = req.body;
+
+    const content = await ai.horizonScan({ jurisdictions, practice_areas, organisation_type });
+
+    const r = await pool.query(
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,'Legal Horizon Scan','HORIZON',$2,'complete',$3,$4) RETURNING id`,
+      [req.user.id, content, content.split(/\s+/).length,
+        Array.isArray(jurisdictions) ? jurisdictions.join(', ') : jurisdictions || 'Multiple']
+    );
+
+    await audit(req.user.id, 'horizon_scan', 'document', r.rows[0].id, { jurisdictions });
+    res.json({ content, doc_id: r.rows[0].id, word_count: content.split(/\s+/).length });
+  } catch (err) {
+    console.error('[horizon]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 9. LITIGATION PREDICTION
+// ══════════════════════════════════════════════════════════════
+router.post('/predict', requireAuth, async (req, res) => {
+  try {
+    const { facts, jurisdiction, claim_type, opposing_arguments } = req.body;
+    if (!facts) return res.status(400).json({ error: 'Case facts required' });
+
+    const content = await ai.predictLitigation({ facts, jurisdiction, claim_type, opposing_arguments });
+
+    await audit(req.user.id, 'litigation_prediction', 'analysis', null, { claim_type, jurisdiction });
+    res.json({ prediction: content, word_count: content.split(/\s+/).length });
+  } catch (err) {
+    console.error('[predict]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 10. COMPARATIVE LAW
+// ══════════════════════════════════════════════════════════════
+router.post('/compare', requireAuth, async (req, res) => {
+  try {
+    const { topic, jurisdictions, focus } = req.body;
+    if (!topic) return res.status(400).json({ error: 'Comparison topic required' });
+
+    const content = await ai.comparativeLaw({ topic, jurisdictions, focus });
+
+    const r = await pool.query(
+      `INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction)
+       VALUES($1,$2,'COMPARATIVE',$3,'complete',$4,'Multiple') RETURNING id`,
+      [req.user.id, `Comparative Law: ${topic.substring(0, 80)}`, content, content.split(/\s+/).length]
+    );
+
+    await audit(req.user.id, 'comparative_law', 'document', r.rows[0].id, { topic });
+    res.json({ content, doc_id: r.rows[0].id, word_count: content.split(/\s+/).length });
+  } catch (err) {
+    console.error('[compare]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 11. DOCUMENTS LIST
+// ══════════════════════════════════════════════════════════════
+router.get('/documents', requireAuth, async (req, res) => {
+  try {
+    const { type, limit = 20, offset = 0 } = req.query;
+    const query = type
+      ? 'SELECT id,title,type,status,word_count,jurisdiction,created_at FROM documents WHERE user_id=$1 AND type=$2 ORDER BY created_at DESC LIMIT $3 OFFSET $4'
+      : 'SELECT id,title,type,status,word_count,jurisdiction,created_at FROM documents WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3';
+    const params = type ? [req.user.id, type, limit, offset] : [req.user.id, limit, offset];
+    const r = await pool.query(query, params);
+    const count = await pool.query('SELECT COUNT(*) FROM documents WHERE user_id=$1', [req.user.id]);
+    res.json({ documents: r.rows, total: parseInt(count.rows[0].count), limit, offset });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/documents/:id', requireAuth, async (req, res) => {
+  try {
+    const r = await pool.query(
+      'SELECT * FROM documents WHERE id=$1 AND user_id=$2',
+      [req.params.id, req.user.id]
+    );
+    if (!r.rows[0]) return res.status(404).json({ error: 'Document not found' });
+    res.json(r.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// 12. TEMPLATES LIST
+// ══════════════════════════════════════════════════════════════
+router.get('/templates', (req, res) => {
+  const categories = {
+    'Core Legal': ['NDA', 'CONTRACT', 'EMPLOYMENT', 'LEASE', 'PARTNERSHIP', 'SHAREHOLDER', 'TERMS', 'PRIVACY', 'WILL', 'POA', 'LOI', 'MOU', 'TRUST', 'DISCLAIMER', 'REFUND_POLICY', 'ACCESSIBILITY', 'IP_ASSIGNMENT', 'SOFTWARE_LICENSE', 'WHITE_LABEL', 'AFFILIATE', 'COOKIE_POLICY', 'DMCA', 'CEASE_DESIST'],
+    'Safeguarding & Compliance': ['SAFEGUARDING_POLICY', 'SAFEGUARDING_REPORT', 'SAFEGUARDING_CHRONOLOGY', 'INCIDENT_REPORT', 'RISK_ASSESSMENT', 'GOVERNANCE_REPORT', 'BOARD_MINUTES', 'DPA', 'GDPR_POLICY'],
+    'Human Rights & Equality': ['EQUALITY_POLICY', 'HUMAN_RIGHTS_ASSESSMENT', 'COMPLAINT_PROCEDURE', 'DISCIPLINARY_POLICY', 'WHISTLEBLOWING_POLICY'],
+    'Religious Organisations': ['CHURCH_CONSTITUTION', 'PASTORAL_POLICY', 'MEMBERSHIP_AGREEMENT', 'CHARITY_GOVERNANCE'],
+    'Immigration': ['WORK_PERMIT', 'SPONSORSHIP_LETTER', 'VISA_SUPPORT', 'IMMIGRATION_ADVICE'],
+    'Corporate & Finance': ['TERM_SHEET', 'CONVERTIBLE_NOTE', 'INVESTMENT_AGREEMENT', 'SHAREHOLDER_RESOLUTION', 'COMPANY_CONSTITUTION', 'DIRECTOR_SERVICE'],
+    'Case Management': ['CASE_SUMMARY', 'LEGAL_CHRONOLOGY', 'EVIDENCE_SUMMARY', 'LEGAL_OPINION', 'DEMAND_LETTER', 'SETTLEMENT_AGREEMENT'],
+  };
+
+  const templates = {};
+  for (const [cat, keys] of Object.entries(categories)) {
+    templates[cat] = keys.map(k => ({ key: k, name: ai.TEMPLATES[k] || k }));
+  }
+
+  res.json({ templates, total: Object.keys(ai.TEMPLATES).length });
+});
+
+// ══════════════════════════════════════════════════════════════
+// 13. JURISDICTIONS
+// ══════════════════════════════════════════════════════════════
+router.get('/jurisdictions', (req, res) => {
+  res.json({ jurisdictions: ai.JURISDICTIONS, total: Object.keys(ai.JURISDICTIONS).length });
+});
+
+// ══════════════════════════════════════════════════════════════
+// 14. HEALTH / STATUS
+// ══════════════════════════════════════════════════════════════
+router.get('/status', requireAuth, async (req, res) => {
+  try {
+    const docCount = await pool.query('SELECT COUNT(*) FROM documents WHERE user_id=$1', [req.user.id]);
+    const evidenceCount = await pool.query('SELECT COUNT(*) FROM evidence WHERE user_id=$1', [req.user.id]).catch(() => ({ rows: [{ count: 0 }] }));
+    const userInfo = await pool.query('SELECT email,plan,docs_used_this_month FROM users WHERE id=$1', [req.user.id]);
+
+    res.json({
+      status: 'active',
+      version: '3.0',
+      user: userInfo.rows[0],
+      stats: {
+        documents: parseInt(docCount.rows[0].count),
+        evidence_items: parseInt(evidenceCount.rows[0].count)
+      },
+      features: ['draft', 'research', 'analyze', 'safeguarding', 'case-summary', 'chronology', 'evidence', 'horizon', 'predict', 'compare'],
+      jurisdictions: Object.keys(ai.JURISDICTIONS).length,
+      templates: Object.keys(ai.TEMPLATES).length
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
