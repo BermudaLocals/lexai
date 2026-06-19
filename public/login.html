@@ -77,7 +77,7 @@ async function sendLogin(e) {
     });
     const d = await r.json();
     msg.style.display = 'block';
-    if (d.success) {
+    if (d.token) {
       localStorage.setItem('lexai_token', d.token);
       msg.className = 'msg ok';
       msg.textContent = '✓ Logged in! Redirecting...';
