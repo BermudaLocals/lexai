@@ -74,6 +74,7 @@ app.use("/auth", require("./routes/auth"))
 app.use("/api/auth", require("./routes/auth"))
 app.use('/api/payments', require('./routes/payments'))
 app.use('/api', require('./routes/api'))
+app.use('/api', require('./routes/affiliate'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'lexai', version: '2.0.0', env: process.env.NODE_ENV }))
 
@@ -83,7 +84,6 @@ app.use(express.static(path.join(__dirname, 'public')))
 })
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')))
 app.use((req, res) => req.path.startsWith('/api') ? res.status(404).json({ error: 'Not found' }) : res.sendFile(path.join(__dirname, 'public', 'index.html')))
-app.use('/api', require('./routes/affiliate'));
 async function start() {
   await initDB()
   app.listen(PORT, () => {
