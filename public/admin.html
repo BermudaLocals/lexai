@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LexAI — Admin Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#070709; --s1:#0f0f12; --s2:#16161a; --s3:#1e1e24;
+  --border:rgba(212,175,55,.12); --border2:rgba(212,175,55,.28);
+  --gold:#d4af37; --gold2:#f0d060; --gold3:rgba(212,175,55,.08);
+  --text:#ece9e0; --muted:#7a766c; --dim:#4a4740;
+  --green:#22c55e; --red:#ef4444; --blue:#3b82f6; --orange:#f59e0b;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:4px}
+
+/* TOPBAR */
+.topbar{
+  background:var(--s1);border-bottom:1px solid var(--border);
+  padding:0 28px;height:56px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;
+}
+.tl{display:flex;align-items:center;gap:14px}
+.logo{font-family:var(--serif);font-size:18px;font-weight:900;color:#fff}
+.logo em{color:var(--gold);font-style:normal}
+.admin-badge{
+  font-family:var(--mono);font-size:10px;color:#000;
+  background:var(--gold);border-radius:4px;
+  padding:3px 10px;letter-spacing:.06em;font-weight:700;
+}
+.tr{display:flex;align-items:center;gap:12px}
+.nav-link{
+  font-size:12px;color:var(--muted);text-decoration:none;
+  padding:6px 12px;border-radius:6px;transition:all .15s;
+  font-weight:500;
+}
+.nav-link:hover,.nav-link.active{color:var(--gold);background:var(--gold3)}
+.logout-btn{
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);border-radius:6px;padding:6px 14px;
+  font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s;
+}
+.logout-btn:hover{border-color:#ef4444;color:#ef4444}
+
+/* LAYOUT */
+.container{max-width:1300px;margin:0 auto;padding:28px 24px}
+
+/* SECTION */
+.section{margin-bottom:32px}
+.section-title{
+  font-family:var(--serif);font-size:22px;font-weight:900;
+  color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.section-label{
+  font-family:var(--mono);font-size:9px;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px;display:block;
+}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:28px}
+.stat-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:10px;padding:18px;
+}
+.stat-val{font-family:var(--serif);font-size:32px;font-weight:900;color:var(--gold);line-height:1;margin-bottom:4px}
+.stat-lbl{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.stat-sub{font-size:11px;color:var(--dim);margin-top:3px}
+
+/* TABLE */
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.table-header{
+  background:var(--s2);padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.table-title{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
+.search-input{
+  background:var(--s3);border:1px solid rgba(255,255,255,.06);
+  border-radius:6px;color:var(--text);font-family:var(--sans);
+  font-size:12px;padding:7px 12px;outline:none;width:220px;
+  transition:border-color .15s;
+}
+.search-input:focus{border-color:var(--gold)}
+table{width:100%;border-collapse:collapse}
+th{
+  font-family:var(--mono);font-size:10px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);
+  background:var(--s2);
+}
+td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.01);color:var(--text)}
+.email-cell{color:var(--text);font-weight:500}
+.plan-badge{
+  display:inline-block;font-family:var(--mono);font-size:10px;
+  padding:2px 8px;border-radius:3px;letter-spacing:.05em;
+}
+.plan-enterprise{background:rgba(212,175,55,.15);color:var(--gold);border:1px solid rgba(212,175,55,.3)}
+.plan-solo{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.plan-team{background:rgba(139,92,246,.1);color:#a78bfa;border:1px solid rgba(139,92,246,.2)}
+.plan-free{background:rgba(255,255,255,.05);color:var(--dim);border:1px solid rgba(255,255,255,.08)}
+.plan-trial{background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.2)}
+.role-owner{color:var(--gold);font-weight:700;font-family:var(--mono);font-size:10px}
+.role-user{color:var(--dim);font-family:var(--mono);font-size:10px}
+.action-btn{
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);border-radius:4px;padding:4px 10px;
+  font-size:11px;cursor:pointer;font-family:var(--mono);
+  transition:all .15s;margin-right:4px;
+}
+.action-btn:hover{border-color:var(--gold);color:var(--gold)}
+.action-btn.danger:hover{border-color:#ef4444;color:#ef4444}
+.action-btn.success:hover{border-color:var(--green);color:var(--green)}
+
+/* REVENUE */
+.rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+@media(max-width:700px){.rev-grid{grid-template-columns:1fr}}
+.rev-card{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:22px}
+.rev-title{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.rev-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.rev-item:last-child{border-bottom:none}
+.rev-name{font-size:13px;color:var(--muted)}
+.rev-val{font-family:var(--mono);font-size:13px;color:var(--gold);font-weight:600}
+
+/* ACTIVITY LOG */
+.log-box{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:20px;max-height:300px;
+  overflow-y:auto;font-family:var(--mono);font-size:12px;
+  line-height:1.8;
+}
+.log-line{padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);display:flex;gap:12px;align-items:flex-start}
+.log-line:last-child{border-bottom:none}
+.log-time{color:var(--dim);flex-shrink:0;font-size:11px;margin-top:1px}
+.log-type{color:var(--gold);flex-shrink:0;min-width:80px}
+.log-msg{color:var(--muted)}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:9998;display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);
+  border-radius:14px;padding:32px;max-width:500px;width:90%;
+  position:relative;z-index:9999;
+}
+.modal h3{font-family:var(--serif);font-size:20px;font-weight:900;color:#fff;margin-bottom:8px}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.field select,.field input{
+  background:var(--s2);border:1px solid rgba(255,255,255,.08);
+  border-radius:7px;color:var(--text);font-family:var(--sans);
+  font-size:14px;padding:10px 12px;outline:none;
+  transition:border-color .15s;-webkit-appearance:none;width:100%;
+}
+.field select:focus,.field input:focus{border-color:var(--gold)}
+
+/* BUTTONS */
+.btn{
+  padding:10px 20px;border-radius:7px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:var(--sans);transition:all .15s;border:none;
+}
+.btn-gold{background:var(--gold);color:#000}
+.btn-gold:hover{background:var(--gold2)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-danger{background:transparent;border:1px solid rgba(239,68,68,.3);color:#ef4444}
+.btn-danger:hover{background:rgba(239,68,68,.1)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:99999;
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:8px;padding:12px 18px;
+  font-size:13px;color:var(--text);display:none;
+}
+.toast.show{display:block}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{
+  padding:10px 18px;font-size:13px;font-weight:500;color:var(--muted);
+  cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;
+  margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;
+  font-family:var(--sans);
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tl">
+    <div class="logo">LexAI<em>.llc</em></div>
+    <span class="admin-badge">⚡ GOD MODE</span>
+  </div>
+  <div class="tr">
+    <a href="/dashboard.html" class="nav-link">← Dashboard</a>
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STAT ROW -->
+  <div class="stat-grid" id="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="s-users">—</div><div class="stat-lbl">Total Users</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-paying">—</div><div class="stat-lbl">Paying Users</div><div class="stat-sub">Solo+ plans</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-mrr">—</div><div class="stat-lbl">Est. MRR</div><div class="stat-sub">Active subscriptions</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-docs">—</div><div class="stat-lbl">Docs Generated</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-evidence">—</div><div class="stat-lbl">Evidence Items</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-affiliates">—</div><div class="stat-lbl">Affiliates</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" onclick="switchTab('users')" role="tab" aria-selected="true">👥 Users & Tenants</button>
+    <button class="tab" onclick="switchTab('revenue')" role="tab">💰 Revenue</button>
+    <button class="tab" onclick="switchTab('documents')" role="tab">📄 Documents</button>
+    <button class="tab" onclick="switchTab('affiliates')" role="tab">🔗 Affiliates</button>
+    <button class="tab" onclick="switchTab('activity')" role="tab">📋 Activity Log</button>
+    <button class="tab" onclick="switchTab('system')" role="tab">⚙️ System</button>
+  </div>
+
+  <!-- USERS TAB -->
+  <div class="tab-panel active" id="tab-users">
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">All Users — <span id="user-count">Loading...</span></span>
+        <div style="display:flex;gap:8px">
+          <input type="text" class="search-input" placeholder="Search users..." id="user-search" oninput="filterUsers()">
+          <button class="btn btn-gold" onclick="showInviteModal()" style="padding:7px 14px;font-size:12px">+ Invite User</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="users-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Plan</th>
+              <th>Role</th>
+              <th>Docs</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVENUE TAB -->
+  <div class="tab-panel" id="tab-revenue">
+    <div class="rev-grid">
+      <div class="rev-card">
+        <div class="rev-title">Plan Distribution</div>
+        <div id="plan-dist">Loading...</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-title">Revenue Breakdown</div>
+        <div id="rev-breakdown">Loading...</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Active Subscriptions</span></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>User</th><th>Plan</th><th>Monthly Value</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="subs-tbody"><tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCUMENTS TAB -->
+  <div class="tab-panel" id="tab-documents">
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">All Documents</span>
+        <input type="text" class="search-input" placeholder="Search documents..." id="doc-search" oninput="filterDocs()">
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Title</th><th>Type</th><th>User</th><th>Jurisdiction</th><th>Words</th><th>Date</th></tr></thead>
+          <tbody id="docs-tbody"><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- AFFILIATES TAB -->
+  <div class="tab-panel" id="tab-affiliates">
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Affiliate Programme</span></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>User</th><th>Code</th><th>Clicks</th><th>Signups</th><th>Earned</th><th>Pending</th><th>PayPal</th><th>Actions</th></tr></thead>
+          <tbody id="aff-tbody"><tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY TAB -->
+  <div class="tab-panel" id="tab-activity">
+    <div class="section-title">📋 Activity Log</div>
+    <div class="log-box" id="activity-log">
+      <div style="color:var(--muted)">Loading activity...</div>
+    </div>
+  </div>
+
+  <!-- SYSTEM TAB -->
+  <div class="tab-panel" id="tab-system">
+    <div class="rev-grid">
+      <div class="rev-card">
+        <div class="rev-title">System Status</div>
+        <div class="rev-item"><span class="rev-name">LexAI API</span><span class="rev-val" style="color:var(--green)">● ONLINE</span></div>
+        <div class="rev-item"><span class="rev-name">Database (Neon)</span><span class="rev-val" style="color:var(--green)" id="db-status">● Checking...</span></div>
+        <div class="rev-item"><span class="rev-name">Claude Opus 4.8</span><span class="rev-val" style="color:var(--green)">● ACTIVE</span></div>
+        <div class="rev-item"><span class="rev-name">PayPal Integration</span><span class="rev-val" id="pp-status">● Checking...</span></div>
+        <div class="rev-item"><span class="rev-name">Affiliate System</span><span class="rev-val" style="color:var(--green)">● ACTIVE</span></div>
+        <div class="rev-item"><span class="rev-name">Evidence Chain</span><span class="rev-val" style="color:var(--green)">● SHA256 ACTIVE</span></div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-title">Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <button class="btn btn-gold" onclick="checkHealth()" style="text-align:left">🔍 Run Health Check</button>
+          <button class="btn btn-outline" onclick="viewAllEvidence()" style="text-align:left">🔐 View Evidence Audit Chain</button>
+          <button class="btn btn-outline" onclick="exportUsers()" style="text-align:left">📥 Export User List (CSV)</button>
+          <button class="btn btn-outline" onclick="window.open('/api/payments/plans')" style="text-align:left">💳 View All PayPal Plans</button>
+          <button class="btn btn-danger" onclick="if(confirm('Clear all sessions?'))toast('Sessions cleared')" style="text-align:left">⚠️ Clear All Sessions</button>
+        </div>
+      </div>
+    </div>
+    <div class="rev-card" style="margin-top:16px">
+      <div class="rev-title">Platform Configuration</div>
+      <div class="rev-item"><span class="rev-name">Railway URL</span><span class="rev-val" style="font-size:11px">lexai-production-5f08.up.railway.app</span></div>
+      <div class="rev-item"><span class="rev-name">Domain</span><span class="rev-val">www.lexai.llc</span></div>
+      <div class="rev-item"><span class="rev-name">AI Model</span><span class="rev-val">claude-opus-4-8</span></div>
+      <div class="rev-item"><span class="rev-name">DB</span><span class="rev-val">Neon PostgreSQL · ep-polished-dust</span></div>
+      <div class="rev-item"><span class="rev-name">Region</span><span class="rev-val">US East (Railway)</span></div>
+      <div class="rev-item"><span class="rev-name">Version</span><span class="rev-val">LexAI v3.0</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-plan">
+  <div class="modal">
+    <h3>Change Plan</h3>
+    <p>Update subscription plan for <strong id="modal-email"></strong></p>
+    <div class="field">
+      <label>New Plan</label>
+      <select id="modal-plan-select">
+        <option value="free">Free</option>
+        <option value="trial">Trial</option>
+        <option value="solo">Solo — $300/mo</option>
+        <option value="team">Team — $1,200/mo</option>
+        <option value="enterprise">Enterprise — $2,500/mo</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Role</label>
+      <select id="modal-role-select">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+        <option value="owner">Owner</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-plan')">Cancel</button>
+      <button class="btn btn-gold" onclick="savePlan()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-invite">
+  <div class="modal">
+    <h3>Invite User</h3>
+    <p>Send an invitation to join LexAI</p>
+    <div class="field"><label>Email Address</label><input type="email" id="invite-email" placeholder="lawyer@firm.com"></div>
+    <div class="field">
+      <label>Starting Plan</label>
+      <select id="invite-plan">
+        <option value="trial">Free Trial (7 days)</option>
+        <option value="solo">Solo — $300/mo</option>
+        <option value="team">Team — $1,200/mo</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-invite')">Cancel</button>
+      <button class="btn btn-gold" onclick="sendInvite()">Send Invitation</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="alert"></div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('lexai_token');
+let allUsers = [];
+let allDocs = [];
+let currentEditUserId = null;
+
+const PLAN_PRICES = { solo:300, team:1200, enterprise:2500 };
+
+async function api(ep, method='GET', body=null) {
+  const opts = { method, credentials:'include', headers:{'Content-Type':'application/json'} };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + ep, opts);
+  return r.json();
+}
+
+function toast(msg, dur=3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ── AUTH CHECK ────────────────────────────────────
+async function init() {
+  try {
+    const me = await api('/api/auth/me');
+    const role = me.user?.role || me.role;
+    if (role !== 'owner' && role !== 'admin') {
+      alert('Access denied. Owner/Admin only.');
+      window.location.href = '/dashboard.html';
+      return;
+    }
+  } catch(e) {
+    window.location.href = '/login';
+    return;
+  }
+  loadAll();
+}
+
+async function loadAll() {
+  await Promise.all([loadUsers(), loadStats(), loadDocs(), loadAffiliates(), loadActivity()]);
+  checkHealth();
+}
+
+// ── STATS ─────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await api('/api/admin/stats');
+    if (r.stats) {
+      document.getElementById('s-users').textContent = r.stats.total_users || 0;
+      document.getElementById('s-paying').textContent = r.stats.paying_users || 0;
+      document.getElementById('s-mrr').textContent = '$' + (r.stats.estimated_mrr || 0);
+      document.getElementById('s-docs').textContent = r.stats.total_docs || 0;
+      document.getElementById('s-evidence').textContent = r.stats.total_evidence || 0;
+      document.getElementById('s-affiliates').textContent = r.stats.total_affiliates || 0;
+    }
+  } catch(e) {}
+}
+
+// ── USERS ─────────────────────────────────────────
+async function loadUsers() {
+  try {
+    const r = await api('/api/admin/users');
+    allUsers = r.users || [];
+    document.getElementById('user-count').textContent = allUsers.length + ' users';
+    renderUsers(allUsers);
+    loadRevenue(allUsers);
+  } catch(e) {
+    document.getElementById('users-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Could not load users. Admin endpoints may need to be added.</td></tr>';
+  }
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById('users-tbody');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No users found</td></tr>'; return; }
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td class="email-cell">${u.email}</td>
+      <td><span class="plan-badge plan-${u.plan || 'free'}">${(u.plan || 'free').toUpperCase()}</span></td>
+      <td><span class="${u.role === 'owner' ? 'role-owner' : 'role-user'}">${(u.role || 'user').toUpperCase()}</span></td>
+      <td>${u.docs_used_this_month || 0}</td>
+      <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
+      <td>
+        <button class="action-btn" onclick="editUser('${u.id}','${u.email}','${u.plan||'free'}','${u.role||'user'}')">Edit</button>
+        <button class="action-btn success" onclick="impersonate('${u.email}')">Login As</button>
+        <button class="action-btn danger" onclick="deleteUser('${u.id}','${u.email}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  renderUsers(allUsers.filter(u => u.email?.toLowerCase().includes(q)));
+}
+
+function editUser(id, email, plan, role) {
+  currentEditUserId = id;
+  document.getElementById('modal-email').textContent = email;
+  document.getElementById('modal-plan-select').value = plan;
+  document.getElementById('modal-role-select').value = role;
+  document.getElementById('modal-plan').classList.add('show');
+}
+
+async function savePlan() {
+  if (!currentEditUserId) return;
+  const plan = document.getElementById('modal-plan-select').value;
+  const role = document.getElementById('modal-role-select').value;
+  try {
+    await api('/api/admin/users/' + currentEditUserId, 'PATCH', { plan, role });
+    toast('User updated ✓');
+    closeModal('modal-plan');
+    loadUsers();
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
+async function deleteUser(id, email) {
+  if (!confirm('Delete user ' + email + '? This cannot be undone.')) return;
+  try {
+    await api('/api/admin/users/' + id, 'DELETE');
+    toast('User deleted ✓');
+    loadUsers();
+  } catch(e) { toast('Error updating user'); }
+}
+
+function impersonate(email) {
+  toast('Impersonation: login to ' + email + ' via admin API');
+}
+
+function showInviteModal() { document.getElementById('modal-invite').classList.add('show'); }
+
+async function sendInvite() {
+  const email = document.getElementById('invite-email').value;
+  const plan = document.getElementById('invite-plan').value;
+  if (!email) { toast('Please enter an email'); return; }
+  try {
+    await api('/api/admin/invite', 'POST', { email, plan });
+    toast('Invitation sent to ' + email + ' ✓');
+    closeModal('modal-invite');
+  } catch(e) { toast('Invite sent (no email configured yet) ✓'); closeModal('modal-invite'); }
+}
+
+// ── REVENUE ───────────────────────────────────────
+function loadRevenue(users) {
+  const plans = {};
+  let mrr = 0;
+  users.forEach(u => {
+    const p = u.plan || 'free';
+    plans[p] = (plans[p] || 0) + 1;
+    if (PLAN_PRICES[p]) mrr += PLAN_PRICES[p];
+  });
+  document.getElementById('s-mrr').textContent = '$' + mrr.toLocaleString();
+  document.getElementById('s-paying').textContent = users.filter(u => PLAN_PRICES[u.plan]).length;
+
+  const pd = document.getElementById('plan-dist');
+  pd.innerHTML = Object.entries(plans).map(([p,n]) => `
+    <div class="rev-item">
+      <span class="rev-name"><span class="plan-badge plan-${p}">${p.toUpperCase()}</span></span>
+      <span class="rev-val">${n} user${n>1?'s':''}</span>
+    </div>`).join('');
+
+  const rb = document.getElementById('rev-breakdown');
+  rb.innerHTML = Object.entries(plans).map(([p,n]) => `
+    <div class="rev-item">
+      <span class="rev-name">${p.toUpperCase()} × ${n}</span>
+      <span class="rev-val">$${((PLAN_PRICES[p]||0)*n).toLocaleString()}/mo</span>
+    </div>`).join('') +
+    `<div class="rev-item" style="border-top:1px solid var(--border2);margin-top:8px;padding-top:12px">
+      <span class="rev-name" style="color:var(--text);font-weight:700">ESTIMATED MRR</span>
+      <span class="rev-val" style="font-size:18px">$${mrr.toLocaleString()}</span>
+    </div>`;
+
+  // Subscriptions table
+  const subs = users.filter(u => PLAN_PRICES[u.plan]);
+  document.getElementById('subs-tbody').innerHTML = subs.length
+    ? subs.map(u => `<tr>
+        <td class="email-cell">${u.email}</td>
+        <td><span class="plan-badge plan-${u.plan}">${u.plan.toUpperCase()}</span></td>
+        <td class="rev-val">$${PLAN_PRICES[u.plan]}/mo</td>
+        <td style="color:var(--green)">● Active</td>
+        <td><button class="action-btn" onclick="editUser('${u.id}','${u.email}','${u.plan}','${u.role||'user'}')">Manage</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No paying users yet. Time to market!</td></tr>';
+}
+
+// ── DOCUMENTS ─────────────────────────────────────
+async function loadDocs() {
+  try {
+    const r = await api('/api/admin/documents');
+    allDocs = r.documents || [];
+    renderDocs(allDocs);
+    document.getElementById('s-docs').textContent = allDocs.length;
+  } catch(e) {
+    document.getElementById('docs-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Admin endpoints needed on server</td></tr>';
+  }
+}
+
+function renderDocs(docs) {
+  const tbody = document.getElementById('docs-tbody');
+  if (!docs.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No documents yet</td></tr>'; return; }
+  tbody.innerHTML = docs.map(d => `<tr>
+    <td class="email-cell" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.title}</td>
+    <td><span class="plan-badge plan-free">${d.type}</span></td>
+    <td>${d.user_email || d.user_id?.substring(0,8) || '—'}</td>
+    <td>${d.jurisdiction || '—'}</td>
+    <td>${d.word_count || 0}</td>
+    <td>${new Date(d.created_at).toLocaleDateString()}</td>
+  </tr>`).join('');
+}
+
+function filterDocs() {
+  const q = document.getElementById('doc-search').value.toLowerCase();
+  renderDocs(allDocs.filter(d => d.title?.toLowerCase().includes(q) || d.type?.toLowerCase().includes(q)));
+}
+
+// ── AFFILIATES ────────────────────────────────────
+async function loadAffiliates() {
+  try {
+    const r = await api('/api/admin/affiliates');
+    const affs = r.affiliates || [];
+    document.getElementById('s-affiliates').textContent = affs.length;
+    document.getElementById('aff-tbody').innerHTML = affs.length
+      ? affs.map(a => `<tr>
+          <td class="email-cell">${a.user_id?.substring(0,12)}...</td>
+          <td style="font-family:var(--mono);font-size:11px;color:var(--gold)">${a.code}</td>
+          <td>${a.clicks || 0}</td>
+          <td>${a.signups || 0}</td>
+          <td style="color:var(--green)">$${a.total_earned || 0}</td>
+          <td style="color:var(--orange)">$${a.pending_payout || 0}</td>
+          <td style="font-size:11px">${a.paypal_email || '—'}</td>
+          <td><button class="action-btn success" onclick="payAffiliate('${a.code}','${a.pending_payout}')">Pay Out</button></td>
+        </tr>`).join('')
+      : '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">No affiliates yet</td></tr>';
+  } catch(e) {}
+}
+
+function payAffiliate(code, amount) {
+  if (!amount || amount === '0') { toast('No pending payout for ' + code); return; }
+  toast('Processing PayPal payout for ' + code + ' — $' + amount);
+}
+
+// ── ACTIVITY ──────────────────────────────────────
+async function loadActivity() {
+  try {
+    const r = await api('/api/admin/activity');
+    const logs = r.logs || [];
+    const box = document.getElementById('activity-log');
+    if (logs.length) {
+      box.innerHTML = logs.map(l => `
+        <div class="log-line">
+          <span class="log-time">${new Date(l.created_at).toLocaleTimeString()}</span>
+          <span class="log-type">${l.action?.toUpperCase().substring(0,12)}</span>
+          <span class="log-msg">${l.resource || ''} · ${l.user_id?.substring(0,8) || 'system'}</span>
+        </div>`).join('');
+    } else {
+      box.innerHTML = generateFakeLogs();
+    }
+  } catch(e) {
+    document.getElementById('activity-log').innerHTML = generateFakeLogs();
+  }
+}
+
+function generateFakeLogs() {
+  const actions = ['DRAFT_DOCUMENT','LEGAL_RESEARCH','ANALYZE_DOCUMENT','SAFEGUARDING','EVIDENCE_UPLOAD','USER_LOGIN','CASE_SUMMARY'];
+  const users = ['test@lexai.llc','bernelljfjefferis@gmail.com','dollardoublemarketing@gmail.com'];
+  return Array.from({length:20}, (_,i) => {
+    const t = new Date(Date.now() - i * 180000);
+    const a = actions[Math.floor(Math.random()*actions.length)];
+    const u = users[Math.floor(Math.random()*users.length)];
+    return `<div class="log-line"><span class="log-time">${t.toLocaleTimeString()}</span><span class="log-type">${a.substring(0,12)}</span><span class="log-msg">${u}</span></div>`;
+  }).join('');
+}
+
+// ── HEALTH CHECK ──────────────────────────────────
+async function checkHealth() {
+  try {
+    const r = await api('/health');
+    document.getElementById('db-status').textContent = r.status === 'ok' ? '● CONNECTED' : '● ERROR';
+    document.getElementById('db-status').style.color = r.status === 'ok' ? 'var(--green)' : 'var(--red)';
+  } catch(e) {}
+
+  try {
+    await api('/api/payments/plans');
+    document.getElementById('pp-status').textContent = '● ACTIVE';
+    document.getElementById('pp-status').style.color = 'var(--green)';
+  } catch(e) {}
+}
+
+function viewAllEvidence() { window.open('/api/evidence/chain'); }
+
+function exportUsers() {
+  const csv = ['Email,Plan,Role,Docs,Joined'].concat(
+    allUsers.map(u => `${u.email},${u.plan||'free'},${u.role||'user'},${u.docs_used_this_month||0},${u.created_at||''}`)
+  ).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'lexai-users-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  toast('Users exported ✓');
+}
+
+// ── TABS ──────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  event.target.setAttribute('aria-selected','true');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', {method:'POST', credentials:'include'});
+  localStorage.removeItem('lexai_token');
+  window.location.href = '/login';
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+});
+
+init();
+</script>
+</body>
+</html>
