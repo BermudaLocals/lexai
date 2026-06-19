@@ -37,7 +37,7 @@ router.post('/register', async (req, res) => {
     if (exists.rows.length) return res.status(409).json({ error: 'Email already registered' })
     const hash = await bcrypt.hash(password, 10)
     const r = await pool.query(
-      'INSERT INTO users(email,name,password_hash,provider) VALUES($1,$2,$3,$4) RETURNING id,email,name',
+      'INSERT INTO users(email,name,password_hash,provider,plan,role) VALUES($1,$2,$3,$4,'trial','user') RETURNING id,email,name,plan,role',
       [email, name || email.split('@')[0], hash, 'email']
     )
     const user = r.rows[0]
