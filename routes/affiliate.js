@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const pool = require('../db');
+const { pool } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const Anthropic = require('@anthropic-ai/sdk');
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });

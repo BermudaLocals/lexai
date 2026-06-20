@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const pool = require('../db');
+const { pool } = require('../db');
 const ai = require('../services/ai');
 const { requireAuth } = require('../middleware/auth');
 
