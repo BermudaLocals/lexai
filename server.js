@@ -116,3 +116,4 @@ async function start() {
 
 start().catch(console.error)
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/admin', require('./routes/admin'));
