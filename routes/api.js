@@ -36,6 +36,18 @@ router.post('/draft', requireAuth, async (req, res) => {
   try {
     const { type, jurisdiction, details, parties, tone } = req.body;
     if (!type) return res.status(400).json({ error: 'Document type required' });
+    // Free-tier gate: 3 documents per month, then upgrade
+    const FREE_LIMIT = 3;
+    const gateRes = await pool.query('SELECT plan, docs_used_this_month FROM users WHERE id=$1', [req.user.id]);
+    const gateUser = gateRes.rows[0] || {};
+    const isPaying = gateUser.plan && gateUser.plan !== 'free' && gateUser.plan !== 'trial';
+    if (!isPaying && (gateUser.docs_used_this_month || 0) >= FREE_LIMIT) {
+      return res.status(402).json({
+        error: 'free_limit_reached',
+        message: 'You have used your ' + FREE_LIMIT + ' free documents. Upgrade to generate unlimited documents.',
+        upgrade: true
+      });
+    }
 
     const content = await ai.draftDocument({
       type, jurisdiction, details, parties, tone,
