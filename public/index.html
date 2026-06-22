@@ -301,6 +301,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
   .aff-stats{gap:24px}
 }
 </style>
+<script src="/js/lexai-jurisdictions-FULL.js"></script>
 </head>
 <body>
 
@@ -1095,6 +1096,156 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:40
 </section>
 
 <!-- PRICING -->
+<!-- LEGAL KNOWLEDGE LIBRARY -->
+</section>
+<!--
+  LEXAI LEGAL KNOWLEDGE LIBRARY — REVIEW-FIRST MODULE
+  ===================================================
+  A free, public legal knowledge library for the LexAI homepage.
+  - Fully FREE (no login needed) — public good, SEO magnet, trust builder
+  - Structured map of law: origins → branches → modern application
+  - Each topic AI-expandable on demand (calls /api/library/expand, jurisdiction-aware)
+  - Honest framing: a navigable OVERVIEW, not a claim of "every law ever"
+  - Voluntary pay-it-forward donation (funds free access for others — NO strings,
+    NOT linked to any legal outcome, NOT a success/contingency fee)
+
+  ACCESSIBILITY: blue accent only, no red/green, 16px+, high contrast (Bernell's standard)
+
+  DO NOT auto-insert into index.html. Review first.
+  To wire AI drill-down: add POST /api/library/expand { topic, jurisdiction }
+  that returns Claude-generated depth (reuse the existing ai service).
+-->
+
+<section class="lexai-library" id="legal-library">
+  <style>
+    .lexai-library{--bg:#070709;--accent:#d4af37;--text:#ece9e0;--muted:#7a766c;--card:#14142400;
+      background:var(--bg);color:var(--text);padding:48px 20px;font-size:16px;line-height:1.6}
+    .lexai-library h2{font-size:30px;font-weight:800;margin-bottom:8px}
+    .lexai-library .lead{color:var(--muted);max-width:760px;margin-bottom:8px}
+    .lexai-library .free-note{color:var(--accent);font-weight:600;margin-bottom:28px;font-size:15px}
+    .lib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:1100px}
+    .lib-card{background:var(--s1);border:1px solid rgba(212,175,55,.1);border-left:4px solid var(--accent);
+      border-radius:10px;padding:20px;cursor:pointer;transition:transform .15s,border-color .15s}
+    .lib-card:hover{transform:translateY(-2px);border-left-color:#8FB4FF}
+    .lib-card h3{font-size:18px;font-weight:700;margin-bottom:6px}
+    .lib-card p{color:var(--muted);font-size:15px}
+    .lib-card .topics{margin-top:10px;font-size:13px;color:var(--accent)}
+    .lib-disclaimer{max-width:1100px;margin-top:28px;padding:16px;background:var(--s1);
+      border:1px solid rgba(212,175,55,.1);border-radius:8px;color:var(--muted);font-size:14px}
+    .lib-donate{max-width:1100px;margin-top:20px;padding:20px;background:#0F1A33;
+      border:1px solid var(--accent);border-radius:10px}
+    .lib-donate h4{color:var(--accent);font-size:17px;margin-bottom:6px}
+    .lib-donate p{color:var(--muted);font-size:14px;margin-bottom:12px}
+    .lib-donate a{display:inline-block;background:var(--accent);color:#070709;font-weight:700;
+      padding:10px 22px;border-radius:8px;text-decoration:none}
+  </style>
+
+  <h2>The Legal Knowledge Library</h2>
+  <p class="lead">A free, structured map of the law — its origins, its great branches, and how it
+  is applied today across jurisdictions. Browse the foundations; ask LexAI to go deeper on anything.</p>
+  <p class="free-note">◆ Free for everyone. No account required. Knowledge should be open.</p>
+
+  <div class="lib-grid">
+    <div class="lib-card" onclick="openLibraryTopic('origins')">
+      <h3>Origins &amp; Sources of Law</h3>
+      <p>Where law comes from — and what counted as law through history.</p>
+      <div class="topics">Roman law · Common law vs Civil law · Equity · Custom · Statute · Constitutions · Treaties</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('public')">
+      <h3>Public Law &amp; Government</h3>
+      <p>The state, its powers, and the limits on them.</p>
+      <div class="topics">Constitutional · Administrative · Separation of powers · Judicial review · Governmental conduct · Human rights</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('contract')">
+      <h3>Contract Law</h3>
+      <p>Agreements, their formation, and their enforcement.</p>
+      <div class="topics">Formation · Terms · Breach · Remedies · Misrepresentation · Frustration</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('tort')">
+      <h3>Tort Law</h3>
+      <p>Civil wrongs and the duties we owe one another.</p>
+      <div class="topics">Negligence · Nuisance · Defamation · Trespass · Liability · Damages</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('trusts')">
+      <h3>Trusts &amp; Equity</h3>
+      <p>The conscience of the law — holding property for others.</p>
+      <div class="topics">Express &amp; constructive trusts · Fiduciary duties · Beneficiaries · Equitable remedies</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('property')">
+      <h3>Property &amp; Succession</h3>
+      <p>Ownership, land, and what passes on death.</p>
+      <div class="topics">Real &amp; personal property · Land law · Wills · Intestacy · Estates</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('criminal')">
+      <h3>Criminal Law</h3>
+      <p>Offences against society, and how they are tried.</p>
+      <div class="topics">Principles · Offences · Procedure · Evidence · Sentencing · Defences</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('family')">
+      <h3>Family &amp; Safeguarding</h3>
+      <p>Relationships, children, and the protection of the vulnerable.</p>
+      <div class="topics">Marriage · Divorce · Children law · Safeguarding · Domestic abuse</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('commercial')">
+      <h3>Commercial &amp; Company Law</h3>
+      <p>How business is structured and governed.</p>
+      <div class="topics">Companies · Partnerships · Insolvency · Securities · Governance</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('specialist')">
+      <h3>Specialist Branches</h3>
+      <p>The wider map of modern law.</p>
+      <div class="topics">IP · Tax · Employment · Immigration · Environmental · Tech &amp; AI law</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('procedure')">
+      <h3>Courts &amp; Procedure</h3>
+      <p>How a case actually moves through the system.</p>
+      <div class="topics">Court hierarchies · Civil procedure · Criminal procedure · Appeals · Limitation periods</div>
+    </div>
+    <div class="lib-card" onclick="openLibraryTopic('international')">
+      <h3>International &amp; Comparative</h3>
+      <p>Law across borders.</p>
+      <div class="topics">Public international law · Human rights · Treaties · Conflict of laws · Arbitration</div>
+    </div>
+  </div>
+
+  <div class="lib-disclaimer">
+    <strong>About this library.</strong> This is a free educational overview of the law's structure and
+    development — including how rules were understood in different eras and traditions. It is broad but
+    not exhaustive; no resource can contain every law. It is for general understanding only, is not legal
+    advice, and does not create a lawyer–client relationship. For a specific matter, consult a lawyer
+    qualified in the relevant jurisdiction.
+  </div>
+
+  <div class="lib-donate">
+    <h4>◆ Pay it forward</h4>
+    <p>LexAI's library is free so that anyone — not only those who can afford a lawyer — can understand
+    their rights. If it helped you and you'd like to keep it free for the next person, you can contribute
+    voluntarily. This is a gift that funds open access for others. It is not a fee, it buys nothing, and
+    it is in no way tied to the outcome of any legal matter.</p>
+    <a href="/donate">Keep the library free →</a>
+  </div>
+</section>
+
+<script>
+async function openLibraryTopic(topicKey){
+  // Opens a panel and asks LexAI to expand the topic (jurisdiction-aware).
+  // Wire to: POST /api/library/expand { topic: topicKey, jurisdiction: 'General' }
+  // For now this is the hook; the backend endpoint generates the depth on demand.
+  const jurisdiction = (typeof getSelectedJurisdiction === 'function')
+    ? getSelectedJurisdiction() : 'General';
+  try {
+    const res = await fetch('/api/library/expand', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ topic: topicKey, jurisdiction })
+    });
+    const data = await res.json();
+    // Render data.content into a modal/panel of your choosing
+    console.log('Library topic:', topicKey, data);
+  } catch(e){
+    console.error('Library expand failed', e);
+  }
+}
+</script>
 <section class="section" id="pricing" style="text-align:center">
   <div class="eyebrow">// investment in excellence</div>
   <h2 class="section-h"><span style="color:var(--gold)">Premium AI legal intelligence.</span><br>Accessible worldwide.</h2>

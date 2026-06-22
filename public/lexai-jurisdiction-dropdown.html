@@ -1,0 +1,64 @@
+<!--
+  LEXAI JURISDICTION SELECTOR — REVIEW-FIRST
+  ==========================================
+  Replaces the 4-option dropdown with the full global list + free-text "Other".
+  The free-text box means ANY jurisdiction works — the AI reasons about whatever
+  is typed, so even jurisdictions not in the list are fully supported.
+
+  WIRING: the <select> sets a hidden value; if "Other" is chosen, the text box
+  value is used instead. Backend just receives a jurisdiction string either way.
+-->
+
+<label class="field-label">Jurisdiction</label>
+<select id="jurisdictionSelect" class="lexai-input" onchange="onJurisdictionChange()">
+  <optgroup label="Primary Jurisdictions">
+    <option value="United Kingdom">United Kingdom</option>
+    <option value="United States">United States</option>
+    <option value="Canada">Canada</option>
+    <option value="Bermuda">Bermuda</option>
+    <option value="Caribbean (regional)">Caribbean (regional)</option>
+    <option value="Australia">Australia</option>
+    <option value="Ireland">Ireland</option>
+    <option value="New Zealand">New Zealand</option>
+    <option value="European Union">European Union</option>
+    <option value="European Court of Human Rights">European Court of Human Rights</option>
+  </optgroup>
+  <optgroup label="All Jurisdictions" id="allJurisdictionsGroup">
+    <!-- populated by script below -->
+  </optgroup>
+  <option value="__OTHER__">Other — type your own ↓</option>
+</select>
+
+<input type="text" id="jurisdictionOther" class="lexai-input" style="display:none;margin-top:8px"
+       placeholder="Type any jurisdiction (e.g. Florida, Ontario, Lagos State)" />
+
+<script>
+// Full list injected here (matches lexai-jurisdictions-FULL.js keys)
+const LEXAI_ALL_JURISDICTIONS = ["United Kingdom","United States","Canada","Bermuda","Caribbean (regional)","Australia","Ireland","New Zealand","European Union","European Court of Human Rights","Afghanistan","Albania","Algeria","Andorra","Angola","Antigua & Barbuda","Argentina","Armenia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia & Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Cape Verde","Cayman Islands","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (Brazzaville)","Congo (DRC)","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","England & Wales","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Grenada","Guatemala","Guernsey","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","International Arbitration (ICC/UNCITRAL/ICSID)","Iran","Iraq","Isle of Man","Israel","Italy","Ivory Coast","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Northern Ireland","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts & Nevis","Saint Lucia","Saint Vincent & the Grenadines","Samoa","San Marino","Sao Tome & Principe","Saudi Arabia","Scotland","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad & Tobago","Tunisia","Turkey","Turkmenistan","Turks & Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Nations / International","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"];
+
+(function populateJurisdictions(){
+  const group = document.getElementById('allJurisdictionsGroup');
+  if (!group) return;
+  LEXAI_ALL_JURISDICTIONS.forEach(j => {
+    const o = document.createElement('option');
+    o.value = j; o.textContent = j;
+    group.appendChild(o);
+  });
+})();
+
+function onJurisdictionChange(){
+  const sel = document.getElementById('jurisdictionSelect');
+  const other = document.getElementById('jurisdictionOther');
+  other.style.display = (sel.value === '__OTHER__') ? 'block' : 'none';
+  if (sel.value === '__OTHER__') other.focus();
+}
+
+// Use this when submitting the form:
+function getSelectedJurisdiction(){
+  const sel = document.getElementById('jurisdictionSelect');
+  if (sel.value === '__OTHER__') {
+    return document.getElementById('jurisdictionOther').value.trim() || 'General';
+  }
+  return sel.value;
+}
+</script>
