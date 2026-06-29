@@ -1,6 +1,6 @@
 // LexAI Service Worker v3.0
 // Enables: offline access, install to home screen, background sync
-const CACHE = 'lexai-v3';
+const CACHE = 'lexai-v4';
 const ASSETS = [
   '/dashboard.html',
   '/login.html',
