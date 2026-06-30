@@ -1220,6 +1220,10 @@ body {
 <script>
 const API = '';
 let token = localStorage.getItem('lexai_token');
+// Capture token from Google OAuth redirect (?token=JWT)
+const _urlParams = new URLSearchParams(window.location.search);
+const _urlToken = _urlParams.get('token');
+if (_urlToken) { localStorage.setItem('lexai_token', _urlToken); token = _urlToken; window.history.replaceState({}, document.title, '/dashboard'); }
 let userEmail = '';
 
 // ── AUTH ──────────────────────────────────────────────────────
