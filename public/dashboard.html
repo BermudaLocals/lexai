@@ -328,9 +328,58 @@ body {
 .toast.show { display: block; }
 @keyframes slideup{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 
+.mobile-header {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+.mobile-logo { font-family: var(--serif); font-size: 18px; color: var(--text); }
+.mobile-logo em { color: var(--gold); font-style: normal; }
+.hamburger {
+  background: none; border: 1px solid var(--border); cursor: pointer;
+  color: var(--gold); font-size: 20px; padding: 6px 10px;
+  border-radius: 6px; line-height: 1;
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.65); z-index: 150;
+}
+.sidebar-overlay.active { display: block; }
 @media(max-width:768px){
-  .sidebar { width: 100%; min-height: auto; position: relative; }
-  .main { margin-left: 0; }
+  .mobile-header { display: flex; }
+  body { flex-direction: column; padding-top: 56px; }
+  .sidebar {
+    position: fixed; top: 0; left: -280px; bottom: 0;
+    width: 260px; z-index: 175;
+    transition: left .25s ease;
+    min-height: 100vh;
+  }
+  .sidebar.open { left: 0; }
+  .main { margin-left: 0 !important; padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 12px; }
+  .feat-grid { grid-template-columns: 1fr !important; gap: 12px; }
+  .feat-card { padding: 16px; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .section-header h2 { font-size: 18px; }
+  select, input[type=text], textarea { font-size: 16px !important; }
+  .btn, .action-btn { min-height: 44px; font-size: 15px; }
+  .stat-card { padding: 16px; }
+  .stat-value { font-size: 28px !important; }
+  .ws-grid { grid-template-columns: 1fr !important; }
+  .panel-body { padding: 16px; }
+  .panel-header { padding: 14px 16px; }
+  h1 { font-size: 22px; }
+  .page-header { margin-bottom: 16px; }
+  .doc-item { flex-wrap: wrap; gap: 6px; }
+}
+@media(max-width:400px){
+  .stats-grid { grid-template-columns: 1fr !important; }
 }
 </style>
 </head>
@@ -1717,5 +1766,28 @@ init();
     <option value="Multiple Jurisdictions">
     <option value="Custom / Other Jurisdiction">
 </datalist>
+
+<script>
+function toggleSidebar() {
+  const s = document.querySelector('.sidebar');
+  const o = document.getElementById('sidebarOverlay');
+  s.classList.toggle('open');
+  o.classList.toggle('active');
+  document.body.style.overflow = s.classList.contains('open') ? 'hidden' : '';
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+// Close sidebar when nav item clicked on mobile
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.nav-item').forEach(function(el) {
+    el.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+});
+</script>
 </body>
 </html>
