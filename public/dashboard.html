@@ -579,22 +579,7 @@ body {
         </div>
         <div class="field">
           <label>Jurisdiction</label>
-          <select id="draft-jurisdiction">
-            <option value="Bermuda">Bermuda</option>
-            <option value="BVI">British Virgin Islands</option>
-            <option value="Cayman">Cayman Islands</option>
-            <option value="Bahamas">Bahamas</option>
-            <option value="Jamaica">Jamaica</option>
-            <option value="Barbados">Barbados</option>
-            <option value="UK">United Kingdom</option>
-            <option value="Canada">Canada</option>
-            <option value="Australia">Australia</option>
-            <option value="USA">United States</option>
-            <option value="EU">European Union</option>
-            <option value="Ghana">Ghana</option>
-            <option value="Nigeria">Nigeria</option>
-            <option value="Wyoming">Wyoming (Trust/LLC)</option>
-          </select>
+          <input list="jx-list" id="draft-jurisdiction" placeholder="Type or select jurisdiction..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
       </div>
       <div class="form-grid">
@@ -649,17 +634,7 @@ body {
       <div class="form-grid">
         <div class="field">
           <label>Jurisdiction Focus</label>
-          <select id="research-jurisdiction">
-            <option value="">All Jurisdictions</option>
-            <option value="Bermuda">Bermuda</option>
-            <option value="Caribbean">Caribbean (all)</option>
-            <option value="UK">United Kingdom</option>
-            <option value="ECHR">ECHR / European</option>
-            <option value="Privy Council">Privy Council</option>
-            <option value="Commonwealth">Commonwealth</option>
-            <option value="USA">United States</option>
-            <option value="International">International Tribunals</option>
-          </select>
+          <input list="jx-list" id="research-jurisdiction" placeholder="Type or select jurisdiction..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
         <div class="field">
           <label>Area of Law</label>
@@ -722,14 +697,7 @@ body {
       <div class="form-grid">
         <div class="field">
           <label>Jurisdiction</label>
-          <select id="analyze-jurisdiction">
-            <option value="">Auto-detect</option>
-            <option value="Bermuda">Bermuda</option>
-            <option value="UK">United Kingdom</option>
-            <option value="USA">United States</option>
-            <option value="Caribbean">Caribbean</option>
-            <option value="Commonwealth">Commonwealth</option>
-          </select>
+          <input list="jx-list" id="analyze-jurisdiction" placeholder="Type or select jurisdiction..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
         <div class="field">
           <label>Analysis Type</label>
@@ -785,15 +753,7 @@ body {
         </div>
         <div class="field">
           <label>Jurisdiction</label>
-          <select id="sg-jurisdiction">
-            <option value="UK">United Kingdom</option>
-            <option value="Bermuda">Bermuda</option>
-            <option value="Caribbean">Caribbean</option>
-            <option value="Ireland">Republic of Ireland</option>
-            <option value="Australia">Australia</option>
-            <option value="Canada">Canada</option>
-            <option value="USA">United States</option>
-          </select>
+          <input list="jx-list" id="sg-jurisdiction" placeholder="Type or select jurisdiction..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
       </div>
       <div class="form-grid">
@@ -854,14 +814,7 @@ body {
       <div class="form-grid">
         <div class="field">
           <label>Jurisdiction</label>
-          <select id="cs-jurisdiction">
-            <option value="Multiple jurisdictions">Multiple Jurisdictions</option>
-            <option value="UK">United Kingdom</option>
-            <option value="Bermuda">Bermuda</option>
-            <option value="Caribbean">Caribbean</option>
-            <option value="ECHR">ECHR</option>
-            <option value="Commonwealth">Commonwealth</option>
-          </select>
+          <input list="jx-list" id="cs-jurisdiction" placeholder="Type or select jurisdiction..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
         <div class="field">
           <label>Area of Law</label>
@@ -920,12 +873,7 @@ body {
         </div>
         <div class="field">
           <label>Jurisdiction</label>
-          <select id="chron-jurisdiction">
-            <option value="UK">United Kingdom</option>
-            <option value="Bermuda">Bermuda</option>
-            <option value="Caribbean">Caribbean</option>
-            <option value="General">General</option>
-          </select>
+          <input list="jx-list" id="chron-jurisdiction" placeholder="Type or select jurisdiction..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
       </div>
       <div class="form-grid full">
@@ -1002,14 +950,7 @@ body {
       <div class="form-grid">
         <div class="field">
           <label>Jurisdictions</label>
-          <select id="horizon-jurisdiction" multiple style="min-height:120px">
-            <option value="Bermuda" selected>Bermuda</option>
-            <option value="Caribbean" selected>Caribbean</option>
-            <option value="UK" selected>United Kingdom</option>
-            <option value="EU">European Union</option>
-            <option value="Commonwealth">Commonwealth</option>
-            <option value="USA">United States</option>
-          </select>
+          <input list="jx-list" id="horizon-jurisdiction" placeholder="Type jurisdiction (e.g. Bermuda, UK, Jamaica)" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
         <div class="field">
           <label>Practice Areas</label>
@@ -1057,13 +998,7 @@ body {
       <div class="form-grid">
         <div class="field">
           <label>Jurisdiction</label>
-          <select id="pred-jurisdiction">
-            <option value="UK">United Kingdom</option>
-            <option value="Bermuda">Bermuda</option>
-            <option value="Caribbean">Caribbean</option>
-            <option value="USA">United States</option>
-            <option value="Commonwealth">Commonwealth</option>
-          </select>
+          <input list="jx-list" id="pred-jurisdiction" placeholder="Type or select jurisdiction..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
         <div class="field">
           <label>Claim Type</label>
@@ -1123,16 +1058,7 @@ body {
       <div class="form-grid">
         <div class="field">
           <label>Jurisdictions to Compare</label>
-          <select id="comp-jurisdictions" multiple style="min-height:140px">
-            <option value="UK" selected>United Kingdom</option>
-            <option value="Bermuda" selected>Bermuda</option>
-            <option value="Caribbean" selected>Caribbean</option>
-            <option value="Ireland" selected>Republic of Ireland</option>
-            <option value="Australia" selected>Australia</option>
-            <option value="Canada" selected>Canada</option>
-            <option value="USA">United States</option>
-            <option value="EU">European Union</option>
-          </select>
+          <input list="jx-list" id="comp-jurisdictions" placeholder="Type jurisdiction (e.g. Bermuda, UK, Jamaica)" style="width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px" autocomplete="off">
         </div>
         <div class="field">
           <label>Focus Area</label>
@@ -1586,5 +1512,210 @@ async function saveAffPaypal() {
 // INIT
 init();
 </script>
+
+<!-- Full 291 Jurisdictions Datalist -->
+<datalist id="jx-list">
+    <option value="All Jurisdictions">
+    <option value="Bermuda">
+    <option value="Caribbean (all)">
+    <option value="United Kingdom">
+    <option value="ECHR / European">
+    <option value="Privy Council">
+    <option value="Commonwealth">
+    <option value="United States">
+    <option value="International Tribunals">
+    <option value="Cayman Islands">
+    <option value="British Virgin Islands">
+    <option value="Turks and Caicos">
+    <option value="Anguilla">
+    <option value="Montserrat">
+    <option value="Jamaica">
+    <option value="Trinidad and Tobago">
+    <option value="Barbados">
+    <option value="Bahamas">
+    <option value="Guyana">
+    <option value="Belize">
+    <option value="Antigua and Barbuda">
+    <option value="St Lucia">
+    <option value="St Vincent and the Grenadines">
+    <option value="Grenada">
+    <option value="Dominica">
+    <option value="St Kitts and Nevis">
+    <option value="Caribbean Court of Justice CCJ">
+    <option value="OECS">
+    <option value="Canada">
+    <option value="Ontario">
+    <option value="British Columbia">
+    <option value="Alberta">
+    <option value="Quebec">
+    <option value="Nova Scotia">
+    <option value="Manitoba">
+    <option value="Saskatchewan">
+    <option value="New Brunswick">
+    <option value="Newfoundland and Labrador">
+    <option value="Federal Court of Canada">
+    <option value="Supreme Court of Canada">
+    <option value="England and Wales">
+    <option value="Scotland">
+    <option value="Northern Ireland">
+    <option value="UK Supreme Court">
+    <option value="England and Wales Court of Appeal">
+    <option value="England and Wales High Court">
+    <option value="Scotland Court of Session">
+    <option value="Employment Tribunals UK">
+    <option value="Australia">
+    <option value="New South Wales">
+    <option value="Victoria">
+    <option value="Queensland">
+    <option value="Western Australia">
+    <option value="South Australia">
+    <option value="High Court of Australia">
+    <option value="Federal Court of Australia">
+    <option value="New Zealand">
+    <option value="NZ Court of Appeal">
+    <option value="NZ High Court">
+    <option value="Ireland">
+    <option value="Supreme Court of Ireland">
+    <option value="Court of Appeal Ireland">
+    <option value="High Court Ireland">
+    <option value="India">
+    <option value="Supreme Court of India">
+    <option value="Delhi High Court">
+    <option value="Bombay High Court">
+    <option value="Madras High Court">
+    <option value="Calcutta High Court">
+    <option value="Singapore">
+    <option value="Singapore Court of Appeal">
+    <option value="Singapore High Court">
+    <option value="Hong Kong">
+    <option value="Hong Kong Court of Final Appeal">
+    <option value="Malaysia">
+    <option value="Federal Court of Malaysia">
+    <option value="Pakistan">
+    <option value="Supreme Court of Pakistan">
+    <option value="Bangladesh">
+    <option value="Sri Lanka">
+    <option value="Myanmar">
+    <option value="Nepal">
+    <option value="Nigeria">
+    <option value="Supreme Court of Nigeria">
+    <option value="Nigeria Court of Appeal">
+    <option value="Kenya">
+    <option value="Kenya Court of Appeal">
+    <option value="Kenya High Court">
+    <option value="Ghana">
+    <option value="Supreme Court of Ghana">
+    <option value="Uganda">
+    <option value="Tanzania">
+    <option value="Zimbabwe">
+    <option value="Botswana">
+    <option value="Namibia">
+    <option value="South Africa">
+    <option value="Constitutional Court of South Africa">
+    <option value="Supreme Court of Appeal SA">
+    <option value="East African Court of Justice">
+    <option value="ECOWAS Community Court">
+    <option value="European Union">
+    <option value="Court of Justice of the EU">
+    <option value="European Court of Human Rights">
+    <option value="International Court of Justice">
+    <option value="International Criminal Court">
+    <option value="ICSID Investment Arbitration">
+    <option value="WTO Dispute Settlement">
+    <option value="ITLOS Law of the Sea">
+    <option value="Permanent Court of Arbitration">
+    <option value="ICC International Court of Arbitration">
+    <option value="LCIA">
+    <option value="SIAC">
+    <option value="HKIAC">
+    <option value="US Supreme Court">
+    <option value="1st Circuit">
+    <option value="2nd Circuit NY">
+    <option value="3rd Circuit PA NJ">
+    <option value="4th Circuit VA MD">
+    <option value="5th Circuit TX LA">
+    <option value="6th Circuit OH MI">
+    <option value="7th Circuit IL">
+    <option value="8th Circuit MN MO">
+    <option value="9th Circuit CA">
+    <option value="10th Circuit CO">
+    <option value="11th Circuit FL GA">
+    <option value="DC Circuit">
+    <option value="New York State Courts">
+    <option value="California State Courts">
+    <option value="Texas State Courts">
+    <option value="Florida State Courts">
+    <option value="Delaware Court of Chancery">
+    <option value="Alabama">
+    <option value="Alaska">
+    <option value="Arizona">
+    <option value="Arkansas">
+    <option value="Colorado">
+    <option value="Connecticut">
+    <option value="Georgia">
+    <option value="Hawaii">
+    <option value="Idaho">
+    <option value="Illinois">
+    <option value="Indiana">
+    <option value="Iowa">
+    <option value="Kansas">
+    <option value="Kentucky">
+    <option value="Louisiana">
+    <option value="Maine">
+    <option value="Maryland">
+    <option value="Massachusetts">
+    <option value="Michigan">
+    <option value="Minnesota">
+    <option value="Mississippi">
+    <option value="Missouri">
+    <option value="Montana">
+    <option value="Nebraska">
+    <option value="Nevada">
+    <option value="New Hampshire">
+    <option value="New Jersey">
+    <option value="New Mexico">
+    <option value="North Carolina">
+    <option value="North Dakota">
+    <option value="Ohio">
+    <option value="Oklahoma">
+    <option value="Oregon">
+    <option value="Pennsylvania">
+    <option value="Rhode Island">
+    <option value="South Carolina">
+    <option value="South Dakota">
+    <option value="Tennessee">
+    <option value="Utah">
+    <option value="Vermont">
+    <option value="Virginia">
+    <option value="Washington State">
+    <option value="West Virginia">
+    <option value="Wisconsin">
+    <option value="Wyoming">
+    <option value="Bermuda Supreme Court">
+    <option value="Bermuda Court of Appeal">
+    <option value="Bermuda Magistrates Court">
+    <option value="JCPC Privy Council">
+    <option value="UK Crown Court">
+    <option value="UK County Court">
+    <option value="Administrative Court UK">
+    <option value="Family Court UK">
+    <option value="Technology and Construction Court">
+    <option value="Chancery Division">
+    <option value="Commercial Court">
+    <option value="Kings Bench Division">
+    <option value="Gibraltar">
+    <option value="Malta">
+    <option value="Cyprus">
+    <option value="Isle of Man">
+    <option value="Jersey">
+    <option value="Guernsey">
+    <option value="Bermuda Monetary Authority">
+    <option value="Financial Conduct Authority">
+    <option value="Prudential Regulation Authority">
+    <option value="Securities and Exchange Commission">
+    <option value="FINRA">
+    <option value="Multiple Jurisdictions">
+    <option value="Custom / Other Jurisdiction">
+</datalist>
 </body>
 </html>
