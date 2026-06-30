@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Welcome — LexAI</title>
+<link rel="icon" href="/logo.png" type="image/png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500&display=swap');
+:root{
+  --bg:#070709;
+  --gold:#d4af37;
+  --gold2:#f0d060;
+  --text:#ece9e0;
+  --muted:#7a766c;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Inter',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  cursor:pointer;
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:radial-gradient(circle,rgba(212,175,55,.04) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+}
+.glow{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(212,175,55,.12),transparent 65%);
+  pointer-events:none;
+  animation:glowPulse 2s ease-in-out infinite;
+}
+@keyframes glowPulse{
+  0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+}
+.splash-container{
+  position:relative;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:40px;
+  animation:fadeIn 1s ease both;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.logo-wrap{
+  width:180px;
+  height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:heartbeat 1.5s ease-in-out infinite;
+}
+@keyframes heartbeat{
+  0%{transform:scale(1)}
+  14%{transform:scale(1.18)}
+  28%{transform:scale(1)}
+  42%{transform:scale(1.10)}
+  56%{transform:scale(1)}
+  100%{transform:scale(1)}
+}
+.logo-wrap img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 0 40px rgba(212,175,55,.3));
+}
+.welcome-text{
+  text-align:center;
+  animation:fadeIn 1.2s ease both .4s;
+}
+.welcome-text h1{
+  font-family:var(--serif);
+  font-size:clamp(28px,5vw,48px);
+  font-weight:900;
+  color:#fff;
+  letter-spacing:-.02em;
+  margin-bottom:12px;
+}
+.welcome-text h1 span{
+  color:var(--gold);
+}
+.welcome-text p{
+  font-family:var(--sans);
+  font-size:16px;
+  color:var(--muted);
+  font-weight:300;
+}
+.enter-hint{
+  animation:fadeIn 1.5s ease both 1.5s;
+  font-family:var(--sans);
+  font-size:13px;
+  color:var(--muted);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:20px;
+}
+.enter-hint .arrow{
+  display:inline-block;
+  animation:bounce 1.5s ease-in-out infinite;
+}
+@keyframes bounce{
+  0%,100%{transform:translateX(0)}
+  50%{transform:translateX(6px)}
+}
+.progress-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  animation:loadBar 4s linear forwards;
+  box-shadow:0 0 12px rgba(212,175,55,.5);
+}
+@keyframes loadBar{from{width:0}to{width:100%}}
+
+/* Fade out */
+.fade-out{
+  animation:fadeOut .6s ease forwards;
+}
+@keyframes fadeOut{to{opacity:0;transform:scale(1.02)}}
+</style>
+</head>
+<body onclick="enterSite()">
+
+<div class="glow"></div>
+
+<div class="splash-container" id="splash">
+  <div class="logo-wrap">
+    <img src="/logo.png" alt="LexAI">
+  </div>
+  <div class="welcome-text">
+    <h1>Welcome to <span>LexAI</span></h1>
+    <p>The world's most advanced AI legal platform</p>
+  </div>
+  <div class="enter-hint">
+    Tap anywhere to enter <span class="arrow">→</span>
+  </div>
+</div>
+
+<div class="progress-bar"></div>
+
+<script>
+// Auto-enter after 4 seconds
+let entered = false;
+setTimeout(() => { if (!entered) enterSite(); }, 4000);
+
+function enterSite() {
+  if (entered) return;
+  entered = true;
+  document.getElementById('splash').classList.add('fade-out');
+  setTimeout(() => { window.location.href = '/'; }, 600);
+}
+</script>
+</body>
+</html>
