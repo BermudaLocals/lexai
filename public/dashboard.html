@@ -966,6 +966,11 @@ body {
           <input type="text" id="ev-filename" placeholder="e.g. Complaint Letter 15 Jan 2024.pdf">
         </div>
         <div class="field">
+          <label>Upload File (PDF, DOCX, images — 20MB max)</label>
+          <input type="file" id="ev-file" accept=".pdf,.doc,.docx,.txt,.rtf,.png,.jpg,.jpeg,.gif,.webp,.csv,.xls,.xlsx,.eml,.msg">
+          <button class="submit-btn" style="margin-top:8px" onclick="uploadEvidenceFile()" id="btn-ev-file">Upload File to Evidence Chain →</button>
+        </div>
+        <div class="field">
           <label>Case Reference (optional)</label>
           <input type="text" id="ev-case" placeholder="e.g. CASE-2024-001">
         </div>
@@ -1405,6 +1410,34 @@ async function runChronology() {
 }
 
 // ── EVIDENCE ──────────────────────────────────────────────────
+async function uploadEvidenceFile() {
+  const fileInput = document.getElementById('ev-file');
+  const file = fileInput.files[0];
+  if (!file) { toast('Please choose a file first'); return; }
+  if (file.size > 20 * 1024 * 1024) { toast('File too large (20MB max)'); return; }
+  const btn = document.getElementById('btn-ev-file');
+  btn.disabled = true; btn.textContent = 'Uploading...';
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const caseRef = document.getElementById('ev-case') ? document.getElementById('ev-case').value : '';
+    if (caseRef) fd.append('case_id', caseRef);
+    const opts = { method: 'POST', credentials: 'include', body: fd, headers: {} };
+    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+    const resp = await fetch(API + '/api/evidence/upload-file', opts);
+    const r = await resp.json();
+    if (r.sha256) {
+      showResult('ev', 'File Uploaded to Evidence Chain\n\nFilename: ' + r.filename + '\nSHA256: ' + r.sha256 + '\nChain Hash: ' + r.chain_hash + '\nSize: ' + r.file_size + ' bytes\nText Extracted: ' + (r.text_extracted ? 'Yes' : 'No') + '\nStatus: ' + r.status);
+      toast('File added to evidence chain');
+      fileInput.value = '';
+      loadEvidenceChain();
+    } else {
+      showResult('ev', 'Error: ' + (r.error || JSON.stringify(r)));
+    }
+  } catch(e) { showResult('ev', 'Error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Upload File to Evidence Chain →';
+}
+
 async function runEvidence() {
   const content = document.getElementById('ev-content').value;
   const filename = document.getElementById('ev-filename').value;

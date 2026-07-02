@@ -8,6 +8,19 @@ const crypto = require('crypto');
 const { pool } = require('../db');
 const ai = require('../services/ai');
 const { requireAuth } = require('../middleware/auth');
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
+
+// ── FILE UPLOAD (multer, memory storage, 20MB cap) ────────────
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(pdf|docx?|txt|rtf|png|jpe?g|gif|webp|csv|xlsx?|eml|msg)$/i;
+    if (allowed.test(file.originalname)) return cb(null, true);
+    cb(new Error('File type not allowed'));
+  }
+});
 
 // ── AUDIT HELPER ──────────────────────────────────────────────
 async function audit(userId, action, resource, resourceId, meta = {}) {
@@ -408,6 +421,61 @@ router.get('/status', requireAuth, async (req, res) => {
       templates: Object.keys(ai.TEMPLATES).length
     });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── EVIDENCE: REAL FILE UPLOAD (PDF/DOCX/images, chain-of-custody) ──
+router.post('/evidence/upload-file', requireAuth, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided (field name: file)' });
+    const { case_id } = req.body;
+    const filename = req.file.originalname;
+    const fileSize = req.file.size;
+
+    // SHA256 of the actual file bytes
+    const sha256 = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
+
+    // Extract text from PDFs for searchability (best-effort)
+    let extractedText = null;
+    if (/\.pdf$/i.test(filename)) {
+      try {
+        const parsed = await pdfParse(req.file.buffer);
+        extractedText = (parsed.text || '').slice(0, 100000);
+      } catch (e) { /* scanned/encrypted PDFs: skip extraction */ }
+    } else if (/\.(txt|csv|rtf)$/i.test(filename)) {
+      extractedText = req.file.buffer.toString('utf8').slice(0, 100000);
+    }
+
+    // Chain of custody: link to previous hash
+    const prevResult = await pool.query(
+      'SELECT chain_hash FROM evidence WHERE user_id = $1 ORDER BY uploaded_at DESC LIMIT 1',
+      [req.user.id]
+    );
+    const prevHash = prevResult.rows[0]?.chain_hash || '0'.repeat(64);
+    const chainData = JSON.stringify({ sha256, prev: prevHash, ts: new Date().toISOString() });
+    const chainHash = crypto.createHash('sha256').update(chainData).digest('hex');
+
+    const r = await pool.query(
+      `INSERT INTO evidence(user_id,case_id,filename,sha256,prev_hash,chain_hash,file_size,status)
+       VALUES($1,$2,$3,$4,$5,$6,$7,'Admissible') RETURNING id`,
+      [req.user.id, case_id || null, filename, sha256, prevHash, chainHash, fileSize]
+    );
+
+    await audit(req.user.id, 'evidence_upload_file', 'evidence', r.rows[0].id, { filename, sha256, size: fileSize, mimetype: req.file.mimetype });
+
+    res.json({
+      id: r.rows[0].id,
+      filename,
+      sha256,
+      chain_hash: chainHash,
+      file_size: fileSize,
+      text_extracted: !!extractedText,
+      status: 'Admissible',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('[evidence-file]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
