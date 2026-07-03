@@ -618,4 +618,73 @@ router.post('/transcribe', requireAuth, upload.single('file'), async (req, res) 
   }
 });
 
+
+// ── LEGAL LIBRARY EXPAND ──────────────────────────────────────
+// Public endpoint: no requireAuth — free tier tracked client-side + rate-limited server-side
+const _libRateMap = new Map(); // simple in-memory rate limiter: ip -> {count, date}
+
+router.post('/library/expand', async (req, res) => {
+  try {
+    const { topic, jurisdiction = 'General' } = req.body;
+    if (!topic) return res.status(400).json({ error: 'topic required' });
+
+    // Server-side rate limit for unauthenticated requests (3/day per IP)
+    const isAuthed = !!req.user;
+    if (!isAuthed) {
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+      const today = new Date().toISOString().slice(0, 10);
+      const key = ip + ':' + today;
+      const entry = _libRateMap.get(key) || { count: 0 };
+      if (entry.count >= 3) {
+        return res.status(402).json({ limitReached: true, error: 'Free daily limit reached. Top up to continue.' });
+      }
+      entry.count++;
+      _libRateMap.set(key, entry);
+      // Clean old keys periodically
+      if (_libRateMap.size > 5000) {
+        for (const [k] of _libRateMap) { if (!k.includes(today)) _libRateMap.delete(k); }
+      }
+    }
+
+    const topicLabels = {
+      origins: 'Origins & Sources of Law',
+      public: 'Public Law & Government',
+      contract: 'Contract Law',
+      tort: 'Tort Law',
+      trusts: 'Trusts & Equity',
+      property: 'Property & Succession',
+      criminal: 'Criminal Law',
+      family: 'Family & Safeguarding',
+      commercial: 'Commercial & Company Law',
+      specialist: 'Specialist Branches of Law',
+      procedure: 'Courts & Procedure',
+      international: 'International & Comparative Law'
+    };
+    const topicName = topicLabels[topic] || topic;
+    const jxNote = jurisdiction && jurisdiction !== 'General'
+      ? ` Focus specifically on how this applies in ${jurisdiction}, including local statutes, cases, and any unique rules.`
+      : ' Give a general common law / international overview.';
+
+    const prompt = `You are LexAI, an expert legal knowledge assistant. Provide a clear, educational explanation of "${topicName}" for a general audience (not legal advice).${jxNote}
+
+Structure your response with:
+1. A brief overview (2-3 sentences)
+2. Key principles and concepts (use plain English)
+3. How it works in practice (real examples where helpful)
+4. ${jurisdiction !== 'General' ? jurisdiction + '' specific notes' : 'Jurisdiction variations to be aware of'}
+5. Common questions or misconceptions
+
+Be thorough but accessible. Use clear headings. Aim for 400-600 words.`;
+
+    // Use the existing ai service
+    const result = await ai.generateDocument(prompt, 'research', { maxTokens: 1500, temperature: 0.3 });
+    if (result.error) throw new Error(result.error);
+    const content = result.draft;
+    res.json({ content, topic, jurisdiction });
+  } catch (err) {
+    console.error('[library/expand]', err.message);
+    res.status(500).json({ error: 'Failed to expand topic. Please try again.' });
+  }
+});
+
 module.exports = router;
