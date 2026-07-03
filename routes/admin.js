@@ -9,9 +9,11 @@ const { requireAuth } = require('../middleware/auth');
 
 // ── OWNER/ADMIN MIDDLEWARE ────────────────────────
 async function requireAdmin(req, res, next) {
-  if (!req.session?.userId && !req.user?.id) return res.status(401).json({ error: 'Not authenticated' });
+  // requireAuth runs first and sets req.user from session
+  const userId = req.user?.id || req.session?.user?.id || req.session?.userId;
+  if (!userId) return res.status(401).json({ error: 'Not authenticated' });
   try {
-    const r = await pool.query('SELECT role FROM users WHERE id=$1', [req.session.userId || req.user.id]);
+    const r = await pool.query('SELECT role FROM users WHERE id=$1', [userId]);
     if (!r.rows[0] || !['owner','admin'].includes(r.rows[0].role)) {
       return res.status(403).json({ error: 'Owner or Admin access required' });
     }

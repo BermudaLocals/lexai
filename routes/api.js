@@ -16,7 +16,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = /\.(pdf|docx?|txt|rtf|png|jpe?g|gif|webp|csv|xlsx?|eml|msg)$/i;
+    const allowed = /\.(pdf|docx?|txt|rtf|png|jpe?g|gif|webp|csv|xlsx?|eml|msg|mp3|mp4|wav|m4a|ogg|webm|flac|aac)$/i;
     if (allowed.test(file.originalname)) return cb(null, true);
     cb(new Error('File type not allowed'));
   }
@@ -476,6 +476,144 @@ router.post('/evidence/upload-file', requireAuth, upload.single('file'), async (
     });
   } catch (err) {
     console.error('[evidence-file]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── TRANSCRIPTION SERVICE ─────────────────────────────────────
+const AUDIO_EXT = /\.(mp3|mp4|wav|m4a|ogg|webm|flac|aac)$/i;
+const DOC_EXT   = /\.(pdf|docx?)$/i;
+
+function formatTimestamp(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return [h,m,s].map(v => String(v).padStart(2,'0')).join(':');
+}
+
+async function transcribeAudio(buffer, mimeType, language) {
+  const REPLICATE_TOKEN = process.env.REPLICATE || process.env.REPLICATE_API_TOKEN;
+  if (!REPLICATE_TOKEN) throw new Error('Replicate API key not configured');
+
+  const b64 = buffer.toString('base64');
+  const dataUrl = `data:${mimeType};base64,${b64}`;
+
+  // Start prediction using Replicate Whisper model
+  const startRes = await fetch('https://api.replicate.com/v1/models/openai/whisper/predictions', {
+    method: 'POST',
+    headers: { 'Authorization': `Token ${REPLICATE_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      input: {
+        audio: dataUrl,
+        language: language === 'auto' ? null : language,
+        word_timestamps: false,
+        temperature: 0,
+        condition_on_previous_text: false
+      }
+    })
+  });
+  const prediction = await startRes.json();
+  if (!prediction.id) throw new Error('Replicate start failed: ' + JSON.stringify(prediction));
+
+  // Poll for result (max 5 min)
+  const pollUrl = `https://api.replicate.com/v1/predictions/${prediction.id}`;
+  let result;
+  for (let i = 0; i < 60; i++) {
+    await new Promise(r => setTimeout(r, 5000));
+    const pollRes = await fetch(pollUrl, { headers: { 'Authorization': `Token ${REPLICATE_TOKEN}` } });
+    result = await pollRes.json();
+    if (result.status === 'succeeded') break;
+    if (result.status === 'failed') throw new Error('Transcription failed: ' + result.error);
+  }
+  if (result.status !== 'succeeded') throw new Error('Transcription timed out');
+  return result.output;
+}
+
+function formatCourtTranscript(segments, detectedLang, filename) {
+  const lines = [];
+  lines.push(`COURT TRANSCRIPTION RECORD`);
+  lines.push(`${'='.repeat(60)}`);
+  lines.push(`File:     ${filename}`);
+  lines.push(`Language: ${detectedLang || 'Unknown'}`);
+  lines.push(`Date:     ${new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'})}`);
+  lines.push(`${'='.repeat(60)}`);
+  lines.push('');
+  if (Array.isArray(segments)) {
+    segments.forEach((seg, idx) => {
+      const lineNum = String(idx + 1).padStart(4, '0');
+      const ts = `[${formatTimestamp(seg.start || 0)} - ${formatTimestamp(seg.end || 0)}]`;
+      lines.push(`LINE ${lineNum}  ${ts}`);
+      lines.push(`  ${(seg.text || '').trim()}`);
+      lines.push('');
+    });
+  } else {
+    // Plain transcription string — split into ~80-char lines
+    const words = String(segments).split(' ');
+    let cur = '', lineIdx = 1;
+    words.forEach(w => {
+      if ((cur + ' ' + w).length > 80) {
+        lines.push(`LINE ${String(lineIdx++).padStart(4,'0')}  ${cur.trim()}`);
+        cur = w;
+      } else {
+        cur += (cur ? ' ' : '') + w;
+      }
+    });
+    if (cur) lines.push(`LINE ${String(lineIdx).padStart(4,'0')}  ${cur.trim()}`);
+  }
+  lines.push('');
+  lines.push(`${'='.repeat(60)}`);
+  lines.push(`END OF TRANSCRIPTION`);
+  return lines.join('\n');
+}
+
+function formatDocTranscript(text, filename) {
+  const lines = [];
+  lines.push(`DOCUMENT TRANSCRIPTION RECORD`);
+  lines.push(`${'='.repeat(60)}`);
+  lines.push(`File: ${filename}`);
+  lines.push(`Date: ${new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'})}`);
+  lines.push(`${'='.repeat(60)}`);
+  lines.push('');
+  const paras = text.split(/\n+/).filter(l => l.trim());
+  paras.forEach((para, idx) => {
+    const lineNum = String(idx + 1).padStart(4, '0');
+    lines.push(`LINE ${lineNum}  ${para.trim()}`);
+  });
+  lines.push('');
+  lines.push(`${'='.repeat(60)}`);
+  lines.push(`END OF TRANSCRIPTION`);
+  return lines.join('\n');
+}
+
+router.post('/transcribe', requireAuth, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const filename = req.file.originalname;
+    const language = req.body.language || 'auto';
+
+    let transcript, detectedLang = language, type = 'document';
+
+    if (AUDIO_EXT.test(filename)) {
+      type = 'audio';
+      const output = await transcribeAudio(req.file.buffer, req.file.mimetype, language);
+      detectedLang = output.detected_language || language;
+      transcript = formatCourtTranscript(output.segments || output.transcription, detectedLang, filename);
+    } else if (/\.pdf$/i.test(filename)) {
+      const parsed = await pdfParse(req.file.buffer);
+      transcript = formatDocTranscript(parsed.text, filename);
+    } else if (/\.docx?$/i.test(filename)) {
+      const mammoth = require('mammoth');
+      const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+      transcript = formatDocTranscript(result.value, filename);
+    } else {
+      transcript = formatDocTranscript(req.file.buffer.toString('utf8'), filename);
+    }
+
+    await audit(req.user.id, 'transcribe', 'transcription', null, { filename, language, type });
+    res.json({ transcript, filename, language: detectedLang, type, lines: transcript.split('\n').length });
+  } catch (err) {
+    console.error('[transcribe]', err.message);
     res.status(500).json({ error: err.message });
   }
 });

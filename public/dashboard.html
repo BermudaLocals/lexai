@@ -382,6 +382,8 @@ body {
   .stats-grid { grid-template-columns: 1fr !important; }
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
 </head>
 <body>
 
@@ -427,6 +429,10 @@ body {
     </a>
     <a class="nav-item" onclick="show('evidence')" href="#">
       <span class="ni">🔐</span> Evidence Chain
+    </a>
+    <a class="nav-item" onclick="show('transcribe')" href="#">
+      <span class="ni">🎙️</span> Transcription
+      <span class="nb">New</span>
     </a>
 
     <div class="nav-section">Intelligence</div>
@@ -661,7 +667,7 @@ body {
           <span class="result-bar-title">GENERATED DOCUMENT</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-draft')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-draft', 'LexAI-Document.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-draft', 'LexAI-Document')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-draft"></div>
@@ -730,7 +736,7 @@ body {
           <span class="result-bar-title">RESEARCH RESULTS</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-research')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-research', 'LexAI-Research.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-research', 'LexAI-Research')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-research"></div>
@@ -774,7 +780,7 @@ body {
           <span class="result-bar-title">ANALYSIS RESULTS</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-analyze')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-analyze', 'LexAI-Analysis.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-analyze', 'LexAI-Analysis')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-analyze"></div>
@@ -847,7 +853,7 @@ body {
           <span class="result-bar-title">SAFEGUARDING ANALYSIS</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-sg')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-sg', 'LexAI-Safeguarding.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-sg', 'LexAI-Safeguarding')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-sg"></div>
@@ -902,7 +908,7 @@ body {
           <span class="result-bar-title">CASE SUMMARY</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-cs')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-cs', 'LexAI-CaseSummary.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-cs', 'LexAI-CaseSummary')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-cs"></div>
@@ -947,7 +953,7 @@ body {
           <span class="result-bar-title">LEGAL CHRONOLOGY</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-chron')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-chron', 'LexAI-Chronology.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-chron', 'LexAI-Chronology')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-chron"></div>
@@ -1036,7 +1042,7 @@ body {
           <span class="result-bar-title">HORIZON SCAN RESULTS</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-horizon')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-horizon', 'LexAI-Horizon.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-horizon', 'LexAI-Horizon')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-horizon"></div>
@@ -1090,7 +1096,7 @@ body {
           <span class="result-bar-title">LITIGATION PREDICTION</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-pred')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-pred', 'LexAI-Prediction.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-pred', 'LexAI-Prediction')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-pred"></div>
@@ -1136,7 +1142,7 @@ body {
           <span class="result-bar-title">COMPARATIVE ANALYSIS</span>
           <div class="result-actions">
             <button class="result-btn" onclick="copyResult('result-comp')">Copy</button>
-            <button class="result-btn" onclick="downloadResult('result-comp', 'LexAI-Comparative.txt')">Download</button>
+            <button class="result-btn" onclick="showDownloadOptions('result-comp', 'LexAI-Comparative')">Download ▾</button>
           </div>
         </div>
         <div class="result-content" id="content-comp"></div>
@@ -1192,7 +1198,80 @@ body {
       <button class="submit-btn" onclick="saveAffPaypal()">Save PayPal Email</button>
     </div>
 
+  
+  <!-- ── TRANSCRIPTION ───────────────────────────────────────── -->
+  <div class="panel" id="panel-transcribe" style="display:none">
+    <div class="panel-header">
+      <h2>🎙️ Court Transcription Service</h2>
+      <p class="panel-sub">Upload audio or documents — get numbered, timestamped transcripts for court proceedings</p>
+    </div>
+    <div class="tool-grid" style="grid-template-columns:1fr">
+      <div class="tool-card" style="max-width:780px">
+        <div class="card-body">
+
+          <div id="transcribe-drop" onclick="document.getElementById('transcribe-file').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor=''" ondrop="handleTranscribeDrop(event)" style="border:2px dashed rgba(212,175,55,.35);border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:18px">
+            <div style="font-size:40px;margin-bottom:10px">🎙️</div>
+            <div style="color:var(--text);font-weight:600;margin-bottom:6px">Drop audio or document here</div>
+            <div style="color:var(--muted);font-size:12px">Audio: MP3, MP4, WAV, M4A, OGG, WEBM &nbsp;|&nbsp; Docs: PDF, DOCX, TXT</div>
+            <div style="color:var(--muted);font-size:11px;margin-top:4px">Max 20MB</div>
+            <input type="file" id="transcribe-file" accept=".mp3,.mp4,.wav,.m4a,.ogg,.webm,.flac,.aac,.pdf,.docx,.doc,.txt" style="display:none" onchange="handleTranscribeFile(this.files[0])">
+          </div>
+
+          <div id="transcribe-file-info" style="display:none;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--text)"></div>
+
+          <div style="display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <label style="display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Language</label>
+              <select id="transcribe-lang" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:9px 12px;font-family:var(--sans);font-size:13px">
+                <option value="auto">Auto-detect</option>
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+                <option value="de">German</option>
+                <option value="pt">Portuguese</option>
+                <option value="it">Italian</option>
+                <option value="nl">Dutch</option>
+                <option value="pl">Polish</option>
+                <option value="ru">Russian</option>
+                <option value="zh">Chinese (Mandarin)</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="ar">Arabic</option>
+                <option value="hi">Hindi</option>
+                <option value="tr">Turkish</option>
+                <option value="sv">Swedish</option>
+                <option value="da">Danish</option>
+                <option value="fi">Finnish</option>
+                <option value="no">Norwegian</option>
+                <option value="cs">Czech</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button id="transcribe-btn" onclick="runTranscribe()" disabled style="background:linear-gradient(135deg,#d4af37,#f0d060);color:#070709;font-weight:700;border:none;border-radius:8px;padding:9px 22px;cursor:pointer;font-size:13px;opacity:.5;transition:opacity .2s">Transcribe</button>
+            </div>
+          </div>
+
+          <div id="transcribe-loading" style="display:none;text-align:center;padding:30px">
+            <div style="font-size:28px;animation:spin 1s linear infinite">⚙️</div>
+            <div style="color:var(--muted);font-size:13px;margin-top:10px">Processing... Audio files may take 1–3 minutes</div>
+          </div>
+
+          <div id="result-transcribe" class="result-box" style="display:none">
+            <div class="result-header">
+              <span class="result-label">📜 Court Transcript</span>
+              <div class="result-actions">
+                <button class="result-btn" onclick="copyResult('result-transcribe')">Copy</button>
+                <button class="result-btn" onclick="showDownloadOptions('result-transcribe', 'LexAI-Transcript')">Download ▾</button>
+              </div>
+            </div>
+            <div class="result-content" id="content-result-transcribe" style="font-family:var(--mono);font-size:12px;line-height:1.8;white-space:pre-wrap"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1309,12 +1388,108 @@ function copyResult(id) {
   const text = document.getElementById('content-' + id).textContent;
   navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard'));
 }
-function downloadResult(id, filename) {
-  const text = document.getElementById('content-' + id).textContent;
-  const a = document.createElement('a');
-  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
-  a.download = filename; a.click();
+function showDownloadOptions(id, basename) {
+  // Remove any existing dropdown
+  const existing = document.getElementById('dl-dropdown-' + id);
+  if (existing) { existing.remove(); return; }
+  const btn = event.currentTarget;
+  const drop = document.createElement('div');
+  drop.id = 'dl-dropdown-' + id;
+  drop.style.cssText = 'position:absolute;z-index:999;background:#1e1e24;border:1px solid rgba(212,175,55,.4);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.6);overflow:hidden;min-width:160px;';
+  drop.innerHTML = `
+    <button onclick="downloadAsPDF('${id}','${basename}')" style="display:block;width:100%;padding:10px 16px;background:none;border:none;color:#ece9e0;text-align:left;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;" onmouseover="this.style.background='rgba(212,175,55,.1)'" onmouseout="this.style.background='none'">📄 Download PDF</button>
+    <button onclick="downloadAsDocx('${id}','${basename}')" style="display:block;width:100%;padding:10px 16px;background:none;border:none;color:#ece9e0;text-align:left;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;border-top:1px solid rgba(212,175,55,.15);" onmouseover="this.style.background='rgba(212,175,55,.1)'" onmouseout="this.style.background='none'">📝 Download Word</button>
+  `;
+  // Position below button
+  const rect = btn.getBoundingClientRect();
+  drop.style.position = 'fixed';
+  drop.style.top = (rect.bottom + 4) + 'px';
+  drop.style.left = rect.left + 'px';
+  document.body.appendChild(drop);
+  // Close on outside click
+  setTimeout(() => document.addEventListener('click', function _cls(e) {
+    if (!drop.contains(e.target)) { drop.remove(); document.removeEventListener('click', _cls); }
+  }), 0);
 }
+
+function downloadAsPDF(id, basename) {
+  const text = document.getElementById('content-' + id).textContent;
+  const drop = document.getElementById('dl-dropdown-' + id);
+  if (drop) drop.remove();
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const margin = 15, pageW = 210, lineH = 6, fontSize = 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(fontSize);
+    doc.setTextColor(30, 30, 30);
+    // Header
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('LexAI Legal Intelligence', margin, 20);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120, 120, 120);
+    doc.text('Generated: ' + new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'}), margin, 27);
+    doc.setDrawColor(212, 175, 55);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 30, 210 - margin, 30);
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(fontSize);
+    let y = 38;
+    const lines = doc.splitTextToSize(text, pageW - margin * 2);
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y);
+      y += lineH;
+    });
+    doc.save(basename + '.pdf');
+    toast('PDF downloaded');
+  } catch(e) { toast('PDF error: ' + e.message); console.error(e); }
+}
+
+function downloadAsDocx(id, basename) {
+  const text = document.getElementById('content-' + id).textContent;
+  const drop = document.getElementById('dl-dropdown-' + id);
+  if (drop) drop.remove();
+  try {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+    const paras = text.split(/\n+/).filter(l => l.trim()).map(line => {
+      return new Paragraph({
+        children: [new TextRun({ text: line, size: 22, font: 'Calibri' })],
+        spacing: { after: 120 }
+      });
+    });
+    const doc = new Document({
+      creator: 'LexAI', title: basename,
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            text: 'LexAI Legal Intelligence',
+            heading: HeadingLevel.HEADING_1,
+            spacing: { after: 200 }
+          }),
+          new Paragraph({
+            children: [new TextRun({ text: 'Generated: ' + new Date().toLocaleDateString('en-GB'), size: 18, color: '888888' })],
+            spacing: { after: 300 }
+          }),
+          ...paras
+        ]
+      }]
+    });
+    Packer.toBlob(doc).then(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = basename + '.docx'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast('Word document downloaded');
+    });
+  } catch(e) { toast('DOCX error: ' + e.message); console.error(e); }
+}
+
+// Legacy: keep downloadResult as alias for backward compatibility
+function downloadResult(id, filename) { showDownloadOptions(id, filename.replace(/\.txt$/, '')); }
 
 // ── DRAFT ─────────────────────────────────────────────────────
 async function runDraft() {
