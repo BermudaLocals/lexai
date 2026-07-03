@@ -1,3 +1,4 @@
+require("dotenv").config({ override: true, path: require("path").join(__dirname, "../.env") })
 // services/ai.js
 // LexAI AI Service — complete implementation covering every function
 // routes/api.js requires. Uses Anthropic SDK directly (claude-sonnet-4-6).

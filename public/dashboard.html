@@ -445,10 +445,9 @@ body {
     <a class="nav-item" onclick="show('compare')" href="#">
       <span class="ni">🌍</span> Comparative Law
     </a>
-
-    <a class="nav-item" onclick="show('library')" href="#">
+    <a class="nav-item" id="nav-library" onclick="show('library')" href="#">
       <span class="ni">📚</span> Legal Library
-      <span class="nb">Free</span>
+      <span class="nb" style="background:rgba(212,175,55,.15);color:#d4af37">Free</span>
     </a>
 
     <div class="nav-section">Account</div>
@@ -1279,6 +1278,157 @@ body {
 </div>
 </div>
 
+
+  <!-- ──────────────────── LEGAL LIBRARY PANEL ──────────────────── -->
+  <div class="panel" id="panel-library">
+    <div class="section-header">
+      <div>
+        <h2 style="font-family:var(--serif)">Legal Knowledge Library</h2>
+        <p style="color:var(--muted);font-size:13px;margin-top:4px">A free, structured map of the law — browse the foundations; ask LexAI to go deeper on anything.</p>
+      </div>
+    </div>
+
+    <style>
+      .lib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1100px;margin-top:20px}
+      .lib-card{background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--gold);
+        border-radius:10px;padding:20px;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+      .lib-card:hover{transform:translateY(-2px);border-left-color:var(--gold2);box-shadow:0 4px 20px rgba(212,175,55,.1)}
+      .lib-card h3{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text)}
+      .lib-card p{color:var(--muted);font-size:13px;line-height:1.5}
+      .lib-card .lib-topics{margin-top:10px;font-size:11px;color:var(--gold);font-family:var(--mono);letter-spacing:.02em}
+      .lib-disclaimer{max-width:1100px;margin-top:24px;padding:14px 18px;background:var(--s2);
+        border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;line-height:1.6}
+      .lib-donate{max-width:1100px;margin-top:16px;padding:20px;background:rgba(212,175,55,.04);
+        border:1px solid var(--border2);border-radius:10px}
+      .lib-donate h4{color:var(--gold);font-size:15px;margin-bottom:6px;font-family:var(--serif)}
+      .lib-donate p{color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6}
+      .lib-expand-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;
+        align-items:center;justify-content:center;padding:20px}
+      .lib-expand-modal.open{display:flex}
+      .lib-expand-box{background:var(--s1);border:1px solid var(--border2);border-radius:14px;
+        max-width:760px;width:100%;max-height:80vh;overflow-y:auto;padding:32px;position:relative}
+      .lib-expand-box h3{font-family:var(--serif);font-size:22px;color:var(--gold);margin-bottom:16px}
+      .lib-expand-content{color:var(--text);font-size:14px;line-height:1.8;white-space:pre-wrap}
+      .lib-expand-close{position:absolute;top:16px;right:20px;background:none;border:none;
+        color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px}
+      .lib-expand-close:hover{color:var(--text)}
+      .lib-jx-row{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+      .lib-jx-row label{font-size:12px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+      .lib-jx-input{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);
+        padding:7px 12px;font-size:13px;min-width:220px;font-family:var(--sans)}
+      .lib-jx-input:focus{outline:none;border-color:var(--gold)}
+    </style>
+
+    <p style="color:var(--gold);font-size:12px;font-family:var(--mono);font-weight:600;margin-top:16px">◆ FREE FOR EVERYONE · NO ACCOUNT REQUIRED</p>
+
+    <div class="lib-grid">
+      <div class="lib-card" onclick="openLibraryTopic('origins')">
+        <h3>Origins &amp; Sources of Law</h3>
+        <p>Where law comes from — and what counted as law through history.</p>
+        <div class="lib-topics">Roman law · Common law vs Civil law · Equity · Custom · Statute · Constitutions · Treaties</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('public')">
+        <h3>Public Law &amp; Government</h3>
+        <p>The state, its powers, and the limits on them.</p>
+        <div class="lib-topics">Constitutional · Administrative · Separation of powers · Judicial review · Human rights</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('contract')">
+        <h3>Contract Law</h3>
+        <p>Agreements, their formation, and their enforcement.</p>
+        <div class="lib-topics">Formation · Terms · Breach · Remedies · Misrepresentation · Frustration</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('tort')">
+        <h3>Tort Law</h3>
+        <p>Civil wrongs and the duties we owe one another.</p>
+        <div class="lib-topics">Negligence · Nuisance · Defamation · Trespass · Liability · Damages</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('trusts')">
+        <h3>Trusts &amp; Equity</h3>
+        <p>The conscience of the law — holding property for others.</p>
+        <div class="lib-topics">Express &amp; constructive trusts · Fiduciary duties · Beneficiaries · Equitable remedies</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('property')">
+        <h3>Property &amp; Succession</h3>
+        <p>Ownership, land, and what passes on death.</p>
+        <div class="lib-topics">Real &amp; personal property · Land law · Wills · Intestacy · Estates</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('criminal')">
+        <h3>Criminal Law</h3>
+        <p>Offences against society, and how they are tried.</p>
+        <div class="lib-topics">Principles · Offences · Procedure · Evidence · Sentencing · Defences</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('family')">
+        <h3>Family &amp; Safeguarding</h3>
+        <p>Relationships, children, and the protection of the vulnerable.</p>
+        <div class="lib-topics">Marriage · Divorce · Children law · Safeguarding · Domestic abuse</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('commercial')">
+        <h3>Commercial &amp; Company Law</h3>
+        <p>How business is structured and governed.</p>
+        <div class="lib-topics">Companies · Partnerships · Insolvency · Securities · Governance</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('specialist')">
+        <h3>Specialist Branches</h3>
+        <p>The wider map of modern law.</p>
+        <div class="lib-topics">IP · Tax · Employment · Immigration · Environmental · Tech &amp; AI law</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('procedure')">
+        <h3>Courts &amp; Procedure</h3>
+        <p>How a case actually moves through the system.</p>
+        <div class="lib-topics">Court hierarchies · Civil procedure · Criminal procedure · Appeals · Limitation periods</div>
+      </div>
+      <div class="lib-card" onclick="openLibraryTopic('international')">
+        <h3>International &amp; Comparative</h3>
+        <p>Law across borders.</p>
+        <div class="lib-topics">Public international law · Human rights · Treaties · Conflict of laws · Arbitration</div>
+      </div>
+    </div>
+
+    <div class="lib-disclaimer">
+      <strong style="color:var(--text)">About this library.</strong> This is a free educational overview of the law's structure and development. It is broad but not exhaustive; no resource can contain every law. It is for general understanding only, is not legal advice, and does not create a lawyer–client relationship. For a specific matter, consult a qualified lawyer.
+    </div>
+
+    <div class="lib-donate">
+      <h4>◆ Pay it forward</h4>
+      <p>LexAI's library is free so that anyone — not only those who can afford a lawyer — can understand their rights. If it helped you and you'd like to keep it free for the next person, you can contribute voluntarily. This is a gift that funds open access. It is not a fee and is in no way tied to the outcome of any legal matter.</p>
+      <a href="/donate" style="display:inline-block;background:var(--gold);color:#07070a;font-weight:700;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:13px;font-family:var(--sans)">Keep the library free →</a>
+    </div>
+  </div>
+
+  <!-- AI Expand Modal -->
+  <div class="lib-expand-modal" id="lib-expand-modal" onclick="closeLibraryModal(event)">
+    <div class="lib-expand-box">
+      <button class="lib-expand-close" onclick="closeLibraryModal()" title="Close">✕</button>
+      <h3 id="lib-expand-title">Loading...</h3>
+      <div class="lib-jx-row">
+        <label>Jurisdiction:</label>
+        <input list="jx-list" id="lib-jx-select" class="lib-jx-input" placeholder="e.g. Bermuda, England, Global..." value="General">
+        <button onclick="reloadLibraryTopic()" style="background:var(--gold);color:#07070a;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px">Refresh →</button>
+      </div>
+      <div id="lib-expand-loading" style="display:none;text-align:center;padding:30px;color:var(--muted);font-size:13px">
+        <div style="font-size:24px;animation:spin 1s linear infinite;display:inline-block">⚖️</div>
+        <div style="margin-top:10px">Consulting the law...</div>
+      </div>
+      <div class="lib-expand-content" id="lib-expand-content"></div>
+    </div>
+  </div>
+
+  <!-- Token Top-Up Modal (shown when free tier hits query limit) -->
+  <div id="topup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--s1);border:1px solid var(--border2);border-radius:16px;max-width:480px;width:100%;padding:36px;text-align:center">
+      <div style="font-size:40px;margin-bottom:16px">⚖️</div>
+      <h3 style="font-family:var(--serif);color:var(--gold);font-size:22px;margin-bottom:10px">You've reached your free limit</h3>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:24px">
+        Free accounts include <strong style="color:var(--text)">5 AI queries per day</strong>. Top up with tokens for pay-as-you-go access, or upgrade to a plan for unlimited use.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="/pricing.html#tokens" onclick="closeTopupModal()" style="display:block;background:var(--gold);color:#07070a;font-weight:700;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:14px">🪙 Buy Token Pack — from $4.99</a>
+        <a href="/pricing.html" onclick="closeTopupModal()" style="display:block;background:var(--s3);border:1px solid var(--border2);color:var(--text);font-weight:600;padding:14px 24px;border-radius:10px;text-decoration:none;font-size:14px">⬆️ Upgrade Plan — unlimited access</a>
+        <button onclick="closeTopupModal()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:8px;font-family:var(--sans)">Maybe later</button>
+      </div>
+    </div>
+  </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1359,7 +1509,7 @@ const titles = {
   analyze:'Analyze Document', safeguarding:'Safeguarding Support',
   casesummary:'Case Summary', chronology:'Legal Chronology',
   evidence:'Evidence Chain', horizon:'Horizon Scanning',
-  predict:'Litigation Prediction', compare:'Comparative Law',
+  predict:'Litigation Prediction', compare:'Comparative Law', library:'Legal Knowledge Library',
   documents:'My Documents', affiliate:'Affiliate Programme'
 };
 
@@ -1370,6 +1520,7 @@ function show(panel) {
   document.getElementById('panel-title').textContent = titles[panel] || panel;
   event?.preventDefault();
   if (panel === 'documents') loadDocuments();
+  if (panel === 'library') { document.getElementById('nav-library')?.classList.add('active'); }
   if (panel === 'affiliate') loadAffiliate();
   if (panel === 'evidence') loadEvidenceChain();
 }
@@ -1978,7 +2129,6 @@ init();
     <option value="FINRA">
     <option value="Multiple Jurisdictions">
     <option value="Custom / Other Jurisdiction">
-    <option value="Caribbean (regional)">
 </datalist>
 
 <script>
@@ -2002,248 +2152,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
-</script>
 
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- LEGAL LIBRARY PANEL -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="panel" id="panel-library">
-  <style>
-    /* Library panel styles - scoped */
-    #panel-library .lib-header{margin-bottom:28px}
-    #panel-library .lib-header h2{font-family:var(--serif);font-size:28px;font-weight:900;color:var(--text);margin-bottom:6px}
-    #panel-library .lib-header p{color:var(--muted);font-size:15px;max-width:700px}
-    #panel-library .lib-free-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(91,143,255,.1);color:#5B8FFF;border:1px solid rgba(91,143,255,.3);border-radius:6px;padding:4px 12px;font-size:12px;font-family:var(--mono);letter-spacing:.06em;margin-top:10px}
-    #panel-library .lib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:24px}
-    #panel-library .lib-card{background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:20px;cursor:pointer;transition:all .15s}
-    #panel-library .lib-card:hover{transform:translateY(-2px);border-left-color:var(--gold2);background:var(--s3)}
-    #panel-library .lib-card h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
-    #panel-library .lib-card p{color:var(--muted);font-size:13px;line-height:1.5}
-    #panel-library .lib-card .lib-topics{margin-top:10px;font-size:12px;color:var(--gold);font-family:var(--mono)}
-    #panel-library .lib-card .lib-ai-hint{margin-top:10px;font-size:11px;color:var(--dim)}
-    #panel-library .lib-disclaimer{padding:14px 18px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;margin-bottom:16px}
-    #panel-library .lib-donate-bar{padding:18px;background:var(--s1);border:1px solid rgba(91,143,255,.3);border-radius:10px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-    #panel-library .lib-donate-bar p{color:var(--muted);font-size:13px;flex:1;min-width:200px}
-    #panel-library .lib-donate-btn{background:#5B8FFF;color:#04122E;font-weight:700;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:13px;white-space:nowrap}
-    /* Topic expansion modal */
-    #lib-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;align-items:center;justify-content:center;padding:20px}
-    #lib-modal-overlay.open{display:flex}
-    #lib-modal{background:var(--s1);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:760px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
-    #lib-modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-    #lib-modal-head h3{font-family:var(--serif);font-size:20px;color:var(--text)}
-    #lib-modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1}
-    #lib-modal-close:hover{color:var(--text)}
-    #lib-modal-body{padding:24px;overflow-y:auto;flex:1}
-    #lib-modal-body .lib-jx-row{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
-    #lib-modal-body label{color:var(--muted);font-size:13px;font-family:var(--mono)}
-    #lib-modal-jx{padding:8px 12px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;min-width:200px}
-    #lib-modal-expand-btn{padding:8px 20px;background:var(--gold);color:#000;border:none;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer}
-    #lib-modal-expand-btn:hover{background:var(--gold2)}
-    #lib-modal-result{margin-top:16px;white-space:pre-wrap;font-size:14px;line-height:1.7;color:var(--text)}
-    #lib-modal-loading{display:none;color:var(--gold);font-family:var(--mono);font-size:13px;margin-top:12px}
-    #lib-modal-loading.show{display:block}
-    /* Free tier top-up modal */
-    #topup-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9100;align-items:center;justify-content:center;padding:20px}
-    #topup-modal-overlay.open{display:flex}
-    #topup-modal{background:var(--s1);border:1px solid var(--gold);border-radius:14px;width:100%;max-width:520px;padding:32px}
-    #topup-modal h3{font-family:var(--serif);font-size:22px;color:var(--text);margin-bottom:8px}
-    #topup-modal p{color:var(--muted);font-size:14px;margin-bottom:24px}
-    .topup-options{display:grid;gap:12px;margin-bottom:20px}
-    .topup-option{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s}
-    .topup-option:hover{border-color:var(--gold);background:var(--s3)}
-    .topup-option .to-label{font-weight:600;color:var(--text);font-size:14px}
-    .topup-option .to-desc{color:var(--muted);font-size:12px;margin-top:2px}
-    .topup-option .to-price{font-family:var(--mono);color:var(--gold);font-size:16px;font-weight:700;white-space:nowrap}
-    .topup-continue-free{text-align:center;margin-top:8px}
-    .topup-continue-free a{color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline}
-    .topup-continue-free a:hover{color:var(--text)}
-  </style>
-
-  <div class="lib-header">
-    <h2>📚 Legal Knowledge Library</h2>
-    <p>A free, structured map of the law — its origins, its great branches, and how it applies across jurisdictions. Browse the foundations; use LexAI to go deeper on any topic.</p>
-    <span class="lib-free-badge">◆ FREE — No Account Required</span>
-  </div>
-
-  <div class="lib-grid">
-    <div class="lib-card" onclick="openLibTopic('origins','Origins &amp; Sources of Law')"><h3>Origins &amp; Sources of Law</h3><p>Where law comes from — and what counted as law through history.</p><div class="lib-topics">Roman law · Common law vs Civil law · Equity · Custom · Statute · Constitutions · Treaties</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('public','Public Law &amp; Government')"><h3>Public Law &amp; Government</h3><p>The state, its powers, and the limits on them.</p><div class="lib-topics">Constitutional · Administrative · Separation of powers · Judicial review · Human rights</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('contract','Contract Law')"><h3>Contract Law</h3><p>Agreements, their formation, and their enforcement.</p><div class="lib-topics">Formation · Terms · Breach · Remedies · Misrepresentation · Frustration</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('tort','Tort Law')"><h3>Tort Law</h3><p>Civil wrongs and the duties we owe one another.</p><div class="lib-topics">Negligence · Nuisance · Defamation · Trespass · Liability · Damages</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('trusts','Trusts &amp; Equity')"><h3>Trusts &amp; Equity</h3><p>The conscience of the law — holding property for others.</p><div class="lib-topics">Express &amp; constructive trusts · Fiduciary duties · Beneficiaries · Equitable remedies</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('property','Property &amp; Succession')"><h3>Property &amp; Succession</h3><p>Ownership, land, and what passes on death.</p><div class="lib-topics">Real &amp; personal property · Land law · Wills · Intestacy · Estates</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('criminal','Criminal Law')"><h3>Criminal Law</h3><p>Offences against society, and how they are tried.</p><div class="lib-topics">Principles · Offences · Procedure · Evidence · Sentencing · Defences</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('family','Family &amp; Safeguarding')"><h3>Family &amp; Safeguarding</h3><p>Relationships, children, and the protection of the vulnerable.</p><div class="lib-topics">Marriage · Divorce · Children law · Safeguarding · Domestic abuse</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('commercial','Commercial &amp; Company Law')"><h3>Commercial &amp; Company Law</h3><p>How business is structured and governed.</p><div class="lib-topics">Companies · Partnerships · Insolvency · Securities · Governance</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('specialist','Specialist Branches')"><h3>Specialist Branches</h3><p>The wider map of modern law.</p><div class="lib-topics">IP · Tax · Employment · Immigration · Environmental · Tech &amp; AI law</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('procedure','Courts &amp; Procedure')"><h3>Courts &amp; Procedure</h3><p>How a case actually moves through the system.</p><div class="lib-topics">Court hierarchies · Civil procedure · Criminal procedure · Appeals · Limitation periods</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-    <div class="lib-card" onclick="openLibTopic('international','International &amp; Comparative')"><h3>International &amp; Comparative</h3><p>Law across borders.</p><div class="lib-topics">Public international law · Human rights · Treaties · Conflict of laws · Arbitration</div><div class="lib-ai-hint">⚡ Ask LexAI to expand any topic →</div></div>
-  </div>
-
-  <div class="lib-disclaimer">
-    <strong>About this library.</strong> This is a free educational overview of the law's structure and development. It is broad but not exhaustive. It is for general understanding only, is not legal advice, and does not create a lawyer–client relationship. For a specific matter, consult a qualified lawyer.
-  </div>
-
-  <div class="lib-donate-bar">
-    <p>LexAI's library is free so anyone — not only those who can afford a lawyer — can understand their rights. If it helped you and you'd like to keep it free for the next person, you can contribute voluntarily.</p>
-    <a class="lib-donate-btn" href="/donate">Keep the library free →</a>
-  </div>
-</div>
-
-<!-- Library Topic Expansion Modal -->
-<div id="lib-modal-overlay" onclick="if(event.target===this)closeLibModal()">
-  <div id="lib-modal">
-    <div id="lib-modal-head">
-      <h3 id="lib-modal-title">Topic</h3>
-      <button id="lib-modal-close" onclick="closeLibModal()">✕</button>
-    </div>
-    <div id="lib-modal-body">
-      <div class="lib-jx-row">
-        <label>Jurisdiction (optional):</label>
-        <input id="lib-modal-jx" list="jx-list" placeholder="e.g. Bermuda, UK, Jamaica..." />
-        <button id="lib-modal-expand-btn" onclick="expandLibTopic()">⚡ Ask LexAI</button>
-      </div>
-      <div id="lib-modal-loading">⏳ LexAI is researching this topic...</div>
-      <div id="lib-modal-result"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Free Tier Top-Up Modal -->
-<div id="topup-modal-overlay">
-  <div id="topup-modal">
-    <h3>⚡ You've used your free queries</h3>
-    <p>Free accounts get <strong>3 AI queries</strong> per day. Top up with tokens for instant access, or upgrade to a full plan for unlimited use.</p>
-    <div class="topup-options">
-      <div class="topup-option" onclick="topupBuy(10,4.99)">
-        <div><div class="to-label">🔹 10 Query Tokens</div><div class="to-desc">One-time top-up — never expires</div></div>
-        <div class="to-price">$4.99</div>
-      </div>
-      <div class="topup-option" onclick="topupBuy(25,9.99)">
-        <div><div class="to-label">🔶 25 Query Tokens</div><div class="to-desc">Best value top-up pack</div></div>
-        <div class="to-price">$9.99</div>
-      </div>
-      <div class="topup-option" onclick="window.location.href='/pricing.html'">
-        <div><div class="to-label">👑 Upgrade to Pro</div><div class="to-desc">Unlimited queries + all features</div></div>
-        <div class="to-price">$29/mo</div>
-      </div>
-    </div>
-    <div class="topup-continue-free"><a onclick="closeTopupModal()">Continue browsing the free library →</a></div>
-  </div>
-</div>
-
-<script>
-// ── LEGAL LIBRARY ─────────────────────────────────────────────
+// ── LEGAL LIBRARY ────────────────────────────────────────────────────
 let _libCurrentTopic = null;
-let _libCurrentTitle = null;
-const LIB_FREE_DAILY_LIMIT = 3;
-const LIB_FREE_STORAGE_KEY = 'lexai_lib_free_' + new Date().toISOString().slice(0,10);
-
-function getLibFreeCount() {
-  return parseInt(localStorage.getItem(LIB_FREE_STORAGE_KEY) || '0');
-}
-function incLibFreeCount() {
-  const n = getLibFreeCount() + 1;
-  localStorage.setItem(LIB_FREE_STORAGE_KEY, n);
-  return n;
-}
-function getUserPlan() {
-  const badge = document.getElementById('user-plan');
-  if (!badge) return 'free';
-  const t = badge.textContent.replace(/⚡\s*/,'').toLowerCase();
-  return t;
-}
-function isFreeTier() {
-  const p = getUserPlan();
-  return p === 'free' || p === 'solo';
-}
-
-function openLibTopic(topicKey, topicTitle) {
+const _libTopicNames = {
+  origins:'Origins & Sources of Law', public:'Public Law & Government',
+  contract:'Contract Law', tort:'Tort Law', trusts:'Trusts & Equity',
+  property:'Property & Succession', criminal:'Criminal Law',
+  family:'Family & Safeguarding', commercial:'Commercial & Company Law',
+  specialist:'Specialist Branches', procedure:'Courts & Procedure',
+  international:'International & Comparative'
+};
+async function openLibraryTopic(topicKey) {
   _libCurrentTopic = topicKey;
-  _libCurrentTitle = topicTitle;
-  document.getElementById('lib-modal-title').textContent = topicTitle;
-  document.getElementById('lib-modal-result').textContent = 'Click ⚡ Ask LexAI to get an AI-powered deep dive into this topic, tailored to your jurisdiction.';
-  document.getElementById('lib-modal-loading').classList.remove('show');
-  document.getElementById('lib-modal-overlay').classList.add('open');
-}
-
-function closeLibModal() {
-  document.getElementById('lib-modal-overlay').classList.remove('open');
-  _libCurrentTopic = null;
-  _libCurrentTitle = null;
-}
-
-async function expandLibTopic() {
-  // Check free tier limit for AI expand
-  if (isFreeTier()) {
-    const count = getLibFreeCount();
-    if (count >= LIB_FREE_DAILY_LIMIT) {
-      closeLibModal();
-      showTopupModal();
-      return;
-    }
-  }
-  const jurisdiction = document.getElementById('lib-modal-jx').value || 'General';
-  const btn = document.getElementById('lib-modal-expand-btn');
-  const loading = document.getElementById('lib-modal-loading');
-  const result = document.getElementById('lib-modal-result');
-  btn.disabled = true;
-  loading.classList.add('show');
-  result.textContent = '';
+  const modal = document.getElementById('lib-expand-modal');
+  const titleEl = document.getElementById('lib-expand-title');
+  const contentEl = document.getElementById('lib-expand-content');
+  const loadingEl = document.getElementById('lib-expand-loading');
+  titleEl.textContent = _libTopicNames[topicKey] || topicKey;
+  contentEl.textContent = '';
+  loadingEl.style.display = 'block';
+  modal.classList.add('open');
+  const jurisdiction = document.getElementById('lib-jx-select')?.value || 'General';
   try {
-    const res = await fetch('/api/library/expand', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) },
-      credentials: 'include',
-      body: JSON.stringify({ topic: _libCurrentTopic, jurisdiction })
-    });
+    const opts = { method:'POST', headers:{'Content-Type':'application/json'} };
+    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+    const res = await fetch('/api/library/expand', { ...opts, body: JSON.stringify({ topic: topicKey, jurisdiction }) });
     const data = await res.json();
-    if (res.status === 402 || data.limitReached) {
-      loading.classList.remove('show');
-      btn.disabled = false;
-      closeLibModal();
-      showTopupModal();
-      return;
-    }
+    loadingEl.style.display = 'none';
     if (data.content) {
-      // Count usage for free tier
-      if (isFreeTier()) {
-        const used = incLibFreeCount();
-        const remaining = LIB_FREE_DAILY_LIMIT - used;
-        result.textContent = data.content + (remaining > 0 ? '\n\n[Free queries remaining today: ' + remaining + ']' : '\n\n[Daily free limit reached — top up for more]')
-      } else {
-        result.textContent = data.content;
-      }
+      contentEl.textContent = data.content;
     } else if (data.error) {
-      result.textContent = 'Error: ' + data.error;
+      contentEl.textContent = '⚠️ ' + data.error;
     } else {
-      result.textContent = 'No response received.';
+      contentEl.textContent = JSON.stringify(data);
     }
   } catch(e) {
-    result.textContent = 'Connection error. Please try again.';
-    console.error('Library expand error:', e);
-  } finally {
-    loading.classList.remove('show');
-    btn.disabled = false;
+    loadingEl.style.display = 'none';
+    contentEl.textContent = '⚠️ Could not connect to LexAI. Please check your connection.';
   }
 }
-
-// ── FREE TIER TOP-UP MODAL ────────────────────────────────────
+function reloadLibraryTopic() {
+  if (_libCurrentTopic) openLibraryTopic(_libCurrentTopic);
+}
+function closeLibraryModal(e) {
+  if (!e || e.target === document.getElementById('lib-expand-modal')) {
+    document.getElementById('lib-expand-modal').classList.remove('open');
+  }
+}
+// ── TOKEN TOP-UP MODAL ────────────────────────────────────────────────
 function showTopupModal() {
-  document.getElementById('topup-modal-overlay').classList.add('open');
+  const m = document.getElementById('topup-modal');
+  m.style.display = 'flex';
 }
 function closeTopupModal() {
-  document.getElementById('topup-modal-overlay').classList.remove('open');
+  document.getElementById('topup-modal').style.display = 'none';
 }
-function topupBuy(tokens, price) {
-  // Redirect to PayPal checkout with token pack details
-  const desc = encodeURIComponent(tokens + ' LexAI Query Tokens');
-  window.location.href = '/pricing.html?topup=' + tokens + '&price=' + price;
+// Intercept API errors for free tier limit — wire into existing apiFetch
+const _origApiFetch = window.apiFetch;
+if (typeof apiFetch !== 'undefined') {
+  window.apiFetch = async function(...args) {
+    const result = await _origApiFetch(...args);
+    return result;
+  };
 }
-// Close top-up modal on overlay click
-document.getElementById('topup-modal-overlay')?.addEventListener('click', function(e) {
-  if (e.target === this) closeTopupModal();
-});
+// Check usage limit and show topup if free tier hits daily limit
+async function checkUsageLimit() {
+  try {
+    const res = await fetch('/api/usage', { headers: token ? { Authorization: 'Bearer ' + token } : {} });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.remaining <= 0 && (d.plan === 'free' || d.plan === 'SOLO')) showTopupModal();
+      return d.remaining > 0;
+    }
+  } catch(e) {}
+  return true;
+}
+
 </script>
 </body>
 </html>
