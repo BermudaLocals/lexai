@@ -671,7 +671,7 @@ Structure your response with:
 1. A brief overview (2-3 sentences)
 2. Key principles and concepts (use plain English)
 3. How it works in practice (real examples where helpful)
-4. ${jurisdiction !== 'General' ? jurisdiction + '' specific notes' : 'Jurisdiction variations to be aware of'}
+4. ${jurisdiction !== 'General' ? jurisdiction + " specific rules and cases" : 'Jurisdiction variations to be aware of'}
 5. Common questions or misconceptions
 
 Be thorough but accessible. Use clear headings. Aim for 400-600 words.`;
