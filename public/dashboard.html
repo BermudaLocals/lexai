@@ -1408,6 +1408,11 @@ body {
         <p>Law across borders.</p>
         <div class="lib-topics">Public international law · Human rights · Treaties · Conflict of laws · Arbitration</div>
       </div>
+      <div class="lib-card" onclick="openLibraryTopic('gaming_bermuda')" style="border-left-color:#d4af37">
+        <h3>🎲 Bermuda Gaming &amp; Crown and Anchor</h3>
+        <p>Requirements to operate a Crown &amp; Anchor table in Bermuda — permits, fees, eligibility, criminal offences, and the full regulatory framework.</p>
+        <div class="lib-topics">Crown &amp; Anchor · Liquor Licence Act 1974 · $1,750 permit fee · BGC · Casino Gaming Act 2014 · Betting Act 2021</div>
+      </div>
     </div>
 
     <div class="lib-disclaimer">
@@ -2416,7 +2421,8 @@ const _libTopicNames = {
   property:'Property & Succession', criminal:'Criminal Law',
   family:'Family & Safeguarding', commercial:'Commercial & Company Law',
   specialist:'Specialist Branches', procedure:'Courts & Procedure',
-  international:'International & Comparative'
+  international:'International & Comparative',
+  gaming_bermuda:'Bermuda Gaming & Crown and Anchor'
 };
 async function openLibraryTopic(topicKey) {
   _libCurrentTopic = topicKey;
