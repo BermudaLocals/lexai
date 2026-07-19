@@ -14,39 +14,8 @@ function syncSession(req, res, next) {
   next()
 }
 
-// Setup Google OAuth only if credentials exist
+// Google OAuth routes — strategy is registered in server.js
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
-  const GoogleStrategy = require('passport-google-oauth20').Strategy
-  passport.use(new GoogleStrategy({
-    clientID: GOOGLE_CLIENT_ID,
-    clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: APP_URL + '/auth/google/callback'
-  }, async (accessToken, refreshToken, profile, done) => {
-    try {
-      const email = profile.emails[0].value
-      const name = profile.displayName
-      const googleId = profile.id
-      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT')
-      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT')
-      let user = await pool.query('SELECT * FROM users WHERE email=$1', [email])
-      if (!user.rows.length) {
-        user = await pool.query(
-          "INSERT INTO users(email,name,google_id,provider,plan,role) VALUES($1,$2,$3,'google','trial','user') RETURNING id,email,name,plan,role",
-          [email, name, googleId]
-        )
-      }
-      return done(null, user.rows[0])
-    } catch(err) { return done(err) }
-  }))
-
-  passport.serializeUser((user, done) => done(null, user.id))
-  passport.deserializeUser(async (id, done) => {
-    try {
-      const r = await pool.query('SELECT id,email,name,plan,role FROM users WHERE id=$1', [id])
-      done(null, r.rows[0])
-    } catch(e) { done(e) }
-  })
-
   router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
   router.get('/google/callback',
     passport.authenticate('google', { failureRedirect: '/login?error=google_failed' }),
@@ -57,7 +26,6 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     }
   )
 } else {
-  // No credentials yet — show friendly message
   router.get('/google', (req, res) => res.redirect('/login?msg=google_coming_soon'))
   router.get('/google/callback', (req, res) => res.redirect('/login?msg=google_coming_soon'))
 }
