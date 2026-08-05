@@ -18,7 +18,7 @@ app.use(helmet({ contentSecurityPolicy: false }))
 app.use(cors({ origin: process.env.APP_URL, credentials: true }))
 
 // Webhook needs raw body — mount BEFORE json parser
-app.use('/api/payments/webhook', require('./routes/payments'))
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), require('./routes/payments'))
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
@@ -115,5 +115,5 @@ async function start() {
 }
 
 start().catch(console.error)
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/admin', require('./routes/admin'));
+
+module.exports = app
