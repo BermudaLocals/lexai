@@ -88,6 +88,41 @@ async function initDB() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
   `);
+  // Curated Commonwealth case digests (Nigeria first) — LexAI's proprietary
+  // corpus. Unlike the external case-law APIs (US/UK/Caribbean only), this is
+  // searched locally and blended into results by services/caselaw.js.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS case_digests (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      case_name TEXT NOT NULL,
+      citation TEXT NOT NULL,
+      citation_norm TEXT UNIQUE,
+      issue TEXT,
+      facts TEXT,
+      principle TEXT,
+      held TEXT,
+      per_judge TEXT,
+      other_citations TEXT[] DEFAULT '{}',
+      source TEXT,
+      jurisdiction TEXT DEFAULT 'Nigeria',
+      court TEXT,
+      area_of_law TEXT[] DEFAULT '{}',
+      year INTEGER,
+      verified BOOLEAN DEFAULT false,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  // Full-text index using core Postgres — no pgvector / pg_trgm extension
+  // required, so it can't fail on a managed DB. Expression index over the
+  // searchable fields; matches the query in services/caselaw.js exactly.
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_case_digests_fts ON case_digests
+    USING GIN (to_tsvector('english',
+      coalesce(case_name,'') || ' ' || coalesce(issue,'') || ' ' ||
+      coalesce(principle,'') || ' ' || coalesce(held,'') || ' ' || coalesce(facts,'')))
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_case_digests_jur ON case_digests(LOWER(jurisdiction))`);
   console.log('✅ Database connected and tables verified');
 }
 

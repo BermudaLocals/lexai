@@ -65,6 +65,8 @@ async function searchCaseLaw({ query, jurisdiction, area_of_law, limit = 10, aft
   const searches = [
     searchCourtListener({ query, jurisdiction, limit, after_date }).catch(() => ({ cases: [], total: 0 })),
     searchHarvardCAP({ query, jurisdiction, limit }).catch(() => ({ cases: [], total: 0 })),
+    // LexAI's own curated digests — the jurisdictions the external APIs skip.
+    searchLocalDigests({ query, jurisdiction, limit }).catch(() => ({ cases: [], total: 0 })),
   ]
   if (isBermuda) {
     searches.push(searchBermudaGov({ query, limit }).catch(() => ({ cases: [], total: 0 })))
@@ -76,7 +78,7 @@ async function searchCaseLaw({ query, jurisdiction, area_of_law, limit = 10, aft
 
   const settled = await Promise.allSettled(searches)
 
-  const sources = ['CourtListener', 'Harvard Caselaw Access Project']
+  const sources = ['CourtListener', 'Harvard Caselaw Access Project', 'LexAI Commonwealth Digest']
   if (isBermuda) sources.push('Bermuda Judiciary (gov.bm)', 'Privy Council (jcpc.uk)')
   if (isCanada) sources.push('CanLII')
   if (isCaribbean) sources.push('Caribbean Court of Justice', 'CommonLII Caribbean')
@@ -110,6 +112,53 @@ async function searchCaseLaw({ query, jurisdiction, area_of_law, limit = 10, aft
   } catch (e) { /* non-critical */ }
 
   return results
+}
+
+// ── LEXAI COMMONWEALTH DIGEST (local corpus) ─────────────
+// Searches the case_digests table (Nigeria + Commonwealth) with core Postgres
+// full-text search, plus an ILIKE fallback so short/partial queries still hit.
+// Returns cases in the SAME shape as the external sources so they merge cleanly.
+async function searchLocalDigests({ query, jurisdiction, limit = 10 }) {
+  if (!pool || !query) return { cases: [], total: 0 }
+  const fts = `to_tsvector('english',
+    coalesce(case_name,'') || ' ' || coalesce(issue,'') || ' ' ||
+    coalesce(principle,'') || ' ' || coalesce(held,'') || ' ' || coalesce(facts,''))`
+  const sql = `
+    SELECT id, case_name, citation, court, year, jurisdiction, issue, principle, held,
+           ts_rank(${fts}, plainto_tsquery('english', $1)) AS rank
+    FROM case_digests
+    WHERE ($2::text IS NULL OR LOWER(jurisdiction) = LOWER($2))
+      AND ( ${fts} @@ plainto_tsquery('english', $1)
+            OR case_name ILIKE '%' || $1 || '%'
+            OR citation  ILIKE '%' || $1 || '%'
+            OR issue     ILIKE '%' || $1 || '%' )
+    ORDER BY rank DESC NULLS LAST, year DESC NULLS LAST
+    LIMIT $3
+  `
+  let rows
+  try {
+    ({ rows } = await pool.query(sql, [query, jurisdiction || null, limit]))
+  } catch (e) {
+    // Table may not exist yet on first boot before initDB — fail soft.
+    return { cases: [], total: 0 }
+  }
+  return {
+    cases: rows.map(r => ({
+      id: `digest_${r.id}`,
+      source: 'LexAI Commonwealth Digest',
+      case_name: r.case_name,
+      citation: r.citation,
+      court: r.court || '',
+      date_decided: r.year ? String(r.year) : '',
+      url: '',
+      excerpt: (r.principle || r.held || r.issue || '').slice(0, 400),
+      // Curated + jurisdiction-specific, so rank these at/above external hits.
+      relevance: r.rank != null ? 0.9 + Number(r.rank) : 0.88,
+      jurisdiction: r.jurisdiction || 'Nigeria',
+      status: 'Digest',
+    })),
+    total: rows.length,
+  }
 }
 
 // ── COURTLISTENER ────────────────────────────────────────
