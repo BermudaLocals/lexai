@@ -1,3 +1,11 @@
+---
+copyright: "© 2026 LexAI. All rights reserved."
+fingerprint: "LEXAI-V3.0.0-20260817"
+protection: "active"
+---
+> **LexAI IP Protection**: © 2026 LexAI. All rights reserved.
+> **Fingerprint**: LEXAI-V3.0.0-20260817
+
 # LexAI Product & Competitive Roadmap
 
 > **Date:** August 2026  
