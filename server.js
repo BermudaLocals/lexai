@@ -87,6 +87,7 @@ app.use('/api/payments', require('./routes/payments'))
 app.use('/api/admin', require('./routes/admin'))
 app.use('/api', require('./routes/api'))
 app.use('/api', require('./routes/affiliate'))
+app.use('/api/vault', require('./routes/vault'))
 
 app.get('/health', (req, res) => res.json({
   status: 'ok', service: 'lexai', version: '3.0.0', env: process.env.NODE_ENV
@@ -108,7 +109,7 @@ async function start() {
   app.listen(PORT, () => {
     console.log(`\n⚖️  LexAI.llc v3.0 — ${process.env.NODE_ENV || 'development'}`)
     console.log(`   ${process.env.APP_URL || `http://localhost:${PORT}`}`)
-    console.log(`   Routes: auth · payments · admin · api · affiliate`)
+    console.log(`   Routes: auth · payments · admin · api · affiliate · vault`)
     console.log(`   Features: Draft · Analyze · Research · Case Law · Litigation Prediction`)
     console.log(`   All 12 PayPal plans · Affiliate system · Admin god mode ✓\n`)
   })
