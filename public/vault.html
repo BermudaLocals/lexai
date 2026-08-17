@@ -154,20 +154,26 @@
 </head>
 <body>
   <h1>Vault</h1>
-  <p class="subtitle">Snap a photo of a contract, or upload a document — LexAI can read and explain either.</p>
+  <p class="subtitle">Take a photo or upload a document — LexAI can read and explain either.</p>
 
   <div class="upload-row">
-    <button class="upload-btn primary" onclick="document.getElementById('photoInput').click()">
-      <span class="icon">📷</span> Scan a Contract
+    <button class="upload-btn primary" onclick="document.getElementById('cameraInput').click()">
+      <span class="icon">📷</span> Take Photo
+    </button>
+    <button class="upload-btn secondary" onclick="document.getElementById('galleryInput').click()">
+      <span class="icon">🖼️</span> Choose from Gallery
     </button>
     <button class="upload-btn secondary" onclick="document.getElementById('fileInput').click()">
       <span class="icon">📄</span> Upload a File
     </button>
   </div>
 
-  <!-- Dedicated image-only input: on mobile this opens straight to the photo picker
-       (camera / gallery), not the generic Files browser, because it only accepts images -->
-  <input type="file" id="photoInput" accept="image/*" onchange="handleUpload(this)" />
+  <!-- capture="environment" sends the browser straight into the camera app,
+       no chooser dialog in between -->
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleUpload(this)" />
+
+  <!-- accept=image/* with no capture attribute opens the photo library/gallery directly -->
+  <input type="file" id="galleryInput" accept="image/*" onchange="handleUpload(this)" />
 
   <!-- Dedicated document input for PDFs, Word docs, spellbooks, text files -->
   <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.spellbook,.txt" onchange="handleUpload(this)" />
