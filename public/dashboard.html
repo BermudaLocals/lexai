@@ -2262,8 +2262,25 @@ async function saveAffPaypal() {
   toast(r.message || 'Saved');
 }
 
+// If the user just scanned a document from the Vault page, jump straight
+// into Analyze with the extracted text and run it automatically — no
+// extra taps needed after the photo itself.
+function resumeScanIfPending() {
+  const pending = sessionStorage.getItem('lexai_scan_result');
+  if (!pending) return;
+  sessionStorage.removeItem('lexai_scan_result');
+  try {
+    const { text, filename } = JSON.parse(pending);
+    show('analyze');
+    document.getElementById('analyze-content').value = text;
+    toast('Scanned ' + filename + ' — analyzing...');
+    runAnalyze();
+  } catch (e) { /* corrupted or empty — ignore */ }
+}
+
 // INIT
 init();
+resumeScanIfPending();
 </script>
 
 <!-- Full 291 Jurisdictions Datalist -->

@@ -170,13 +170,13 @@
 
   <!-- capture="environment" sends the browser straight into the camera app,
        no chooser dialog in between -->
-  <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleUpload(this)" />
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleUpload(this, true)" />
 
   <!-- accept=image/* with no capture attribute opens the photo library/gallery directly -->
-  <input type="file" id="galleryInput" accept="image/*" onchange="handleUpload(this)" />
+  <input type="file" id="galleryInput" accept="image/*" onchange="handleUpload(this, true)" />
 
   <!-- Dedicated document input for PDFs, Word docs, spellbooks, text files -->
-  <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.spellbook,.txt" onchange="handleUpload(this)" />
+  <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.spellbook,.txt" onchange="handleUpload(this, false)" />
 
   <p class="status-msg" id="statusMsg"></p>
 
@@ -227,7 +227,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-async function handleUpload(input) {
+async function handleUpload(input, isScan) {
   if (!input.files.length) return;
   const file = input.files[0];
   setStatus('Uploading ' + file.name + '...');
@@ -238,10 +238,30 @@ async function handleUpload(input) {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       setStatus(err.error || 'Upload failed', true);
-    } else {
-      setStatus('Uploaded ' + file.name);
-      loadFiles();
+      input.value = '';
+      return;
     }
+    const data = await res.json();
+    if (isScan && data.file && data.file.id) {
+      setStatus('Reading ' + file.name + '...');
+      const extractRes = await fetch('/api/vault/extract/' + data.file.id);
+      const extractData = await extractRes.json();
+      if (extractData.error) {
+        setStatus(extractData.error, true);
+        loadFiles();
+        input.value = '';
+        return;
+      }
+      sessionStorage.setItem('lexai_scan_result', JSON.stringify({
+        text: extractData.text,
+        filename: extractData.filename
+      }));
+      setStatus('Opening analysis...');
+      window.location.href = '/dashboard.html';
+      return;
+    }
+    setStatus('Uploaded ' + file.name);
+    loadFiles();
   } catch (e) {
     setStatus('Upload failed — check your connection', true);
   }
