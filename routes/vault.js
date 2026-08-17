@@ -12,11 +12,16 @@ const router = express.Router();
 const UPLOAD_DIR = process.env.VAULT_DIR || path.join(__dirname, '..', 'vault');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+const { transcribeImage } = require('../services/ai');
+
 const ALLOWED_MIME = {
   'application/pdf': 'pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'word',
   'application/msword': 'word',
   'text/plain': 'text',
+  'image/jpeg': 'image',
+  'image/png': 'image',
+  'image/webp': 'image',
 };
 
 const storage = multer.diskStorage({
@@ -115,7 +120,10 @@ router.get('/extract/:id', requireAuth, async (req, res) => {
     const name = file.original_name;
     let text;
 
-    if (/\.pdf$/i.test(name)) {
+    if (file.type === 'image') {
+      const mediaType = file.mimetype || 'image/jpeg';
+      text = await transcribeImage({ buffer, mediaType });
+    } else if (/\.pdf$/i.test(name)) {
       const parsed = await pdfParse(buffer);
       text = parsed.text;
     } else if (/\.docx?$/i.test(name)) {

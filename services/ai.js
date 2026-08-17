@@ -382,6 +382,33 @@ async function generateDocument(prompt, type = 'contract', options = {}) {
   }
 }
 
+// 11. TRANSCRIBE IMAGE (photo of a contract, insurance policy, lease, etc.)
+async function transcribeImage({ buffer, mediaType }) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY not configured');
+  }
+  const base64 = buffer.toString('base64');
+  try {
+    const res = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 4096,
+      temperature: 0,
+      system: 'You transcribe documents from photos with perfect accuracy. Output ONLY the transcribed text, preserving structure (headings, numbered clauses, sections) as plain text. Do not summarize, comment, or add anything not in the image. If part of the image is blurry or unreadable, mark it as [illegible] rather than guessing.',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text', text: 'Transcribe every word of text visible in this document image.' }
+        ]
+      }]
+    });
+    return res.content[0]?.text || '';
+  } catch (err) {
+    console.error('[ai] transcribeImage error:', err.message);
+    throw new Error(`Image transcription failed: ${err.message}`);
+  }
+}
+
 module.exports = {
   generateDocument,
   selectModel,
@@ -396,5 +423,6 @@ module.exports = {
   safeguardingSupport,
   buildCaseSummary,
   buildChronology,
-  learnFromDocument
+  learnFromDocument,
+  transcribeImage
 };
