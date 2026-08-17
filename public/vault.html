@@ -2,18 +2,142 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <title>LexAI Vault</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; background:#0b0b0f; color:#eee; }
-  h1 { font-weight: 600; }
-  .drop { border: 2px dashed #444; border-radius: 10px; padding: 30px; text-align: center; margin-bottom: 24px; }
-  input[type=file] { margin-top: 10px; }
-  button { background:#5b5bf0; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; }
-  button.danger { background:#e0455b; }
-  table { width:100%; border-collapse: collapse; margin-top: 20px; }
-  th, td { text-align:left; padding:8px; border-bottom:1px solid #2a2a33; }
-  .type-tag { font-size:12px; background:#232333; padding:2px 8px; border-radius:12px; }
-  .empty { color:#888; font-size:14px; margin-top:10px; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    background: #0b0b0f;
+    color: #eee;
+  }
+  h1 {
+    font-weight: 700;
+    font-size: 22px;
+    margin: 8px 0 4px;
+  }
+  .subtitle {
+    color: #999;
+    font-size: 14px;
+    margin: 0 0 20px;
+  }
+  .upload-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .upload-btn.primary {
+    background: #5b5bf0;
+    color: #fff;
+  }
+  .upload-btn.secondary {
+    background: #1a1a22;
+    color: #eee;
+    border: 1px solid #333;
+  }
+  .upload-btn:active { opacity: 0.85; }
+  .upload-btn .icon { font-size: 20px; }
+  input[type=file] { display: none; }
+  .status-msg {
+    font-size: 13px;
+    color: #8b8bff;
+    text-align: center;
+    min-height: 18px;
+    margin-bottom: 8px;
+  }
+  .status-msg.error { color: #ff8b8b; }
+  h2.section {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin: 24px 0 10px;
+  }
+  .file-card {
+    background: #16161d;
+    border: 1px solid #2a2a33;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .file-card .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .file-name {
+    font-size: 15px;
+    font-weight: 500;
+    word-break: break-word;
+    flex: 1;
+  }
+  .type-tag {
+    font-size: 11px;
+    background: #232333;
+    color: #a8a8ff;
+    padding: 3px 9px;
+    border-radius: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .meta-row {
+    font-size: 12px;
+    color: #888;
+  }
+  .action-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .action-row button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .action-row .download-btn { background: #232333; color: #eee; }
+  .action-row .danger { background: #3a1a1e; color: #ff8b8b; }
+  .empty {
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    padding: 30px 20px;
+    background: #16161d;
+    border-radius: 12px;
+    border: 1px dashed #333;
+  }
+  .login-msg {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 15px;
+  }
+  .login-msg a { color: #8b8bff; }
 </style>
 <!-- LexAI IP Protection -->
 <meta name="copyright" content="© 2026 LexAI. All rights reserved.">
@@ -30,44 +154,64 @@
 </head>
 <body>
   <h1>Vault</h1>
-  <div class="drop">
-    <p>Upload a Spellbook, Word doc, PDF, or a photo of a contract (insurance, rental, job offer, etc.)</p>
-    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.spellbook,.txt,.jpg,.jpeg,.png,.webp" />
-    <p style="font-size:12px;color:#888;margin-top:8px;">📸 On mobile, tap Upload and choose "Take Photo" to snap a document directly</p>
-    <br><br>
-    <button onclick="uploadFile()">Upload</button>
+  <p class="subtitle">Snap a photo of a contract, or upload a document — LexAI can read and explain either.</p>
+
+  <div class="upload-row">
+    <button class="upload-btn primary" onclick="document.getElementById('photoInput').click()">
+      <span class="icon">📷</span> Scan a Contract
+    </button>
+    <button class="upload-btn secondary" onclick="document.getElementById('fileInput').click()">
+      <span class="icon">📄</span> Upload a File
+    </button>
   </div>
-  <table>
-    <thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Uploaded</th><th></th></tr></thead>
-    <tbody id="fileList"></tbody>
-  </table>
-  <p class="empty" id="emptyMsg" style="display:none;">No files yet.</p>
+
+  <!-- Dedicated image-only input: on mobile this opens straight to the photo picker
+       (camera / gallery), not the generic Files browser, because it only accepts images -->
+  <input type="file" id="photoInput" accept="image/*" onchange="handleUpload(this)" />
+
+  <!-- Dedicated document input for PDFs, Word docs, spellbooks, text files -->
+  <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.spellbook,.txt" onchange="handleUpload(this)" />
+
+  <p class="status-msg" id="statusMsg"></p>
+
+  <h2 class="section">Your Files</h2>
+  <div id="fileList"></div>
+  <p class="empty" id="emptyMsg" style="display:none;">No files yet. Scan a contract or upload a document above to get started.</p>
 
 <script>
+function setStatus(msg, isError) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg || '';
+  el.className = 'status-msg' + (isError ? ' error' : '');
+}
+
 async function loadFiles() {
   const res = await fetch('/api/vault/files');
   if (res.status === 401) {
-    document.body.innerHTML = '<p style="padding:40px;text-align:center;">Please <a href="/login" style="color:#8b8bff;">log in</a> to view your Vault.</p>';
+    document.body.innerHTML = '<p class="login-msg">Please <a href="/login">log in</a> to view your Vault.</p>';
     return;
   }
   const data = await res.json();
-  const tbody = document.getElementById('fileList');
+  const list = document.getElementById('fileList');
   const emptyMsg = document.getElementById('emptyMsg');
-  tbody.innerHTML = '';
+  list.innerHTML = '';
   const files = data.files || [];
   emptyMsg.style.display = files.length ? 'none' : 'block';
+
   files.forEach(f => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${escapeHtml(f.original_name)}</td>
-      <td><span class="type-tag">${escapeHtml(f.type)}</span></td>
-      <td>${(f.size/1024).toFixed(1)} KB</td>
-      <td>${new Date(f.created_at).toLocaleDateString()}</td>
-      <td>
-        <button onclick="downloadFile(${f.id})">Download</button>
+    const card = document.createElement('div');
+    card.className = 'file-card';
+    card.innerHTML = `
+      <div class="top-row">
+        <span class="file-name">${escapeHtml(f.original_name)}</span>
+        <span class="type-tag">${escapeHtml(f.type)}</span>
+      </div>
+      <div class="meta-row">${(f.size/1024).toFixed(1)} KB · ${new Date(f.created_at).toLocaleDateString()}</div>
+      <div class="action-row">
+        <button class="download-btn" onclick="downloadFile(${f.id})">Download</button>
         <button class="danger" onclick="deleteFile(${f.id})">Delete</button>
-      </td>`;
-    tbody.appendChild(row);
+      </div>`;
+    list.appendChild(card);
   });
 }
 
@@ -77,18 +221,25 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-async function uploadFile() {
-  const input = document.getElementById('fileInput');
-  if (!input.files.length) return alert('Choose a file first');
+async function handleUpload(input) {
+  if (!input.files.length) return;
+  const file = input.files[0];
+  setStatus('Uploading ' + file.name + '...');
   const formData = new FormData();
-  formData.append('file', input.files[0]);
-  const res = await fetch('/api/vault/upload', { method: 'POST', body: formData });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    return alert(err.error || 'Upload failed');
+  formData.append('file', file);
+  try {
+    const res = await fetch('/api/vault/upload', { method: 'POST', body: formData });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      setStatus(err.error || 'Upload failed', true);
+    } else {
+      setStatus('Uploaded ' + file.name);
+      loadFiles();
+    }
+  } catch (e) {
+    setStatus('Upload failed — check your connection', true);
   }
   input.value = '';
-  loadFiles();
 }
 
 function downloadFile(id) {
