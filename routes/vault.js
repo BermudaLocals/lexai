@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
@@ -90,6 +92,44 @@ router.get('/download/:id', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Vault download error:', err);
     res.status(500).json({ error: 'Download failed' });
+  }
+});
+
+// GET /api/vault/extract/:id — pull plain text out of a saved file so it can be
+// dropped straight into a textarea (Draft / Research / Analyze / Safeguarding panels)
+router.get('/extract/:id', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM vault_files WHERE id = $1 AND user_id = $2`,
+      [req.params.id, req.user.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'File not found' });
+
+    const file = result.rows[0];
+    const filePath = path.join(UPLOAD_DIR, file.filename);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File missing on disk (did a redeploy wipe it? check the Railway Volume mount)' });
+    }
+
+    const buffer = fs.readFileSync(filePath);
+    const name = file.original_name;
+    let text;
+
+    if (/\.pdf$/i.test(name)) {
+      const parsed = await pdfParse(buffer);
+      text = parsed.text;
+    } else if (/\.docx?$/i.test(name)) {
+      const parsed = await mammoth.extractRawText({ buffer });
+      text = parsed.value;
+    } else {
+      // .txt, .spellbook, or anything else — treat as plain text
+      text = buffer.toString('utf8');
+    }
+
+    res.json({ success: true, text, filename: name, type: file.type });
+  } catch (err) {
+    console.error('Vault extract error:', err);
+    res.status(500).json({ error: 'Could not read that file — it may be corrupted or in an unsupported format' });
   }
 });
 

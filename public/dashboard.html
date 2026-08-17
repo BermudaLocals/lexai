@@ -691,8 +691,11 @@ body {
       </div>
       <div class="form-grid full">
         <div class="field">
-          <label>Key Details & Instructions</label>
-          <textarea id="draft-details" placeholder="Describe the key terms, context, and any specific requirements for this document..."></textarea>
+          <label style="display:flex;justify-content:space-between;align-items:center">
+            <span>Key Details & Instructions</span>
+            <button type="button" onclick="openVaultPicker('draft-details')" style="background:none;border:1px solid var(--border2);color:var(--gold);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans)">📁 Load from Vault</button>
+          </label>
+          <textarea id="draft-details" placeholder="Describe the key terms, context, and any specific requirements for this document, or load reference material from your Vault..."></textarea>
         </div>
       </div>
       <button class="submit-btn" onclick="runDraft()" id="btn-draft">Generate Document →</button>
@@ -806,8 +809,11 @@ body {
       </div>
       <div class="form-grid full">
         <div class="field">
-          <label>Document Content (paste here)</label>
-          <textarea id="analyze-content" style="min-height:200px" placeholder="Paste the full text of the document you want analyzed..."></textarea>
+          <label style="display:flex;justify-content:space-between;align-items:center">
+            <span>Document Content (paste here)</span>
+            <button type="button" onclick="openVaultPicker('analyze-content')" style="background:none;border:1px solid var(--border2);color:var(--gold);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans)">📁 Load from Vault</button>
+          </label>
+          <textarea id="analyze-content" style="min-height:200px" placeholder="Paste the full text of the document you want analyzed, or load one from your Vault..."></textarea>
         </div>
       </div>
       <button class="submit-btn" onclick="runAnalyze()" id="btn-analyze">Analyze Document →</button>
@@ -879,8 +885,11 @@ body {
       </div>
       <div class="form-grid full">
         <div class="field">
-          <label>Case Facts (provide as much detail as possible)</label>
-          <textarea id="sg-facts" style="min-height:160px" placeholder="Describe the facts of the case, key events, parties involved, timeline, and any actions already taken..."></textarea>
+          <label style="display:flex;justify-content:space-between;align-items:center">
+            <span>Case Facts (provide as much detail as possible)</span>
+            <button type="button" onclick="openVaultPicker('sg-facts')" style="background:none;border:1px solid var(--border2);color:var(--gold);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans)">📁 Load from Vault</button>
+          </label>
+          <textarea id="sg-facts" style="min-height:160px" placeholder="Describe the facts of the case, key events, parties involved, timeline, and any actions already taken, or load case notes from your Vault..."></textarea>
         </div>
       </div>
       <button class="submit-btn" onclick="runSafeguarding()" id="btn-sg">Get Safeguarding Support →</button>
@@ -1457,6 +1466,19 @@ body {
   </div>
 
   <!-- Token Top-Up Modal (shown when free tier hits query limit) -->
+  <div id="vault-picker-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--s1);border:1px solid var(--border2);border-radius:16px;max-width:480px;width:100%;padding:28px;max-height:80vh;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-family:var(--serif);color:var(--gold);font-size:18px">Load from Vault</h3>
+        <button onclick="closeVaultPicker()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div id="vault-picker-list" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px">
+        <p style="color:var(--muted);font-size:13px">Loading your files...</p>
+      </div>
+      <a href="/vault.html" style="display:block;text-align:center;margin-top:16px;color:var(--gold);font-size:13px;text-decoration:none">Manage Vault →</a>
+    </div>
+  </div>
+
   <div id="topup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center;padding:20px">
     <div style="background:var(--s1);border:1px solid var(--border2);border-radius:16px;max-width:480px;width:100%;padding:36px;text-align:center">
       <div style="font-size:40px;margin-bottom:16px">⚖️</div>
@@ -1705,6 +1727,52 @@ async function apiCall(endpoint, method='GET', body=null) {
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(API + endpoint, opts);
   return r.json();
+}
+
+// ── VAULT PICKER (used by Draft / Research / Analyze / Safeguarding) ──
+let vaultPickerTarget = null; // id of the textarea/input to fill
+
+async function openVaultPicker(targetFieldId) {
+  vaultPickerTarget = targetFieldId;
+  document.getElementById('vault-picker-modal').style.display = 'flex';
+  const list = document.getElementById('vault-picker-list');
+  list.innerHTML = '<p style="color:var(--muted);font-size:13px">Loading your files...</p>';
+  try {
+    const r = await apiCall('/api/vault/files');
+    const files = r.files || [];
+    if (!files.length) {
+      list.innerHTML = '<p style="color:var(--muted);font-size:13px">No files in your Vault yet. <a href="/vault.html" style="color:var(--gold)">Upload one</a>.</p>';
+      return;
+    }
+    list.innerHTML = files.map(f => `
+      <button onclick="pickVaultFile(${f.id})" style="display:flex;justify-content:space-between;align-items:center;text-align:left;background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;color:var(--text);font-family:var(--sans);font-size:13px">
+        <span>${f.original_name}</span>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--gold);text-transform:uppercase">${f.type}</span>
+      </button>
+    `).join('');
+  } catch (e) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:13px">Could not load Vault files.</p>';
+  }
+}
+
+async function pickVaultFile(id) {
+  const list = document.getElementById('vault-picker-list');
+  list.innerHTML = '<p style="color:var(--muted);font-size:13px">Loading document...</p>';
+  try {
+    const r = await apiCall('/api/vault/extract/' + id);
+    if (r.error) { toast(r.error); closeVaultPicker(); return; }
+    const field = document.getElementById(vaultPickerTarget);
+    if (field) field.value = r.text;
+    toast('Loaded ' + r.filename);
+  } catch (e) {
+    toast('Could not read that file');
+  }
+  closeVaultPicker();
+}
+
+function closeVaultPicker() {
+  document.getElementById('vault-picker-modal').style.display = 'none';
+  vaultPickerTarget = null;
 }
 
 async function init() {
