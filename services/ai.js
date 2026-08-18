@@ -1,7 +1,8 @@
 require("dotenv").config({ override: true, path: require("path").join(__dirname, "../.env") })
 // services/ai.js
 // LexAI AI Service — complete implementation covering every function
-// routes/api.js requires. Uses Anthropic SDK directly (claude-sonnet-4-6).
+// Environment variables are loaded by server.js.
+// Railway production variables must never be overwritten by a local .env file.
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { JURISDICTIONS, getAllJurisdictionNames, getByRegion, getPrimary, getJurisdictionInfo } = require('./jurisdictions');
