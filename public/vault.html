@@ -13,6 +13,27 @@
     padding: 20px 16px 60px;
     background: #0b0b0f;
     color: #eee;
+    transition: background 0.15s, outline 0.15s;
+    outline: 3px dashed transparent;
+    outline-offset: -3px;
+  }
+  body.drag-over {
+    background: #12121d;
+    outline-color: #5b5bf0;
+  }
+  body.drag-over::after {
+    content: "Drop to upload";
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #8b8bff;
+    background: rgba(11,11,15,0.85);
+    z-index: 999;
+    pointer-events: none;
   }
   h1 {
     font-weight: 700;
@@ -239,7 +260,11 @@ function escapeHtml(str) {
 
 async function handleUpload(input) {
   if (!input.files.length) return;
-  const file = input.files[0];
+  await uploadDocumentFile(input.files[0]);
+  input.value = '';
+}
+
+async function uploadDocumentFile(file) {
   setStatus('Uploading ' + file.name + '...');
   const formData = new FormData();
   formData.append('file', file);
@@ -255,7 +280,6 @@ async function handleUpload(input) {
   } catch (e) {
     setStatus('Upload failed — check your connection', true);
   }
-  input.value = '';
 }
 
 // ── MULTI-PAGE SCAN QUEUE ──
@@ -368,6 +392,50 @@ async function deleteFile(id) {
   await fetch(`/api/vault/${id}`, { method: 'DELETE' });
   loadFiles();
 }
+
+// ── DRAG AND DROP (desktop/laptop, and iPad drag-between-apps) ──
+// Phones have no real drag source for this — photos live inside an app,
+// not on a desktop — so this is an extra path for larger screens, not
+// a replacement for the camera/gallery buttons above.
+let dragCounter = 0;
+
+document.body.addEventListener('dragenter', e => {
+  e.preventDefault();
+  dragCounter++;
+  document.body.classList.add('drag-over');
+});
+
+document.body.addEventListener('dragover', e => {
+  e.preventDefault(); // required to allow drop
+});
+
+document.body.addEventListener('dragleave', e => {
+  dragCounter--;
+  if (dragCounter <= 0) {
+    dragCounter = 0;
+    document.body.classList.remove('drag-over');
+  }
+});
+
+document.body.addEventListener('drop', e => {
+  e.preventDefault();
+  dragCounter = 0;
+  document.body.classList.remove('drag-over');
+
+  const files = Array.from(e.dataTransfer.files || []);
+  if (!files.length) return;
+
+  let addedPages = false;
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      scanPages.push(file);
+      addedPages = true;
+    } else {
+      uploadDocumentFile(file);
+    }
+  });
+  if (addedPages) renderScanReview();
+});
 
 loadFiles();
 </script>
