@@ -157,10 +157,10 @@
   <p class="subtitle">Take a photo or upload a document — LexAI can read and explain either.</p>
 
   <div class="upload-row">
-    <button class="upload-btn primary" onclick="document.getElementById('cameraInput').click()">
+    <button class="upload-btn primary" id="takePhotoBtn" onclick="document.getElementById('cameraInput').click()">
       <span class="icon">📷</span> Take Photo
     </button>
-    <button class="upload-btn secondary" onclick="document.getElementById('galleryInput').click()">
+    <button class="upload-btn secondary" id="galleryBtn" onclick="document.getElementById('galleryInput').click()">
       <span class="icon">🖼️</span> Choose from Gallery
     </button>
     <button class="upload-btn secondary" onclick="document.getElementById('fileInput').click()">
@@ -168,15 +168,25 @@
     </button>
   </div>
 
+  <div id="scanReview" style="display:none;">
+    <h2 class="section">Pages Captured (<span id="pageCount">0</span>)</h2>
+    <div id="pageThumbs" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;"></div>
+    <p style="font-size:12px;color:#888;margin:0 0 12px;">More pages to this contract? Tap a button above to add another, or Analyze when you're done.</p>
+    <button class="upload-btn primary" id="analyzeBtn" onclick="analyzeAllPages()">
+      ✅ Analyze <span id="analyzeCount"></span> →
+    </button>
+    <button class="upload-btn secondary" onclick="cancelScan()">Cancel</button>
+  </div>
+
   <!-- capture="environment" sends the browser straight into the camera app,
        no chooser dialog in between -->
-  <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleUpload(this, true)" />
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="onPagePicked(this)" />
 
   <!-- accept=image/* with no capture attribute opens the photo library/gallery directly -->
-  <input type="file" id="galleryInput" accept="image/*" onchange="handleUpload(this, true)" />
+  <input type="file" id="galleryInput" accept="image/*" onchange="onPagePicked(this)" />
 
   <!-- Dedicated document input for PDFs, Word docs, spellbooks, text files -->
-  <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.spellbook,.txt" onchange="handleUpload(this, false)" />
+  <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.spellbook,.txt" onchange="handleUpload(this)" />
 
   <p class="status-msg" id="statusMsg"></p>
 
@@ -227,7 +237,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-async function handleUpload(input, isScan) {
+async function handleUpload(input) {
   if (!input.files.length) return;
   const file = input.files[0];
   setStatus('Uploading ' + file.name + '...');
@@ -238,34 +248,115 @@ async function handleUpload(input, isScan) {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       setStatus(err.error || 'Upload failed', true);
-      input.value = '';
-      return;
+    } else {
+      setStatus('Uploaded ' + file.name);
+      loadFiles();
     }
-    const data = await res.json();
-    if (isScan && data.file && data.file.id) {
-      setStatus('Reading ' + file.name + '...');
-      const extractRes = await fetch('/api/vault/extract/' + data.file.id);
-      const extractData = await extractRes.json();
-      if (extractData.error) {
-        setStatus(extractData.error, true);
-        loadFiles();
-        input.value = '';
-        return;
-      }
-      sessionStorage.setItem('lexai_scan_result', JSON.stringify({
-        text: extractData.text,
-        filename: extractData.filename
-      }));
-      setStatus('Opening analysis...');
-      window.location.href = '/dashboard.html';
-      return;
-    }
-    setStatus('Uploaded ' + file.name);
-    loadFiles();
   } catch (e) {
     setStatus('Upload failed — check your connection', true);
   }
   input.value = '';
+}
+
+// ── MULTI-PAGE SCAN QUEUE ──
+let scanPages = []; // File objects, in the order the user captured them
+
+function onPagePicked(input) {
+  if (!input.files.length) return;
+  scanPages.push(input.files[0]);
+  input.value = ''; // reset so picking the same photo twice still fires onchange
+  renderScanReview();
+}
+
+function renderScanReview() {
+  const review = document.getElementById('scanReview');
+  const thumbs = document.getElementById('pageThumbs');
+  const count = document.getElementById('pageCount');
+  const analyzeCount = document.getElementById('analyzeCount');
+
+  if (!scanPages.length) {
+    review.style.display = 'none';
+    document.getElementById('takePhotoBtn').innerHTML = '<span class="icon">📷</span> Take Photo';
+    document.getElementById('galleryBtn').innerHTML = '<span class="icon">🖼️</span> Choose from Gallery';
+    return;
+  }
+
+  review.style.display = 'block';
+  count.textContent = scanPages.length;
+  analyzeCount.textContent = scanPages.length + (scanPages.length === 1 ? ' Page' : ' Pages');
+  document.getElementById('takePhotoBtn').innerHTML = '<span class="icon">📷</span> Add Another Page';
+  document.getElementById('galleryBtn').innerHTML = '<span class="icon">🖼️</span> Add from Gallery';
+
+  thumbs.innerHTML = '';
+  scanPages.forEach((file, i) => {
+    const url = URL.createObjectURL(file);
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;flex-shrink:0;';
+    wrap.innerHTML = `
+      <img src="${url}" style="width:72px;height:92px;object-fit:cover;border-radius:8px;border:1px solid #333;">
+      <button onclick="removeScanPage(${i})" style="position:absolute;top:-6px;right:-6px;background:#3a1a1e;color:#ff8b8b;border:1px solid #5a2a2e;border-radius:50%;width:20px;height:20px;font-size:12px;line-height:1;cursor:pointer;">×</button>
+      <div style="text-align:center;font-size:10px;color:#888;margin-top:3px;">Page ${i + 1}</div>
+    `;
+    thumbs.appendChild(wrap);
+  });
+}
+
+function removeScanPage(i) {
+  scanPages.splice(i, 1);
+  renderScanReview();
+}
+
+function cancelScan() {
+  scanPages = [];
+  renderScanReview();
+  setStatus('');
+}
+
+async function analyzeAllPages() {
+  if (!scanPages.length) return;
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  analyzeBtn.disabled = true;
+  const extractedTexts = [];
+  try {
+    for (let i = 0; i < scanPages.length; i++) {
+      const file = scanPages[i];
+      setStatus(`Uploading page ${i + 1} of ${scanPages.length}...`);
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/vault/upload', { method: 'POST', body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setStatus(`Page ${i + 1} failed to upload: ` + (err.error || 'unknown error'), true);
+        analyzeBtn.disabled = false;
+        return;
+      }
+      const data = await res.json();
+
+      setStatus(`Reading page ${i + 1} of ${scanPages.length}...`);
+      const extractRes = await fetch('/api/vault/extract/' + data.file.id);
+      const extractData = await extractRes.json();
+      if (extractData.error) {
+        setStatus(`Page ${i + 1} could not be read: ` + extractData.error, true);
+        analyzeBtn.disabled = false;
+        return;
+      }
+      extractedTexts.push(`--- Page ${i + 1} ---\n` + extractData.text);
+    }
+
+    const combinedText = extractedTexts.join('\n\n');
+    const pageWord = scanPages.length === 1 ? 'page' : 'pages';
+    sessionStorage.setItem('lexai_scan_result', JSON.stringify({
+      text: combinedText,
+      filename: `Scanned document (${scanPages.length} ${pageWord})`
+    }));
+
+    setStatus('Opening analysis...');
+    scanPages = [];
+    window.location.href = '/dashboard.html';
+  } catch (e) {
+    setStatus('Something went wrong — check your connection', true);
+    analyzeBtn.disabled = false;
+  }
 }
 
 function downloadFile(id) {
