@@ -86,4 +86,68 @@ async function transcribeImage({buffer,mediaType}){
     }
   }catch(err){console.error('[ai] transcribeImage error:',err.message);throw new Error(`Image transcription failed: ${err.message}`);}
 }
-module.exports={getProvider,getConfig,callAI,generateDocument,selectModel,TEMPLATES,JURISDICTIONS,draftDocument,analyzeDocument,researchCaseLaw,predictLitigation,comparativeLaw,horizonScan,safeguardingSupport,buildCaseSummary,buildChronology,learnFromDocument,transcribeImage};
+// 12. REDLINE - NEW
+async function redlineDocument({ original, revised, jurisdiction, focus_areas, mode = 'full' }){
+  const jx = resolveJurisdiction(jurisdiction);
+  const focus = Array.isArray(focus_areas) && focus_areas.length ? `Focus areas: ${focus_areas.join(', ')}.` : '';
+  const prompt = `You are LexAI Redline Engine for ${jx.name}.
+
+Compare ORIGINAL vs REVISED legal documents and produce a professional redline.
+
+${focus}
+Mode: ${mode} (full = show all insertions/deletions + risk analysis, summary = risk analysis only)
+
+ORIGINAL DOCUMENT:
+---
+${original}
+---
+
+REVISED DOCUMENT:
+---
+${revised}
+---
+
+Produce:
+1. Executive Summary (2-3 sentences: what changed overall, who benefits)
+2. Detailed Redline - list every material change with:
+   - Clause/Section reference
+   - Type: [ADDED], [DELETED], [MODIFIED]
+   - Original text -> Revised text
+   - Risk Level: Low/Medium/High
+   - Comment: why it matters
+3. Missing Clauses - if revised removed standard protections
+4. Risk Score Change - 0-100 for original vs revised
+5. Recommendation - accept, reject, or negotiate with suggested fallback language
+
+Format with clear headings, use markdown for insertions (+ green) and deletions (- red) style markers. Be precise, lawyer-grade.`;
+
+  const system = `You are LexAI's redline engine for ${jx.name}. You produce precise, professional document comparisons with tracked changes, risk scoring, and practical negotiation guidance. Never hallucinate clauses - only report what is actually different.`;
+  try{
+    return await callAI({ system, prompt, maxTokens: 6000, temperature: 0.1 });
+  }catch(err){
+    console.error('[ai] redlineDocument error:', err.message);
+    throw new Error(`Redline generation failed: ${err.message}`);
+  }
+}
+
+module.exports={
+  getProvider,
+  getConfig,
+  callAI,
+  generateDocument,
+  selectModel,
+  TEMPLATES,
+  JURISDICTIONS,
+  draftDocument,
+  analyzeDocument,
+  researchCaseLaw,
+  predictLitigation,
+  comparativeLaw,
+  horizonScan,
+  safeguardingSupport,
+  buildCaseSummary,
+  buildChronology,
+  learnFromDocument,
+  transcribeImage,
+  redlineDocument
+};
