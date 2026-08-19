@@ -1,4 +1,4 @@
-﻿require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
+require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
 const { JURISDICTIONS, getJurisdictionInfo } = require('./jurisdictions');
 const MODEL = 'claude-sonnet-4-6';
 const OLLAMA_URL = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
@@ -74,7 +74,7 @@ async function transcribeImage({buffer,mediaType}){
   try{
     if(cfg.provider==='ollama'){
       const base64=buffer.toString('base64');
-      const res=await fetch(`${cfg.baseUrl}/api/generate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:cfg.visionModel,prompt:'Transcribe every word of text visible in this document image.',images:,stream:false})});
+      const res=await fetch(`${cfg.baseUrl}/api/generate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:cfg.visionModel,prompt:'Transcribe every word of text visible in this document image.',images:[base64],stream:false})});
       if(!res.ok) throw new Error(`Ollama vision ${res.status}: ${await res.text()}`);
       const data=await res.json();
       return data.response;
