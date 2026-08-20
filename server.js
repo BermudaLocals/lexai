@@ -44,7 +44,6 @@ app.use(
 
 /* ============================================================
    PAYPAL WEBHOOK
-   IMPORTANT:
    Raw body MUST be received before express.json()
    ============================================================ */
 
@@ -333,14 +332,38 @@ app.use(
 )
 
 /* ============================================================
-   VAULT
-   Authentication is required before Vault routes.
+   VAULT (File Upload/Download)
+   Authentication required.
    ============================================================ */
 
 app.use(
   '/api/vault',
   requireAuth,
   require('./routes/vault')
+)
+
+/* ============================================================
+   RAG (Retrieval-Augmented Generation)
+   Ingest precedent docs + query with sentence-level citations.
+   Authentication required.
+   ============================================================ */
+
+app.use(
+  '/api/rag',
+  requireAuth,
+  require('./routes/rag')
+)
+
+/* ============================================================
+   WORKFLOWS (Harvey-style chained legal automation)
+   Draft → Analyze → Redline → Memo pipelines.
+   Authentication required.
+   ============================================================ */
+
+app.use(
+  '/api/workflows',
+  requireAuth,
+  require('./routes/workflows')
 )
 
 /* ============================================================
@@ -353,8 +376,18 @@ app.get(
     res.status(200).json({
       status: 'ok',
       service: 'lexai',
-      version: '3.0.0',
-      env: NODE_ENV
+      version: '3.1.0',
+      env: NODE_ENV,
+      features: [
+        'auth',
+        'payments',
+        'admin',
+        'api',
+        'affiliate',
+        'vault',
+        'rag',
+        'workflows'
+      ]
     })
   }
 )
@@ -479,7 +512,7 @@ async function start() {
       () => {
         console.log('')
         console.log(
-          `⚖️  LexAI.llc v3.0 — ${NODE_ENV}`
+          `⚖️  LexAI.llc v3.1 — ${NODE_ENV}`
         )
         console.log(
           `   ${APP_URL}`
@@ -488,10 +521,13 @@ async function start() {
           `   Port: ${PORT}`
         )
         console.log(
-          '   Routes: auth · payments · admin · api · affiliate · vault'
+          '   Routes: auth · payments · admin · api · affiliate · vault · rag · workflows'
         )
         console.log(
-          '   Features: Draft · Analyze · Research · Case Law · Litigation Prediction'
+          '   Features: Draft · Analyze · Research · Case Law · Litigation · Redline · RAG · Workflows'
+        )
+        console.log(
+          '   AI Provider: ' + (process.env.AI_PROVIDER || 'anthropic')
         )
         console.log(
           '   All 12 PayPal plans · Affiliate system · Admin god mode ✓'
