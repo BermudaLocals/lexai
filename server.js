@@ -14,76 +14,102 @@ const { pool, initDB } = require('./db')
 const { requireAuth } = require('./middleware/auth')
 
 const app = express()
-const PORT = process.env.PORT || 3000
+
+const PORT = Number(process.env.PORT) || 3000
+const APP_URL = (process.env.APP_URL || `http://localhost:${PORT}`).replace(/\/+$/, '')
+const NODE_ENV = process.env.NODE_ENV || 'development'
 
 app.set('trust proxy', 1)
 
-app.use(helmet({
-  contentSecurityPolicy: false
-}))
+/* ============================================================
+   SECURITY
+   ============================================================ */
 
-app.use(cors({
-  origin: process.env.APP_URL,
-  credentials: true
-}))
+app.use(
+  helmet({
+    contentSecurityPolicy: false
+  })
+)
 
-// ============================================================
-// PAYPAL WEBHOOK
-// Must receive the raw request body BEFORE express.json()
-// ============================================================
+/* ============================================================
+   CORS
+   ============================================================ */
+
+app.use(
+  cors({
+    origin: APP_URL,
+    credentials: true
+  })
+)
+
+/* ============================================================
+   PAYPAL WEBHOOK
+   IMPORTANT:
+   Raw body MUST be received before express.json()
+   ============================================================ */
 
 app.use(
   '/api/payments/webhook',
-  express.raw({ type: 'application/json' }),
+  express.raw({
+    type: 'application/json'
+  }),
   require('./routes/payments')
 )
 
-// ============================================================
-// BODY PARSERS
-// ============================================================
+/* ============================================================
+   BODY PARSERS
+   ============================================================ */
 
-app.use(express.json({
-  limit: '50mb'
-}))
+app.use(
+  express.json({
+    limit: '50mb'
+  })
+)
 
-app.use(express.urlencoded({
-  extended: true,
-  limit: '50mb'
-}))
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: '50mb'
+  })
+)
 
-// ============================================================
-// SESSION
-// ============================================================
+/* ============================================================
+   SESSION
+   ============================================================ */
 
-app.use(session({
-  store: new pgSession({
-    pool,
-    tableName: 'session'
-  }),
+app.use(
+  session({
+    store: new pgSession({
+      pool,
+      tableName: 'session'
+    }),
 
-  secret: process.env.SESSION_SECRET || 'lexai-dev-change-in-prod',
+    secret:
+      process.env.SESSION_SECRET ||
+      'lexai-dev-change-this-in-production',
 
-  resave: false,
+    resave: false,
 
-  saveUninitialized: false,
+    saveUninitialized: false,
 
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    cookie: {
+      secure: NODE_ENV === 'production',
 
-    httpOnly: true,
+      httpOnly: true,
 
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
 
-    sameSite:
-      process.env.NODE_ENV === 'production'
-        ? 'none'
-        : 'lax'
-  }
-}))
+      sameSite:
+        NODE_ENV === 'production'
+          ? 'none'
+          : 'lax'
+    }
+  })
+)
 
-// ============================================================
-// PASSPORT
-// ============================================================
+/* ============================================================
+   PASSPORT
+   ============================================================ */
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -94,46 +120,58 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const r = await pool.query(
-      'SELECT * FROM users WHERE id=$1',
+    const result = await pool.query(
+      'SELECT * FROM users WHERE id = $1',
       [id]
     )
 
-    done(null, r.rows[0] || null)
-  } catch (e) {
-    done(e, null)
+    done(null, result.rows[0] || null)
+  } catch (error) {
+    console.error('Passport deserialize error:', error)
+    done(error, null)
   }
 })
 
-// ============================================================
-// OAUTH USER CREATION
-// ============================================================
+/* ============================================================
+   OAUTH USER CREATION
+   ============================================================ */
 
 async function findOrCreate(profile, provider) {
   const email =
-    profile.emails?.[0]?.value ||
+    profile?.emails?.[0]?.value ||
     `${profile.id}@${provider}.oauth`
 
   const name =
-    profile.displayName ||
-    profile.username ||
+    profile?.displayName ||
+    profile?.username ||
     email.split('@')[0]
 
   const avatar_url =
-    profile.photos?.[0]?.value || null
+    profile?.photos?.[0]?.value ||
+    null
 
-  let r = await pool.query(
-    'SELECT * FROM users WHERE email=$1',
+  let result = await pool.query(
+    'SELECT * FROM users WHERE email = $1',
     [email]
   )
 
-  if (!r.rows.length) {
-    r = await pool.query(
-      `INSERT INTO users
-        (email, name, avatar_url, provider, provider_id, plan, role)
-       VALUES
+  if (result.rows.length === 0) {
+    result = await pool.query(
+      `
+      INSERT INTO users
+        (
+          email,
+          name,
+          avatar_url,
+          provider,
+          provider_id,
+          plan,
+          role
+        )
+      VALUES
         ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING *`,
+      RETURNING *
+      `,
       [
         email,
         name,
@@ -146,17 +184,19 @@ async function findOrCreate(profile, provider) {
     )
   }
 
-  return r.rows[0]
+  return result.rows[0]
 }
 
-// ============================================================
-// GOOGLE OAUTH
-// ============================================================
+/* ============================================================
+   GOOGLE OAUTH
+   ============================================================ */
 
 if (
   process.env.GOOGLE_CLIENT_ID &&
   process.env.GOOGLE_CLIENT_SECRET
 ) {
+  console.log('Google OAuth: configured')
+
   passport.use(
     new GoogleStrategy(
       {
@@ -165,61 +205,99 @@ if (
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 
         callbackURL:
-          `${process.env.APP_URL}/auth/google/callback`
+          `${APP_URL}/auth/google/callback`
       },
 
-      async (accessToken, refreshToken, profile, done) => {
+      async (
+        accessToken,
+        refreshToken,
+        profile,
+        done
+      ) => {
         try {
           const user =
-            await findOrCreate(profile, 'google')
+            await findOrCreate(
+              profile,
+              'google'
+            )
 
           done(null, user)
-        } catch (e) {
-          done(e)
+        } catch (error) {
+          console.error(
+            'Google OAuth user error:',
+            error
+          )
+
+          done(error)
         }
       }
     )
   )
+} else {
+  console.warn(
+    'Google OAuth: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing'
+  )
 }
 
-// ============================================================
-// GITHUB OAUTH
-// ============================================================
+/* ============================================================
+   GITHUB OAUTH
+   ============================================================ */
 
 if (
   process.env.GITHUB_CLIENT_ID &&
   process.env.GITHUB_CLIENT_SECRET
 ) {
+  console.log('GitHub OAuth: configured')
+
   passport.use(
     new GitHubStrategy(
       {
-        clientID: process.env.GITHUB_CLIENT_ID,
+        clientID:
+          process.env.GITHUB_CLIENT_ID,
 
-        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        clientSecret:
+          process.env.GITHUB_CLIENT_SECRET,
 
         callbackURL:
-          `${process.env.APP_URL}/auth/github/callback`
+          `${APP_URL}/auth/github/callback`
       },
 
-      async (accessToken, refreshToken, profile, done) => {
+      async (
+        accessToken,
+        refreshToken,
+        profile,
+        done
+      ) => {
         try {
           const user =
-            await findOrCreate(profile, 'github')
+            await findOrCreate(
+              profile,
+              'github'
+            )
 
           done(null, user)
-        } catch (e) {
-          done(e)
+        } catch (error) {
+          console.error(
+            'GitHub OAuth user error:',
+            error
+          )
+
+          done(error)
         }
       }
     )
   )
+} else {
+  console.log(
+    'GitHub OAuth: not configured'
+  )
 }
 
-// ============================================================
-// ROUTES
-// ============================================================
+/* ============================================================
+   ROUTES
+   ============================================================ */
 
-// Authentication
+/* Authentication */
 app.use(
   '/auth',
   require('./routes/auth')
@@ -230,45 +308,34 @@ app.use(
   require('./routes/auth')
 )
 
-// Payments
+/* Payments */
 app.use(
   '/api/payments',
   require('./routes/payments')
 )
 
-// Admin
+/* Admin */
 app.use(
   '/api/admin',
   require('./routes/admin')
 )
 
-// Main API
+/* Main API */
 app.use(
   '/api',
   require('./routes/api')
 )
 
-// Affiliate
+/* Affiliate */
 app.use(
   '/api',
   require('./routes/affiliate')
 )
 
-// ============================================================
-// VAULT
-//
-// IMPORTANT:
-// requireAuth runs BEFORE every Vault route.
-//
-// It converts:
-//     req.session.user
-//
-// into:
-//     req.user
-//
-// so routes/vault.js can safely use:
-//     req.user.id
-// ============================================================
+/* ============================================================
+   VAULT
+   Authentication is required before Vault routes.
+   ============================================================ */
 
 app.use(
   '/api/vault',
@@ -276,34 +343,40 @@ app.use(
   require('./routes/vault')
 )
 
-// ============================================================
-// HEALTH
-// ============================================================
+/* ============================================================
+   HEALTH
+   ============================================================ */
 
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'lexai',
-    version: '3.0.0',
-    env: process.env.NODE_ENV
-  })
-})
+app.get(
+  '/health',
+  (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      service: 'lexai',
+      version: '3.0.0',
+      env: NODE_ENV
+    })
+  }
+)
 
-// ============================================================
-// STATIC FILES
-// ============================================================
+/* ============================================================
+   STATIC FILES
+   ============================================================ */
 
 app.use(
   express.static(
-    path.join(__dirname, 'public')
+    path.join(
+      __dirname,
+      'public'
+    )
   )
 )
 
-// ============================================================
-// CLEAN PAGE ROUTES
-// ============================================================
+/* ============================================================
+   CLEAN PAGE ROUTES
+   ============================================================ */
 
-[
+const CLEAN_PAGE_ROUTES = [
   'dashboard',
   'login',
   'pricing',
@@ -316,24 +389,28 @@ app.use(
   'privacy',
   'terms',
   'admin'
-].forEach(p => {
+]
+
+for (
+  const page of CLEAN_PAGE_ROUTES
+) {
   app.get(
-    `/${p}`,
+    `/${page}`,
     (req, res) => {
       res.sendFile(
         path.join(
           __dirname,
           'public',
-          `${p}.html`
+          `${page}.html`
         )
       )
     }
   )
-})
+}
 
-// ============================================================
-// HOME
-// ============================================================
+/* ============================================================
+   HOME
+   ============================================================ */
 
 app.get(
   '/',
@@ -348,58 +425,91 @@ app.get(
   }
 )
 
-// ============================================================
-// FALLBACK
-// ============================================================
+/* ============================================================
+   API 404
+   ============================================================ */
 
-app.use((req, res) => {
-  if (req.path.startsWith('/api')) {
-    return res
-      .status(404)
-      .json({
-        error: 'Not found'
-      })
+app.use(
+  (req, res, next) => {
+    if (
+      req.path.startsWith('/api')
+    ) {
+      return res
+        .status(404)
+        .json({
+          error: 'Not found'
+        })
+    }
+
+    next()
   }
+)
 
-  res.sendFile(
-    path.join(
-      __dirname,
-      'public',
-      'index.html'
+/* ============================================================
+   FRONTEND FALLBACK
+   ============================================================ */
+
+app.use(
+  (req, res) => {
+    res.sendFile(
+      path.join(
+        __dirname,
+        'public',
+        'index.html'
+      )
     )
-  )
-})
+  }
+)
 
-// ============================================================
-// START SERVER
-// ============================================================
+/* ============================================================
+   START SERVER
+   ============================================================ */
 
 async function start() {
-  await initDB()
-
-  app.listen(PORT, () => {
-    console.log(
-      `\n⚖️  LexAI.llc v3.0 — ${process.env.NODE_ENV || 'development'}`
-    )
+  try {
+    await initDB()
 
     console.log(
-      `   ${process.env.APP_URL || `http://localhost:${PORT}`}`
+      '✅ Database connected and tables verified'
     )
 
-    console.log(
-      '   Routes: auth · payments · admin · api · affiliate · vault'
+    app.listen(
+      PORT,
+      '0.0.0.0',
+      () => {
+        console.log('')
+        console.log(
+          `⚖️  LexAI.llc v3.0 — ${NODE_ENV}`
+        )
+        console.log(
+          `   ${APP_URL}`
+        )
+        console.log(
+          `   Port: ${PORT}`
+        )
+        console.log(
+          '   Routes: auth · payments · admin · api · affiliate · vault'
+        )
+        console.log(
+          '   Features: Draft · Analyze · Research · Case Law · Litigation Prediction'
+        )
+        console.log(
+          '   All 12 PayPal plans · Affiliate system · Admin god mode ✓'
+        )
+        console.log('')
+      }
+    )
+  } catch (error) {
+    console.error(
+      '❌ LexAI startup failed:'
     )
 
-    console.log(
-      '   Features: Draft · Analyze · Research · Case Law · Litigation Prediction'
-    )
+    console.error(error)
 
-    console.log(
-      '   All 12 PayPal plans · Affiliate system · Admin god mode ✓\n'
-    )
-  })
+    process.exit(1)
+  }
 }
 
-start().catch(console.error)
+start()
 
 module.exports = app
