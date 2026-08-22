@@ -1,17 +1,18 @@
 require("dotenv").config({ override: true, path: require("path").join(__dirname, "../.env") })
 // services/ai.js
-// LexAI AI Service — complete implementation covering every function
+// LexAI AI Service — upgraded to Kimi (Moonshot AI) for 291 jurisdictions
 // Environment variables are loaded by server.js.
 // Railway production variables must never be overwritten by a local .env file.
 
-const Anthropic = require('@anthropic-ai/sdk');
+const OpenAI = require('openai');
 const { JURISDICTIONS, getAllJurisdictionNames, getByRegion, getPrimary, getJurisdictionInfo } = require('./jurisdictions');
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
+const client = new OpenAI({
+  apiKey: process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY,
+  baseURL: process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1'
 });
 
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = process.env.KIMI_MODEL || 'kimi-k2';
 
 const TEMPLATES = {
   nda: 'Non-Disclosure Agreement',
@@ -50,18 +51,37 @@ function selectModel(type, options = {}) {
   return MODEL;
 }
 
-async function callClaude({ system, prompt, maxTokens = 4096, temperature = 0.3 }) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY not configured');
+async function callKimi({ system, prompt, maxTokens = 4096, temperature = 0.3, imagePayload = null }) {
+  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('MOONSHOT_API_KEY (or KIMI_API_KEY / OPENAI_API_KEY) not configured');
   }
-  const res = await anthropic.messages.create({
+
+  const messages = [];
+  if (system) {
+    messages.push({ role: 'system', content: system });
+  }
+
+  if (imagePayload) {
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'image_url', image_url: { url: imagePayload } },
+        { type: 'text', text: prompt }
+      ]
+    });
+  } else {
+    messages.push({ role: 'user', content: prompt });
+  }
+
+  const res = await client.chat.completions.create({
     model: MODEL,
     max_tokens: maxTokens,
     temperature,
-    system,
-    messages: [{ role: 'user', content: prompt }]
+    messages
   });
-  return res.content[0]?.text || '';
+
+  return res.choices[0]?.message?.content || '';
 }
 
 function resolveJurisdiction(jurisdiction) {
@@ -101,7 +121,7 @@ Provide a complete, professional legal document with all standard clauses, defin
   const system = `You are LexAI, an expert legal AI assistant covering 290+ global jurisdictions with deep expertise in Bermuda, Caribbean, UK, US, Canada, Australia, and Commonwealth law. Draft precise, professional, complete legal documents with all standard clauses, definitions, and boilerplate appropriate for the specified jurisdiction. Never truncate or summarize — produce the full document text.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 4096, temperature: 0.3 });
+    return await callKimi({ system, prompt, maxTokens: 8192, temperature: 0.3 });
   } catch (err) {
     console.error('[ai] draftDocument error:', err.message);
     throw new Error(`Draft generation failed: ${err.message}`);
@@ -134,7 +154,7 @@ Respond as structured analysis with clear headings, not JSON.`;
   const system = `You are LexAI's contract analysis engine. Provide precise, professional risk analysis for legal documents under ${jx.name} law. Be specific about clause numbers/locations when flagging issues.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 4096, temperature: 0.2 });
+    return await callKimi({ system, prompt, maxTokens: 4096, temperature: 0.2 });
   } catch (err) {
     console.error('[ai] analyzeDocument error:', err.message);
     throw new Error(`Document analysis failed: ${err.message}`);
@@ -165,7 +185,7 @@ Be clear about the limits of your knowledge — note where the user should verif
   const system = `You are LexAI's legal research engine, covering 290+ jurisdictions including Bermuda, Caribbean (CCJ), UK, US, Canada, Australia, and Commonwealth law. Provide accurate, well-organized legal research. Always be clear about confidence level and recommend verification for time-sensitive or high-stakes matters.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 4096, temperature: 0.2 });
+    return await callKimi({ system, prompt, maxTokens: 4096, temperature: 0.2 });
   } catch (err) {
     console.error('[ai] researchCaseLaw error:', err.message);
     throw new Error(`Case law research failed: ${err.message}`);
@@ -194,7 +214,7 @@ Be clear this is an AI estimate based on general legal principles, not a guarant
   const system = `You are LexAI's litigation prediction engine for ${jx.name}. Provide realistic, well-reasoned outcome assessments grounded in legal principle, not overconfident guarantees. Always frame predictions as estimates.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 3000, temperature: 0.3 });
+    return await callKimi({ system, prompt, maxTokens: 3000, temperature: 0.3 });
   } catch (err) {
     console.error('[ai] predictLitigation error:', err.message);
     throw new Error(`Litigation prediction failed: ${err.message}`);
@@ -222,7 +242,7 @@ Present as a clear comparison, organized by jurisdiction.`;
   const system = `You are LexAI's comparative law engine, covering 290+ jurisdictions. Provide accurate, organized comparative analysis highlighting practical differences relevant to legal practitioners and businesses operating across borders.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 4096, temperature: 0.2 });
+    return await callKimi({ system, prompt, maxTokens: 4096, temperature: 0.2 });
   } catch (err) {
     console.error('[ai] comparativeLaw error:', err.message);
     throw new Error(`Comparative law analysis failed: ${err.message}`);
@@ -255,7 +275,7 @@ Be clear about your knowledge cutoff and recommend the user verify against live 
   const system = `You are LexAI's horizon scanning engine. Provide a structured, professional briefing on legal and regulatory developments. Be explicit about the limits of training-data knowledge for very recent changes and recommend verification against primary sources.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 3000, temperature: 0.3 });
+    return await callKimi({ system, prompt, maxTokens: 3000, temperature: 0.3 });
   } catch (err) {
     console.error('[ai] horizonScan error:', err.message);
     throw new Error(`Horizon scan failed: ${err.message}`);
@@ -286,7 +306,7 @@ This guidance must be cautious, prioritize the safety of any vulnerable person i
   const system = `You are LexAI's safeguarding support engine for ${jx.name}. Prioritize the safety of vulnerable individuals above all else. Be clear, direct, and practical. Never discourage contacting emergency services or statutory authorities. Do not delay urgent guidance with excessive caveats.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 2500, temperature: 0.2 });
+    return await callKimi({ system, prompt, maxTokens: 2500, temperature: 0.2 });
   } catch (err) {
     console.error('[ai] safeguardingSupport error:', err.message);
     throw new Error(`Safeguarding support failed: ${err.message}`);
@@ -315,7 +335,7 @@ Format as a clean, professional case summary suitable for a legal brief or memo.
   const system = `You are LexAI's case summary engine for ${jx.name}. Produce clear, accurate, well-organized case summaries suitable for professional legal use.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 2500, temperature: 0.2 });
+    return await callKimi({ system, prompt, maxTokens: 2500, temperature: 0.2 });
   } catch (err) {
     console.error('[ai] buildCaseSummary error:', err.message);
     throw new Error(`Case summary generation failed: ${err.message}`);
@@ -341,7 +361,7 @@ Sort strictly in date order. Flag any gaps or ambiguities in the timeline that m
   const system = `You are LexAI's chronology builder. Produce precise, well-organized chronologies suitable for litigation preparation, due diligence, or case files.`;
 
   try {
-    return await callClaude({ system, prompt, maxTokens: 2500, temperature: 0.1 });
+    return await callKimi({ system, prompt, maxTokens: 2500, temperature: 0.1 });
   } catch (err) {
     console.error('[ai] buildChronology error:', err.message);
     throw new Error(`Chronology generation failed: ${err.message}`);
@@ -361,20 +381,23 @@ async function learnFromDocument(userId, content, type) {
 
 // LEGACY / GENERIC — backward compatibility
 async function generateDocument(prompt, type = 'contract', options = {}) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return { error: 'AI service not configured', draft: 'Please configure ANTHROPIC_API_KEY in environment variables.' };
+  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return { error: 'AI service not configured', draft: 'Please configure MOONSHOT_API_KEY (or KIMI_API_KEY / OPENAI_API_KEY) in environment variables.' };
   }
   const model = selectModel(type, options);
   try {
-    const res = await anthropic.messages.create({
+    const res = await client.chat.completions.create({
       model,
       max_tokens: options.maxTokens || 4096,
       temperature: options.temperature || 0.3,
-      system: 'You are LexAI, an expert legal AI assistant covering 290+ global jurisdictions with deep expertise in Bermuda, Caribbean, UK, US, Canada, Australia, and Commonwealth law. Provide precise, professional legal drafts and analysis appropriate for the specified jurisdiction.',
-      messages: [{ role: 'user', content: prompt }]
+      messages: [
+        { role: 'system', content: 'You are LexAI, an expert legal AI assistant covering 290+ global jurisdictions with deep expertise in Bermuda, Caribbean, UK, US, Canada, Australia, and Commonwealth law. Provide precise, professional legal drafts and analysis appropriate for the specified jurisdiction.' },
+        { role: 'user', content: prompt }
+      ]
     });
     return {
-      draft: res.content[0]?.text || 'No response generated',
+      draft: res.choices[0]?.message?.content || 'No response generated',
       model,
       usage: res.usage
     };
@@ -385,25 +408,30 @@ async function generateDocument(prompt, type = 'contract', options = {}) {
 
 // 11. TRANSCRIBE IMAGE (photo of a contract, insurance policy, lease, etc.)
 async function transcribeImage({ buffer, mediaType }) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY not configured');
+  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('MOONSHOT_API_KEY (or KIMI_API_KEY / OPENAI_API_KEY) not configured');
   }
   const base64 = buffer.toString('base64');
+  const dataUrl = `data:${mediaType};base64,${base64}`;
+
   try {
-    const res = await anthropic.messages.create({
+    const res = await client.chat.completions.create({
       model: MODEL,
       max_tokens: 4096,
       temperature: 0,
-      system: 'You transcribe documents from photos with perfect accuracy. Output ONLY the transcribed text, preserving structure (headings, numbered clauses, sections) as plain text. Do not summarize, comment, or add anything not in the image. If part of the image is blurry or unreadable, mark it as [illegible] rather than guessing.',
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-          { type: 'text', text: 'Transcribe every word of text visible in this document image.' }
-        ]
-      }]
+      messages: [
+        { role: 'system', content: 'You transcribe documents from photos with perfect accuracy. Output ONLY the transcribed text, preserving structure (headings, numbered clauses, sections) as plain text. Do not summarize, comment, or add anything not in the image. If part of the image is blurry or unreadable, mark it as [illegible] rather than guessing.' },
+        {
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: dataUrl } },
+            { type: 'text', text: 'Transcribe every word of text visible in this document image.' }
+          ]
+        }
+      ]
     });
-    return res.content[0]?.text || '';
+    return res.choices[0]?.message?.content || '';
   } catch (err) {
     console.error('[ai] transcribeImage error:', err.message);
     throw new Error(`Image transcription failed: ${err.message}`);
