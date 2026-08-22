@@ -8,7 +8,6 @@ const rag = require('../services/rag');
 const vectorStore = require('../services/vectorStore');
 
 // POST /api/rag/ingest
-// Body: { id, text, metadata: { jurisdiction, docType, userId, ... } }
 router.post('/ingest', async (req, res) => {
   try {
     const { id, text, metadata = {} } = req.body;
@@ -28,7 +27,6 @@ router.post('/ingest', async (req, res) => {
 });
 
 // POST /api/rag/query
-// Body: { query, jurisdiction, topK, filters, systemPrompt }
 router.post('/query', async (req, res) => {
   try {
     const { query, jurisdiction, topK, filters, systemPrompt } = req.body;
