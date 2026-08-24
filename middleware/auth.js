@@ -1,10 +1,21 @@
 module.exports = {
   requireAuth: (req, res, next) => {
-    if (!req.session || !req.session.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    if (req.session && req.session.user) {
+      req.user = req.session.user;
+      return next();
     }
-    req.user = req.session.user;
-    next();
+    const auth = req.headers.authorization;
+    if (auth && auth.startsWith('Bearer ')) {
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(auth.slice(7), process.env.JWT_SECRET || process.env.SESSION_SECRET || 'lexai-dev-change-in-prod');
+        req.user = decoded;
+        return next();
+      } catch(e) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+    }
+    return res.status(401).json({ error: 'Unauthorized' });
   },
   requirePaid: (req, res, next) => {
     if (!req.user || !['paid','pro','firm'].includes(req.user.plan)) {
