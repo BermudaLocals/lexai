@@ -7,8 +7,8 @@ const router = express.Router();
 const crypto = require('crypto');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/auth');
-const Anthropic = require('@anthropic-ai/sdk');
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const OpenAI = require('openai');
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // ══════════════════════════════════════════════════════════════
 // AFFILIATE SYSTEM
