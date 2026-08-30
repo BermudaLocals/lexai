@@ -8,11 +8,10 @@ const OpenAI = require('openai');
 const { JURISDICTIONS, getAllJurisdictionNames, getByRegion, getPrimary, getJurisdictionInfo } = require('./jurisdictions');
 
 const client = new OpenAI({
-  apiKey: process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY,
-  baseURL: process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1'
+  apiKey: 'ollama',
+  baseURL: (process.env.OLLAMA_BASE_URL || 'http://161.97.161.211:11434') + '/v1'
 });
-
-const MODEL = process.env.KIMI_MODEL || 'kimi-k2';
+const MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:7b';
 
 const TEMPLATES = {
   nda: 'Non-Disclosure Agreement',
