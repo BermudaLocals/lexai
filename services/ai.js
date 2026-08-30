@@ -11,7 +11,7 @@ const client = new OpenAI({
   apiKey: 'ollama',
   baseURL: (process.env.OLLAMA_BASE_URL || 'http://161.97.161.211:11434') + '/v1'
 });
-const MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
+const MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:1.5b';
 
 const TEMPLATES = {
   nda: 'Non-Disclosure Agreement',
@@ -52,7 +52,7 @@ function selectModel(type, options = {}) {
 
 async function callKimi({ system, prompt, maxTokens = 4096, temperature = 0.3, imagePayload = null }) {
   // Ollama mode: no cloud API key required (client baseURL points at Ollama)
-  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY || 'ollama';
+  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY || 'ollama' || 'ollama';
   if (!apiKey) {
     throw new Error('No AI provider configured');
   }
@@ -381,7 +381,7 @@ async function learnFromDocument(userId, content, type) {
 
 // LEGACY / GENERIC — backward compatibility
 async function generateDocument(prompt, type = 'contract', options = {}) {
-  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY || 'ollama';
+  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY || 'ollama' || 'ollama';
   if (!apiKey) {
     return { error: 'AI service not configured', draft: 'Please configure an AI provider.' };
   }
@@ -408,7 +408,7 @@ async function generateDocument(prompt, type = 'contract', options = {}) {
 
 // 11. TRANSCRIBE IMAGE (photo of a contract, insurance policy, lease, etc.)
 async function transcribeImage({ buffer, mediaType }) {
-  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY || 'ollama';
+  const apiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY || process.env.OPENAI_API_KEY || 'ollama' || 'ollama';
   if (!apiKey) {
     throw new Error('No AI provider configured');
   }
