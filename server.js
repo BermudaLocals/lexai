@@ -418,7 +418,13 @@ app.use(
 /* ============================================================
    CLEAN PAGE ROUTES
    ============================================================ */
-
+// Business funnel - Harvey $300/seat
+app.get('/business', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'business', 'index.html'));
+});
+app.get('/business/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'business', 'index.html'));
+});
 const CLEAN_PAGE_ROUTES = [
   'dashboard',
   'login',
