@@ -12,7 +12,7 @@ router.post('/firms', requireAuth, async (req,res)=>{
     if(!name) return res.status(400).json({error:'name required'});
     if(seats<5) return res.status(400).json({error:'Firm min 5 seats — Harvey model'});
     const plan = seats>=20?'enterprise':'firm';
-    const credits = seats*100; // 100 per seat = $100/seat
+    const credits = seats*100; // 100 credits per seat
     const r = await pool.query(
       `INSERT INTO firms (name, owner_id, seats, plan, credits, storage_gb, billing_cycle)
        VALUES ($1,$2,$3,$4,$5,10,'annual') RETURNING *`,
@@ -24,7 +24,6 @@ router.post('/firms', requireAuth, async (req,res)=>{
   }catch(e){ console.error(e); res.status(500).json({error:e.message}); }
 });
 router.post('/firms/create', requireAuth, (req,res)=>{ req.url='/firms'; router.handle(req,res); });
-
 router.get('/firms/:id', requireAuth, async (req,res)=>{
   const r = await pool.query('SELECT * FROM firms WHERE id=$1',[req.params.id]);
   if(!r.rows[0]) return res.status(404).json({error:'not found'});
@@ -37,10 +36,10 @@ router.get('/firms/:id/members', requireAuth, async (req,res)=>{
 router.post('/firms/:id/invite', requireAuth, async (req,res)=>{
   const { email } = req.body;
   const u = await pool.query('SELECT id FROM users WHERE email=$1',[email]);
-  if(!u.rows[0]) return res.status(404).json({error:'User not found — they must sign up at lexai.llc first'});
+  if(!u.rows[0]) return res.status(404).json({error:'User not found — they must sign up first'});
   const f = await pool.query('SELECT seats FROM firms WHERE id=$1',[req.params.id]);
   const m = await pool.query('SELECT COUNT(*) FROM firm_members WHERE firm_id=$1',[req.params.id]);
-  if(parseInt(m.rows[0].count) >= f.rows[0].seats) return res.status(400).json({error:`Seat limit ${f.rows[0].seats} reached — upsell seats`});
+  if(parseInt(m.rows[0].count) >= f.rows[0].seats) return res.status(400).json({error:`Seat limit ${f.rows[0].seats} reached — upsell`});
   await pool.query('INSERT INTO firm_members (firm_id,user_id,role) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',[req.params.id, u.rows[0].id,'member']);
   await pool.query('UPDATE users SET firm_id=$1 WHERE id=$2',[req.params.id, u.rows[0].id]);
   res.json({ok:true});
@@ -51,7 +50,7 @@ router.post('/firms/:id/seats', requireAuth, async (req,res)=>{
   const cur = await pool.query('SELECT seats FROM firms WHERE id=$1',[req.params.id]);
   const add = seats - cur.rows[0].seats;
   await pool.query('UPDATE firms SET seats=$1, credits=credits+$2, plan=$3 WHERE id=$4',[seats, add*100, seats>=20?'enterprise':'firm', req.params.id]);
-  if(add>0) await pool.query('INSERT INTO overage_log (firm_id,type,cost) VALUES ($1,$2,$3)',[req.params.id,'seat_upgrade',add*100]); // $100 per extra seat/mo — HARVEY
+  if(add>0) await pool.query('INSERT INTO overage_log (firm_id,type,cost) VALUES ($1,$2,$3)',[req.params.id,'seat_upgrade',add*300]); // $300/seat matches homepage
   const r = await pool.query('SELECT * FROM firms WHERE id=$1',[req.params.id]);
   res.json(r.rows[0]);
 });
@@ -73,9 +72,7 @@ router.post('/vault/upload', requireAuth, upload.single('file'), async (req,res)
   const u = await pool.query('SELECT storage_used_gb, firm_id FROM users WHERE id=$1',[req.user.id]);
   const used = parseFloat(u.rows[0]?.storage_used_gb||0);
   const firm_id = u.rows[0]?.firm_id;
-  if(used+gb>10 && firm_id){
-    await pool.query('INSERT INTO overage_log (firm_id,user_id,type,cost) VALUES ($1,$2,$3,99)',[firm_id, req.user.id,'storage']);
-  }
+  if(used+gb>10 && firm_id) await pool.query('INSERT INTO overage_log (firm_id,user_id,type,cost) VALUES ($1,$2,$3,99)',[firm_id, req.user.id,'storage']);
   await pool.query('UPDATE users SET storage_used_gb=COALESCE(storage_used_gb,0)+$1 WHERE id=$2',[gb, req.user.id]);
   res.json({ok:true,size_gb:gb,billed:used+gb>10});
 });
