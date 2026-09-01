@@ -1,4 +1,4 @@
-// FILE: FULL REPLACEMENT FOR EXPRESS COMMONJS PROJECT
+﻿// FILE: FULL REPLACEMENT FOR EXPRESS COMMONJS PROJECT
 // Fixes MODULE_NOT_FOUND and Cloudflare 524
 // Place this as your draft route file
 
@@ -122,3 +122,4 @@ router.get('/:jobId', authenticate, (req, res) => {
 });
 
 module.exports = router;
+
