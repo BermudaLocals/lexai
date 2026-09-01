@@ -1,0 +1,5 @@
+const PLANS = {
+  solo: "P-5L658710MJ5062539NIX2A7I", // $300/seat
+  team: "P-5WU2852088101912NNIX2ECA", // $1200
+  enterprise: "P-2BK077787P9308024NIX2FLQ" // $3000
+};
