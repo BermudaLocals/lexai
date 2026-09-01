@@ -5,10 +5,17 @@ async function generateWithKimi({ type, jurisdiction, details, language }) {
   console.log(`[Kimi] Base=${base} Model=${model} Key=${apiKey.slice(0,8)}...`);
   if (!apiKey) throw new Error('KIMI_API_KEY not set on Railway');
   const prompt = `You are a legal drafting assistant for ${jurisdiction}. Task: Draft a ${type}. Details: ${details}. Language: ${language||'English'}. Professional legal formatting.`;
+  const isK3 = model.includes('k3');
   const res = await fetch(`${base}/chat/completions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 8000 })
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 1,
+      max_tokens: 8000,
+     ...(isK3? { reasoning_effort: 'high' } : {})
+    })
   });
   if (!res.ok) throw new Error(`Kimi ${res.status}: ${await res.text()}`);
   const data = await res.json();
