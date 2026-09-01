@@ -321,6 +321,11 @@ app.use(
 
 /* Main API */
 app.use(
+  '/api/onboarding',
+  require('./routes/onboarding')
+)
+
+app.use(
   '/api',
   require('./routes/api')
 )
