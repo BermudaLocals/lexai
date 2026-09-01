@@ -7,14 +7,11 @@ const ai = require('../services/ai');
 const { requireAuth } = require('../middleware/auth');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
-
 const upload = multer({ storage: multer.memoryStorage(), limits:{ fileSize:20*1024*1024 } });
 
 async function audit(userId, action, resource, resourceId, meta={}){
-  try{ await pool.query('INSERT INTO audit_log(user_id,action,resource,resource_id,meta) VALUES($1,$2,$3,$4,$5)',[userId,action,resource,resourceId,JSON.stringify(meta)]);}catch(e){console.error('[audit]',e.message);}
+  try{ await pool.query('INSERT INTO audit_log(user_id,action,resource,resource_id,meta) VALUES($1,$2,$3,$4,$5)',[userId,action,resource,resourceId,JSON.stringify(meta)]);}catch(e){console.error(e.message);}
 }
-
-// HARVEY CORE
 async function getFirm(userId){
   const u = await pool.query('SELECT firm_id FROM users WHERE id=$1',[userId]);
   if(!u.rows[0]?.firm_id) return null;
@@ -24,9 +21,7 @@ async function getFirm(userId){
 async function consumeCredit(userId, firm){
   if(firm){
     await pool.query('UPDATE firms SET credits=credits-1 WHERE id=$1',[firm.id]);
-    if(firm.credits<=0){
-      await pool.query('INSERT INTO overage_log (firm_id,user_id,type,cost) VALUES ($1,$2,$3,0.75)',[firm.id,userId,'doc']);
-    }
+    if(firm.credits<=0) await pool.query('INSERT INTO overage_log (firm_id,user_id,type,cost) VALUES ($1,$2,$3,0.75)',[firm.id,userId,'doc']);
   } else {
     await pool.query('UPDATE users SET docs_credits=COALESCE(docs_credits,3)-1, docs_used_this_month=COALESCE(docs_used_this_month,0)+1 WHERE id=$1',[userId]);
   }
@@ -41,94 +36,87 @@ async function checkGate(userId){
   return { user:u, firm, available };
 }
 
-// DRAFT — paywalled
+// FIXED: NOT async
+function billable(handler){
+  return async (req,res,next)=>{
+    try{
+      const { firm, available } = await checkGate(req.user.id);
+      if(available<=0 &&!firm) return res.status(402).json({error:'free_limit_reached', upgrade:true, message:'Upgrade: $19=20 docs, $49=100, Firm $299/mo'});
+      const result = await handler(req,res,firm);
+      await consumeCredit(req.user.id, firm);
+      return result;
+    }catch(e){ console.error('[billable]',e.message); res.status(500).json({error:e.message}); }
+  };
+}
+
 router.post('/draft', requireAuth, async (req,res)=>{
   try{
     const { type, jurisdiction, details, parties, tone } = req.body;
     if(!type) return res.status(400).json({error:'type required'});
     const { firm, available } = await checkGate(req.user.id);
-    if(available<=0 &&!firm) return res.status(402).json({error:'free_limit_reached', message:'3 free used. $19=20 docs, $49=100 docs, Firm 5 seats $299/mo', upgrade:true});
+    if(available<=0 &&!firm) return res.status(402).json({error:'free_limit_reached', message:'3 free used'});
     const content = await ai.draftDocument({ type, jurisdiction, details, parties, tone, userId:req.user.id });
-    const r = await pool.query(`INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction) VALUES($1,$2,$3,$4,'draft',$5,$6) RETURNING id`,[req.user.id, `${type} — ${new Date().toLocaleDateString()}`, type, content, content.split(/\s+/).length, jurisdiction||'General']);
+    const r = await pool.query(`INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction) VALUES($1,$2,$3,$4,'draft',$5,$6) RETURNING id`,[req.user.id, `${type}`, type, content, content.split(/\s+/).length, jurisdiction||'General']);
     await consumeCredit(req.user.id, firm);
-    await audit(req.user.id,'draft_document','document',r.rows[0].id,{type, firm_id:firm?.id});
     res.json({content, doc_id:r.rows[0].id, credits_left: firm? firm.credits-1 : available-1});
-  }catch(e){ console.error(e); res.status(500).json({error:e.message}); }
+  }catch(e){ res.status(500).json({error:e.message}); }
 });
 
-// ALL OTHER AI ROUTES — now also bill
-async function billableRoute(handler){
-  return async (req,res)=>{
-    try{
-      const { firm, available } = await checkGate(req.user.id);
-      if(available<=0 &&!firm) return res.status(402).json({error:'free_limit_reached', upgrade:true, message:'Upgrade required'});
-      const result = await handler(req,res,firm);
-      await consumeCredit(req.user.id, firm);
-      return result;
-    }catch(e){ console.error(e); res.status(500).json({error:e.message}); }
-  };
-}
-
-router.post('/research', requireAuth, billableRoute(async (req,res,firm)=>{
-  const { query, jurisdictions, area_of_law } = req.body;
+router.post('/research', requireAuth, billable(async (req,res)=>{
+  const { query, jurisdictions } = req.body;
   if(!query) return res.status(400).json({error:'query required'});
   const content = await ai.researchCaseLaw(req.body);
   const r = await pool.query(`INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction) VALUES($1,$2,'RESEARCH',$3,'complete',$4,$5) RETURNING id`,[req.user.id, `Research: ${query.slice(0,80)}`, content, content.split(/\s+/).length, jurisdictions||'Multiple']);
-  await audit(req.user.id,'research','document',r.rows[0].id,{firm_id:firm?.id});
   res.json({content, doc_id:r.rows[0].id});
 }));
 
-router.post('/analyze', requireAuth, billableRoute(async (req,res,firm)=>{
-  const { content, analysis_type, jurisdiction } = req.body;
-  if(!content) return res.status(400).json({error:'content required'});
+router.post('/analyze', requireAuth, billable(async (req,res)=>{
+  const { content } = req.body; if(!content) return res.status(400).json({error:'content required'});
   const analysis = await ai.analyzeDocument(req.body);
-  const r = await pool.query(`INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction) VALUES($1,'Analysis','ANALYSIS',$2,'complete',$3,$4) RETURNING id`,[req.user.id, analysis, analysis.split(/\s+/).length, jurisdiction||'General']);
-  res.json({analysis, doc_id:r.rows[0].id});
+  res.json({analysis});
 }));
 
-router.post('/safeguarding', requireAuth, billableRoute(async (req,res,firm)=>{
+router.post('/safeguarding', requireAuth, billable(async (req,res)=>{
   const { facts } = req.body; if(!facts) return res.status(400).json({error:'facts required'});
   const content = await ai.safeguardingSupport(req.body);
-  const r = await pool.query(`INSERT INTO documents(user_id,title,type,content,status,word_count,jurisdiction) VALUES($1,$2,'SAFEGUARDING',$3,'complete',$4,$5) RETURNING id`,[req.user.id, 'Safeguarding', content, content.split(/\s+/).length, 'Multiple']);
-  res.json({content, doc_id:r.rows[0].id});
+  res.json({content});
 }));
 
-router.post('/case-summary', requireAuth, billableRoute(async (req,res)=>{
+router.post('/case-summary', requireAuth, billable(async (req,res)=>{
   const { case_facts } = req.body; if(!case_facts) return res.status(400).json({error:'facts required'});
   const content = await ai.buildCaseSummary(req.body);
   res.json({content});
 }));
 
-router.post('/chronology', requireAuth, billableRoute(async (req,res)=>{
+router.post('/chronology', requireAuth, billable(async (req,res)=>{
   const { events } = req.body; if(!events) return res.status(400).json({error:'events required'});
   const content = await ai.buildChronology(req.body);
   res.json({content});
 }));
 
-router.post('/horizon', requireAuth, billableRoute(async (req,res)=>{
+router.post('/horizon', requireAuth, billable(async (req,res)=>{
   const content = await ai.horizonScan(req.body);
   res.json({content});
 }));
 
-router.post('/predict', requireAuth, billableRoute(async (req,res)=>{
+router.post('/predict', requireAuth, billable(async (req,res)=>{
   const { facts } = req.body; if(!facts) return res.status(400).json({error:'facts required'});
   const prediction = await ai.predictLitigation(req.body);
   res.json({prediction});
 }));
 
-router.post('/compare', requireAuth, billableRoute(async (req,res)=>{
+router.post('/compare', requireAuth, billable(async (req,res)=>{
   const { topic } = req.body; if(!topic) return res.status(400).json({error:'topic required'});
   const content = await ai.comparativeLaw(req.body);
   res.json({content});
 }));
 
-router.post('/transcribe', requireAuth, upload.single('file'), billableRoute(async (req,res)=>{
+router.post('/transcribe', requireAuth, upload.single('file'), billable(async (req,res)=>{
   if(!req.file) return res.status(400).json({error:'no file'});
   const parsed = await pdfParse(req.file.buffer).catch(()=>({text:req.file.buffer.toString()}));
   res.json({transcript: parsed.text?.slice(0,20000), filename:req.file.originalname});
 }));
 
-// docs list, templates, status etc — free, no bill
 router.get('/documents', requireAuth, async (req,res)=>{
   const r = await pool.query('SELECT id,title,type,word_count,created_at FROM documents WHERE user_id=$1 ORDER BY created_at DESC LIMIT 50',[req.user.id]);
   res.json({documents:r.rows});
