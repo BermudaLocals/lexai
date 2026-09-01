@@ -1,6 +1,4 @@
-﻿const crypto = require('crypto');
-
-async function generateWithKimi({ type, jurisdiction, details, language }) {
+﻿async function generateWithKimi({ type, jurisdiction, details, language }) {
   const apiKey = process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY;
   if (!apiKey) throw new Error('KIMI_API_KEY not set on Railway');
   const prompt = `You are a legal drafting assistant for ${jurisdiction}. Task: Draft a ${type}. Details: ${details}. Language: ${language||'English'}. Professional legal formatting.`;
@@ -13,13 +11,7 @@ async function generateWithKimi({ type, jurisdiction, details, language }) {
   const data = await res.json();
   return data.choices?.[0]?.message?.content || '';
 }
-
-async function generateDraft(params) {
-  try {
-    return await generateWithKimi(params);
-  } catch (err) {
-    throw new Error(`Draft generation failed: ${err.message}`);
-  }
-}
-
-module.exports = { generateDraft, generateWithKimi };
+async function generateDraft(p){ return await generateWithKimi(p); }
+async function draftDocument(p){ return await generateWithKimi(p); }
+async function draft(p){ return await generateWithKimi(p); }
+module.exports = { generateDraft, draftDocument, draft, generateWithKimi, generate: generateWithKimi };
