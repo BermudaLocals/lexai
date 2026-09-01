@@ -330,6 +330,11 @@ app.use(
   require('./routes/api')
 )
 
+app.use(
+  '/api',
+  require('./routes/firms')
+)
+
 /* Affiliate */
 app.use(
   '/api',
