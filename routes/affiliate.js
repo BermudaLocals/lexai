@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const OpenAI = require('openai');
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY or 'sk-dummy' });
 
 // ══════════════════════════════════════════════════════════════
 // AFFILIATE SYSTEM
