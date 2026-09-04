@@ -467,63 +467,40 @@ async function createOneTimePayment(req, res, plan) {
   }
 }
 
-// ── SUCCESS REDIRECT ──────────────────────────────────────────
+// ── SUCCESS REDIRECT ── SECURE - VERIFY PAYPAL ──
 router.get('/success', async (req, res) => {
-  const { plan, subscription_id, token } = req.query;
-  const planInfo = PLANS[plan];
-
-  // Update subscription status in DB
-  if (subscription_id && req.user) {
-    await pool.query(
-      `UPDATE subscriptions SET status='active' WHERE paypal_subscription_id=$1`,
-      [subscription_id]
-    ).catch(() => {});
-    await pool.query(
-      `UPDATE users SET plan=$1 WHERE id=$2`,
-      [plan, req.user.id]
-    ).catch(() => {});
+  try {
+    const { plan, subscription_id } = req.query;
+    const planInfo = PLANS[plan];
+    if (!planInfo ||!subscription_id) {
+      return res.redirect('/pricing?error=invalid');
+    }
+    const token = await getPayPalToken();
+    const verifyRes = await fetch(`${PAYPAL_API}/v1/billing/subscriptions/${subscription_id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const subData = await verifyRes.json();
+    if (subData.status!== 'ACTIVE' && subData.status!== 'APPROVED') {
+      console.error('[payments] Not active:', subData.status, subData);
+      return res.redirect('/pricing?error=not_active');
+    }
+    if (subData.plan_id!== planInfo.plan_id) {
+      console.error('[payments] Plan mismatch:', subData.plan_id);
+      return res.redirect('/pricing?error=plan_mismatch');
+    }
+    if (req.user) {
+      await pool.query(`UPDATE subscriptions SET status='active' WHERE paypal_subscription_id=$1`, [subscription_id]).catch(()=>{});
+      await pool.query(`UPDATE users SET plan=$1 WHERE id=$2`, [plan, req.user.id]).catch(()=>{});
+      console.log(`[payments] VERIFIED UPGRADE ${req.user.email} -> ${plan}`);
+    }
+    res.redirect('/dashboard?upgraded='+plan);
+  } catch(e) {
+    console.error('[payments] verify error', e.message);
+    res.redirect('/pricing?error=verify_failed');
   }
-
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Welcome to LexAI</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0A0A14;color:#F0F0FF;font-family:'Outfit',sans-serif;
-  display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.box{text-align:center;max-width:520px}
-.icon{font-size:64px;margin-bottom:24px}
-h1{font-size:32px;font-weight:800;color:#C9A84C;margin-bottom:12px}
-p{color:#A0A0CC;line-height:1.7;margin-bottom:8px;font-size:16px}
-.plan-name{color:#F0F0FF;font-weight:700;font-size:18px;
-  background:#16162A;border:1px solid #2A2A44;border-radius:8px;
-  padding:12px 24px;display:inline-block;margin:16px 0}
-.btn{display:inline-block;background:#C9A84C;color:#000;
-  padding:16px 40px;border-radius:10px;font-weight:700;font-size:16px;
-  text-decoration:none;margin-top:24px;transition:background .2s}
-.btn:hover{background:#F0D080}
-.ref{font-size:12px;color:#606080;margin-top:16px}
-</style>
-</head>
-<body>
-<div class="box">
-  <div class="icon">⚖️</div>
-  <h1>Welcome to LexAI</h1>
-  <p>Your subscription is now active.</p>
-  <div class="plan-name">${planInfo?.name || plan || 'LexAI'}</div>
-  <p>You now have access to the world's most comprehensive AI legal intelligence platform — covering all jurisdictions, all document types, safeguarding, human rights, evidence management, and more.</p>
-  <a href="/" class="btn">Enter LexAI →</a>
-  ${subscription_id ? `<p class="ref">Reference: ${subscription_id}</p>` : ''}
-</div>
-</body>
-</html>`);
 });
 
-// ── WEBHOOK ───────────────────────────────────────────────────
+// ── WEBHOOK ────────────────────────────────────────────────────────────────────────────────────────────────────
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   try {
     const event = JSON.parse(req.body.toString());
