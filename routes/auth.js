@@ -26,8 +26,4 @@ router.post('/logout',(req,res)=>{
   res.json({ok:true});
 });
 
-router.get('/me', require('./middleware/auth.js').authenticate || require('../middleware/auth.js').authenticate, (req,res)=>{
-  res.json({user:req.user});
-});
-
 module.exports = router;

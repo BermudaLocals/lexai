@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const pool = require('../db');
+const pool = require('../config/db.js');
 const { requireAuth } = require('../middleware/auth');
 
 const PAYPAL_API = process.env.PAYPAL_MODE === 'live'

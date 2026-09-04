@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-
 function authenticate(req, res, next) {
   try {
     const token = (req.cookies && req.cookies.token) || (req.headers.authorization || '').replace('Bearer ', '');
@@ -10,5 +9,7 @@ function authenticate(req, res, next) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 }
-
-module.exports = { authenticate };
+const requireAuth = authenticate;
+module.exports = { authenticate, requireAuth };
+module.exports.authenticate = authenticate;
+module.exports.requireAuth = authenticate;
