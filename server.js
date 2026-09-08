@@ -100,7 +100,7 @@ app.use(
 
       sameSite:
         NODE_ENV === 'production'
-          ? 'none'
+         ? 'none'
           : 'lax'
     }
   })
@@ -377,6 +377,22 @@ app.use(
 )
 
 /* ============================================================
+   VOICE INTAKE - AI Reception for Bermuda - Twilio Webhook
+   This replaces TwiML Bin EHd449276ae5f2815b80fe3d3d6413e331
+   ============================================================ */
+app.all('/api/voice-intake', (req, res) => {
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Say voice="Polly.Joanna" language="en-US">Hi, you've reached AI Support Systems by Dollar Double Empire in Bermuda. We install AI receptionists so you never miss a call. We answer instantly, explain your services, and book appointments straight into your calendar. Our AI can answer common questions, qualify leads, and forward hot calls to you. Stay on the line to see a live demo, and I'll connect you to our team now.</Say>
+  <Dial callerId="+13202273328">
+    <Number>+14417038294</Number>
+  </Dial>
+</Response>`;
+  res.setHeader('Content-Type', 'text/xml');
+  res.status(200).send(twiml);
+})
+
+/* ============================================================
    HEALTH
    ============================================================ */
 
@@ -396,7 +412,8 @@ app.get(
         'affiliate',
         'vault',
         'rag',
-        'workflows'
+        'workflows',
+        'voice-intake'
       ]
     })
   }
@@ -485,8 +502,8 @@ app.use(
       req.path.startsWith('/api')
     ) {
       return res
-        .status(404)
-        .json({
+       .status(404)
+       .json({
           error: 'Not found'
         })
     }
@@ -529,25 +546,25 @@ async function start() {
       () => {
         console.log('')
         console.log(
-          `⚖️  LexAI.llc v3.1 — ${NODE_ENV}`
+          `⚖ LexAI.llc v3.1 — ${NODE_ENV}`
         )
         console.log(
-          `   ${APP_URL}`
+          ` ${APP_URL}`
         )
         console.log(
-          `   Port: ${PORT}`
+          ` Port: ${PORT}`
         )
         console.log(
-          '   Routes: auth · payments · admin · api · affiliate · vault · rag · workflows'
+          ' Routes: auth · payments · admin · api · affiliate · vault · rag · workflows · voice-intake'
         )
         console.log(
-          '   Features: Draft · Analyze · Research · Case Law · Litigation · Redline · RAG · Workflows'
+          ' Features: Draft · Analyze · Research · Case Law · Litigation · Redline · RAG · Workflows'
         )
         console.log(
-          '   AI Provider: ' + (process.env.AI_PROVIDER || 'anthropic')
+          ' AI Provider: ' + (process.env.AI_PROVIDER || 'anthropic')
         )
         console.log(
-          '   All 12 PayPal plans · Affiliate system · Admin god mode ✓'
+          ' All 12 PayPal plans · Affiliate system · Admin god mode ✓'
         )
         console.log('')
       }
