@@ -452,6 +452,7 @@ app.use(
 const CLEAN_PAGE_ROUTES = [
   'dashboard',
   'login',
+  'set-password',
   'pricing',
   'vault',
   'research',

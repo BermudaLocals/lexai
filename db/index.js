@@ -32,6 +32,30 @@ async function initDB() {
   `);
   await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user'`);
   await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS docs_used_this_month INTEGER DEFAULT 0`);
+  // WarriorPlus offer 94697 provisioning — additive only
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS docs_credits INTEGER`);
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS must_set_password BOOLEAN DEFAULT false`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS wplus_sales (
+      txn_id TEXT PRIMARY KEY,
+      email TEXT,
+      product_id TEXT,
+      docs INTEGER DEFAULT 0,
+      user_id TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS login_tokens (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id TEXT NOT NULL,
+      token_hash TEXT NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL,
+      used_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_login_tokens_hash ON login_tokens(token_hash)`);
   await pool.query(`
     CREATE TABLE IF NOT EXISTS session (
       sid VARCHAR NOT NULL COLLATE "default",
