@@ -313,6 +313,12 @@ app.use(
   require('./routes/payments')
 )
 
+/* WarriorPlus IPN (Offer 94697) */
+app.use(
+  '/webhook',
+  require('./routes/warriorplus-ipn')
+)
+
 /* Admin */
 app.use(
   '/api/admin',
