@@ -433,6 +433,12 @@ app.get(
 app.get('/business', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'business', 'index.html'));
 });
+app.get('/business/oto1', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'business', 'oto1', 'index.html'));
+});
+app.get('/business/oto2', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'business', 'oto2', 'index.html'));
+});
 app.get('/business/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'business', 'index.html'));
 });
