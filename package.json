@@ -2,9 +2,9 @@
   "name": "lexai-business",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx serve . -l $PORT"
+    "start": "serve -s . -l tcp://0.0.0.0:${PORT:-3000}"
   },
   "dependencies": {
-    "serve": "^14.2.0"
+    "serve": "^14.2.5"
   }
 }
