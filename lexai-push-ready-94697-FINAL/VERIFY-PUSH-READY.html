@@ -1,0 +1,56 @@
+
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>VERIFY - Offer 94697 - Push Ready Check</title>
+<style>body{font-family:sans-serif;max-width:900px;margin:40px auto;padding:20px} .ok{color:green} .bad{color:red} pre{background:#f5f5f5;padding:10px;border-radius:8px;overflow:auto}</style>
+</head><body>
+<h1>✅ VERIFY - C:\Users\Digital King\Downloads\lexai\lexai-push-ready-94697</h1>
+<p>This file checks if your push-ready folder has all required WarriorPlus codes installed.</p>
+
+<h2>1. Check business/index.html (Main $49 - x97lkr - 473669)</h2>
+<div id="check-main"></div>
+
+<h2>2. Check business/oto1/index.html (OTO1 $150 - wh95t8 - 473682)</h2>
+<div id="check-oto1"></div>
+
+<h2>3. Check business/oto2/index.html (OTO2 $450 - qxhywy - 473683 - MOST POPULAR $90/user)</h2>
+<div id="check-oto2"></div>
+
+<h2>4. All Codes Reference</h2>
+<pre>
+Main $49: Sales Code x97lkr - Buy wyr5nc/x97lkr/r0j9nh - NoThanks x97lkr - Disclaimer div wplus_spdisclaimer
+OTO1 $150: Sales Code wh95t8 - Buy wyr5nc/wh95t8/vf0g8s - NoThanks wh95t8
+OTO2 $450: Sales Code qxhywy - Buy wyr5nc/qxhywy/bwz375 - NoThanks qxhywy - MOST POPULAR $90/user
+</pre>
+
+<h2>5. Next Steps After Verify</h2>
+<ol>
+<li>Upload to lexai.llc via cPanel or Kimi Code</li>
+<li>Go to https://lexai.llc/business - Should see YELLOW ADD TO CART button</li>
+<li>Near button should see disclaimer auto-filled (WarriorPlus disclaimer text)</li>
+<li>Footer: Privacy, Terms, Support support@lexai.llc, Income Disclaimer</li>
+<li>Record 60-sec private YouTube video walkthrough</li>
+<li>Reply in https://warriorplus.com/vendor/offers/94697 approval chat with YouTube link + fixed message</li>
+</ol>
+
+<script>
+// Simple check - fetch files if opened via file:// this won't work, but shows structure
+fetch('business/index.html').then(r=>r.text()).then(t=>{
+  document.getElementById('check-main').innerHTML = 
+    (t.includes('x97lkr') ? '<span class="ok">✅ x97lkr Sales Code FOUND</span>' : '<span class="bad">❌ x97lkr MISSING</span>') + '<br>' +
+    (t.includes('wplus_spdisclaimer') ? '<span class="ok">✅ Disclaimer div FOUND</span>' : '<span class="bad">❌ Disclaimer div MISSING</span>') + '<br>' +
+    (t.includes('wyr5nc/x97lkr') ? '<span class="ok">✅ Buy Button x97lkr FOUND</span>' : '<span class="bad">❌ Buy Button MISSING</span>');
+}).catch(e=>{document.getElementById('check-main').innerHTML = 'Open this file in same folder as business/ folder - then check manually for x97lkr, wplus_spdisclaimer, wyr5nc/x97lkr'});
+
+fetch('business/oto1/index.html').then(r=>r.text()).then(t=>{
+  document.getElementById('check-oto1').innerHTML = 
+    (t.includes('wh95t8') ? '<span class="ok">✅ wh95t8 FOUND</span>' : '<span class="bad">❌ wh95t8 MISSING</span>') + '<br>' +
+    (t.includes('wplus_spdisclaimer') ? '<span class="ok">✅ Disclaimer div FOUND</span>' : '<span class="bad">❌ Disclaimer div MISSING</span>');
+}).catch(e=>{document.getElementById('check-oto1').innerHTML = 'Check manually for wh95t8'});
+
+fetch('business/oto2/index.html').then(r=>r.text()).then(t=>{
+  document.getElementById('check-oto2').innerHTML = 
+    (t.includes('qxhywy') ? '<span class="ok">✅ qxhywy FOUND - MOST POPULAR $90/user</span>' : '<span class="bad">❌ qxhywy MISSING</span>') + '<br>' +
+    (t.includes('nothanks/qxhywy') ? '<span class="ok">✅ No Thanks Link qxhywy FOUND</span>' : '<span class="bad">❌ No Thanks Link MISSING</span>');
+}).catch(e=>{document.getElementById('check-oto2').innerHTML = 'Check manually for qxhywy and nothanks/qxhywy'});
+</script>
+
+</body></html>
