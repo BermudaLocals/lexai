@@ -443,6 +443,17 @@ app.get('/business/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'business', 'index.html'));
 });
 
+// Offer 94697 compliant funnel pages (W+ review pack)
+app.get('/offer', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'offer', 'index.html'));
+});
+app.get('/offer/oto1', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'offer', 'oto1', 'index.html'));
+});
+app.get('/offer/oto2', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'offer', 'oto2', 'index.html'));
+});
+
 app.use(
   express.static(
     path.join(
