@@ -2,9 +2,9 @@
   "name": "lexai-business",
   "version": "1.0.0",
   "scripts": {
-    "start": "serve -s . -l tcp://0.0.0.0:${PORT:-3000}"
+    "start": "node server.js"
   },
   "dependencies": {
-    "serve": "^14.2.5"
+    "express": "^4.18.2"
   }
 }
