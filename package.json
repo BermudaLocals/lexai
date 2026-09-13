@@ -1,5 +1,5 @@
 ﻿{
-  "name": "lexai-business",
+  "name": "lexai-v4",
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js"
